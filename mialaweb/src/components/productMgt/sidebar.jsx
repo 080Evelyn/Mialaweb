@@ -1,0 +1,109 @@
+import { Fragment } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import OverviewIcon from "../../assets/icons/overview.svg";
+import ProductMgt from "../../assets/icons/productMgt.svg";
+import Agents from "../../assets/icons/agents.svg";
+import Fees from "../../assets/icons/fees.svg";
+import DeliveryBox from "../../assets/icons/delivery-box.svg";
+import Admin from "../../assets/icons/admin.svg";
+
+export const SidebarMenuItems = [
+  {
+    id: "overview",
+    label: "Overview",
+    path: "/overview",
+    icon: <img src={OverviewIcon} alt="overview logo" className="w-5 h-5" />,
+  },
+  {
+    id: "productsMgt",
+    label: "Product Management",
+    path: "/products",
+    icon: (
+      <img src={ProductMgt} alt="product management logo" className="w-5 h-5" />
+    ),
+  },
+  {
+    id: "delivery",
+    label: "Delivery",
+    path: "/delivery",
+    icon: <img src={DeliveryBox} alt="delivery box" className="w-5 h-5" />,
+  },
+  {
+    id: "fees",
+    label: "Fees",
+    path: "/fees",
+    icon: <img src={Fees} alt="Fees-logo" className="w-5 h-5" />,
+  },
+  {
+    id: "agent",
+    label: "Agents",
+    path: "/agent",
+    icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
+  },
+];
+
+function MenuItems({ setOpen }) {
+  return (
+    <nav className="mt-2 flex flex-col gap-1 pl-3">
+      {SidebarMenuItems.map((menuItem) => {
+        const isProductMgt = menuItem.id === "productsMgt";
+        const isActive = isProductMgt || location.pathname === menuItem.path;
+
+        return (
+          <div
+            key={menuItem.id}
+            onClick={() => {
+              if (setOpen) setOpen(false);
+            }}
+            className={`flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 ${
+              isActive ? "bg-[#FFBFBF] text-foreground" : " hover:bg-[#FFBFBF] "
+            }`}
+          >
+            {menuItem.icon}
+            <span>{menuItem.label}</span>
+          </div>
+        );
+      })}
+      <div className="absolute bottom-10 inset-x-0 ps-4 lg:ps-5.5 px-3">
+        <div className="flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 hover:bg-[#FFBFBF]">
+          <img src={Admin} alt="Admin-logo" className="w-5 h-5" />
+          <span>Admin</span>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function AdminSidebar({ open, setOpen }) {
+  return (
+    <Fragment>
+      {/* Mobile Sidebar */}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="w-64">
+          <div className="flex flex-col h-full">
+            <SheetHeader className="border-b">
+              <SheetTitle className="flex justify-center mt-4 mb-4">
+                <img
+                  src="/images/logo.svg"
+                  alt="logo img"
+                  className="mx-auto"
+                />
+              </SheetTitle>
+            </SheetHeader>
+            <MenuItems setOpen={setOpen} />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop Sidebar */}
+      <aside className="fixed top-0 left-0 h-full hidden z-50 w-53 flex-col border-r bg-background p-6 pt-8 px-3 lg:flex">
+        <div className="cursor-pointer flex justify-center mb-8">
+          <img src="/images/logo.svg" alt="logo img" />
+        </div>
+        <MenuItems />
+      </aside>
+    </Fragment>
+  );
+}
+
+export default AdminSidebar;
