@@ -1,0 +1,51 @@
+export const notifications = [
+  {
+    id: 1,
+    type: "delivery-failed",
+    title: "Delivery Report",
+    message: "Delivery #12345 marked as failed.",
+    time: "16:00:00",
+  },
+  {
+    id: 2,
+    type: "delivery-success",
+    title: "Delivery Report",
+    message: "Delivery #12345 marked as Successful",
+    time: "16:00:00",
+  },
+  {
+    id: 3,
+    type: "payout",
+    title: "Payouts",
+    message: "Agent John Doe's payout requested payout",
+    time: "16:00:00",
+  },
+  {
+    id: 4,
+    type: "payout",
+    title: "Payouts",
+    message: "Agent John Doe's payout requested payout",
+    time: "16:00:00",
+  },
+  {
+    id: 5,
+    type: "new-agent",
+    title: "New Agent",
+    message: "Rafic requested to be an agent",
+    time: "16:00:00",
+  },
+  {
+    id: 6,
+    type: "new-agent",
+    title: "New Agent",
+    message: "Rafic requested to be an agent",
+    time: "16:00:00",
+  },
+  {
+    id: 7,
+    type: "new-agent",
+    title: "New Agent",
+    message: "Rafic requested to be an agent",
+    time: "16:00:00",
+  },
+];
