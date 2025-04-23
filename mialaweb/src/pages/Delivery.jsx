@@ -1,14 +1,14 @@
-import ProductList from "@/components/productMgt/productList";
 import AdminOverview from "@/components/common/overview";
+import DeliveryList from "@/components/delivery/deliveryList";
 import { Fragment } from "react";
 
-const ProductManagement = () => {
+const Delivery = () => {
   return (
     <Fragment>
       <AdminOverview />
-      <ProductList />
+      <DeliveryList />
     </Fragment>
   );
 };
 
-export default ProductManagement;
+export default Delivery;
