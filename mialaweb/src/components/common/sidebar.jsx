@@ -1,58 +1,74 @@
 import { Fragment } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import Admin from "../../assets/icons/admin.png";
 import OverviewIcon from "../../assets/icons/overview.svg";
 import ProductMgt from "../../assets/icons/productMgt.svg";
 import Agents from "../../assets/icons/agents.svg";
 import Fees from "../../assets/icons/fees.svg";
 import DeliveryBox from "../../assets/icons/delivery-box.svg";
-import Admin from "../../assets/icons/admin.svg";
-
-export const SidebarMenuItems = [
-  {
-    id: "overview",
-    label: "Overview",
-    path: "/overview",
-    icon: <img src={OverviewIcon} alt="overview logo" className="w-5 h-5" />,
-  },
-  {
-    id: "productsMgt",
-    label: "Product Management",
-    path: "/products",
-    icon: (
-      <img src={ProductMgt} alt="product management logo" className="w-5 h-5" />
-    ),
-  },
-  {
-    id: "delivery",
-    label: "Delivery",
-    path: "/delivery",
-    icon: <img src={DeliveryBox} alt="delivery box" className="w-5 h-5" />,
-  },
-  {
-    id: "fees",
-    label: "Fees",
-    path: "/fees",
-    icon: <img src={Fees} alt="Fees-logo" className="w-5 h-5" />,
-  },
-  {
-    id: "agent",
-    label: "Agents",
-    path: "/agent",
-    icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
-  },
-];
+import { useLocation, useNavigate } from "react-router";
+import useUser from "@/hooks/useUser";
 
 function MenuItems({ setOpen }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { role } = useUser();
+
+  const SidebarMenuItems = [
+    {
+      id: "overview",
+      label: "Overview",
+      path: "/overview",
+      icon: <img src={OverviewIcon} alt="overview logo" className="w-5 h-5" />,
+    },
+    {
+      id: "productsMgt",
+      label: "Product Management",
+      path: "/products",
+      icon: (
+        <img
+          src={ProductMgt}
+          alt="product management logo"
+          className="w-5 h-5"
+        />
+      ),
+    },
+    {
+      id: "delivery",
+      label: "Delivery",
+      path: "/delivery",
+      icon: <img src={DeliveryBox} alt="delivery box" className="w-5 h-5" />,
+    },
+    {
+      id: "fees",
+      label: "Fees",
+      path: "/fees",
+      icon: <img src={Fees} alt="Fees-logo" className="w-5 h-5" />,
+    },
+    {
+      id: "agent",
+      label: role === "admin" ? "Agents" : "Agents/Admins",
+      path: role === "admin" ? "/agents" : "/admin/agents",
+      icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
+    },
+  ];
+
   return (
     <nav className="mt-2 flex flex-col gap-1 pl-3">
       {SidebarMenuItems.map((menuItem) => {
-        const isProductMgt = menuItem.id === "productsMgt";
-        const isActive = isProductMgt || location.pathname === menuItem.path;
+        const isActive =
+          location.pathname === menuItem.path ||
+          (menuItem.id === "agent" &&
+            (location.pathname.startsWith("/admin/agents") ||
+              location.pathname.startsWith("/admin/sub-admins"))) ||
+          (menuItem.id === "fees" &&
+            location.pathname.startsWith("/payout-summary"));
 
         return (
           <div
             key={menuItem.id}
             onClick={() => {
+              navigate(menuItem.path);
               if (setOpen) setOpen(false);
             }}
             className={`flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 ${
