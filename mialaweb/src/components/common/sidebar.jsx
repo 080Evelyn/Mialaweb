@@ -54,7 +54,7 @@ function MenuItems({ setOpen }) {
   ];
 
   return (
-    <nav className="mt-2 flex flex-col gap-1 pl-3">
+    <nav className="mt-3 flex flex-col gap-1 pl-3">
       {SidebarMenuItems.map((menuItem) => {
         const isActive =
           location.pathname === menuItem.path ||

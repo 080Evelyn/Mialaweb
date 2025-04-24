@@ -29,7 +29,7 @@ const ProductList = () => {
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Product List</h2>
-        {/* Edit Dialog */}
+        {/* Add Dialog */}
         <Dialog>
           <DialogTrigger asChild>
             <Button className="bg-[#B10303] rounded-[4px] hover:bg-[#B10303]/80 cursor-pointer">

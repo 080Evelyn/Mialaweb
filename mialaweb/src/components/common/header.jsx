@@ -1,5 +1,5 @@
 import { AlignJustify, Search } from "lucide-react";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import {
   Breadcrumb,
@@ -46,7 +46,9 @@ function AdminHeader({ setOpen, rightSidebar }) {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">Dashboards</BreadcrumbLink>
+                <BreadcrumbLink>
+                  <Link to="/overview">Dashboards</Link>
+                </BreadcrumbLink>
               </BreadcrumbItem>
               {path && (
                 <>
