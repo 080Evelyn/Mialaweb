@@ -11,8 +11,12 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Input } from "../ui/input";
 import Filter from "../../assets/icons/Filter.svg";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchQuery } from "@/redux/searchSlice";
 
 function AdminHeader({ setOpen, rightSidebar }) {
+  const dispatch = useDispatch();
+  const search = useSelector((state) => state.search.query);
   const location = useLocation();
   const path = location.pathname;
 
@@ -37,8 +41,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
         <div className="flex items-center gap-3">
           <Button
             onClick={() => setOpen(true)}
-            className="lg:hidden sm:block cursor-pointer"
-          >
+            className="lg:hidden sm:block cursor-pointer">
             <AlignJustify />
             <span className="sr-only">Toggle Menu</span>
           </Button>
@@ -68,8 +71,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
           <div
             className={`relative w-full sm:w-auto ${
               rightSidebar ? "me-0" : "me-45"
-            }`}
-          >
+            }`}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <img
               src={Filter}
@@ -78,6 +80,8 @@ function AdminHeader({ setOpen, rightSidebar }) {
             <Input
               type="search"
               placeholder="Search"
+              value={search}
+              onChange={(e) => dispatch(setSearchQuery(e.target.value))}
               className={`pl-9 pr-9 w-full sm:w-full border-0 bg-black/4 transition-all duration-300 ${
                 rightSidebar ? "lg:w-[280px]" : "lg:w-[407px]"
               }`}

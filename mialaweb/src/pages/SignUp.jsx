@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import AuthBg from "../assets/images/dashboard.jpg";
 import logo from "../assets/images/main-logo.svg";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -8,6 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Link } from "react-router";
 
 const SignUp = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = () => {};
   return (
     <div className="relative h-screen flex items-center justify-center overflow-hidden">
       <div
@@ -41,6 +46,7 @@ const SignUp = () => {
                   id="name"
                   type="text"
                   placeholder="Enter your full name"
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
 
@@ -48,7 +54,12 @@ const SignUp = () => {
                 <Label htmlFor="email" className="text-sm">
                   Email
                 </Label>
-                <Input id="email" type="email" placeholder="Enter your email" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
 
               <div className="space-y-1.5">
@@ -59,13 +70,13 @@ const SignUp = () => {
                   id="password"
                   type="password"
                   placeholder="Enter your password"
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-[#B10303] hover:bg-[#B10303]/80"
-              >
+                className="w-full bg-[#B10303] hover:bg-[#B10303]/80">
                 Sign Up
               </Button>
             </form>

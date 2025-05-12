@@ -1,13 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 import AuthBg from "../assets/images/dashboard.jpg";
 import logo from "../assets/images/main-logo.svg";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import axios from "axios";
+import { BASE_URL } from "@/lib/Api";
+import { useDispatch } from "react-redux";
+import { login } from "@/redux/authSlice";
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [erorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    setErrorMessage("");
+    try {
+      const response = await axios.post(`${BASE_URL}api/v1/auth/login`, {
+        email: email,
+        password: password,
+      });
+
+      if (response.status === 200) {
+        const { jwt, userRole, userId } = response.data.data;
+        dispatch(login({ jwt, userRole, userId }));
+        navigate("/overview");
+      }
+    } catch (error) {
+      setErrorMessage(`Error logging in: ${error.response.data.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="relative h-screen flex  items-center justify-center overflow-hidden">
       <div
@@ -37,7 +70,12 @@ const Login = () => {
                 <Label htmlFor="email" className="text-sm">
                   Email
                 </Label>
-                <Input id="email" type="email" placeholder="Enter your email" />
+                <Input
+                  onChange={(e) => setEmail(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password" className="text-sm">
@@ -47,7 +85,11 @@ const Login = () => {
                   id="password"
                   type="password"
                   placeholder="Enter your password"
+                  onChange={(e) => setPassword(e.target.value)}
                 />
+                {erorMessage && (
+                  <p className="text-xs text-red-500">{erorMessage}</p>
+                )}
               </div>
 
               <div className="flex justify-between text-[#B10303] text-[10px]">
@@ -59,8 +101,7 @@ const Login = () => {
                   />
                   <Label
                     htmlFor="remember-me"
-                    className="text-[10px] font-normal"
-                  >
+                    className="text-[10px] font-normal">
                     Remember me
                   </Label>
                 </div>
@@ -68,10 +109,10 @@ const Login = () => {
                 <span>Forgotten Password?</span>
               </div>
               <Button
+                onClick={handleLogin}
                 type="submit"
-                className="w-full bg-[#B10303] hover:bg-[#B10303]/80"
-              >
-                Sign In
+                className="w-full bg-[#B10303] hover:bg-[#B10303]/80">
+                {isLoading ? "Signing in.." : "Sign In"}
               </Button>
             </form>
           </CardContent>
