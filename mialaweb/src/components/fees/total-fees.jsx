@@ -19,9 +19,21 @@ import {
 import Avatar from "../../assets/icons/avatar.svg";
 import { Link, useLocation } from "react-router";
 import { totalFeesTableData } from "@/config/feesData";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTransaction } from "@/redux/transactionSlice";
+import { useEffect } from "react";
 
 const TotalFeesTable = () => {
   const location = useLocation();
+  const token = useSelector((state) => state.auth.token);
+  const userRole = useSelector((state) => state.auth.user.userRole);
+  const transaction = useSelector((state) => state.transaction.transactions);
+  console.log(transaction);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchTransaction({ token, userRole }));
+  }, []);
 
   return (
     <div className="sm:me-5 sm:ms-2.5">
@@ -33,8 +45,7 @@ const TotalFeesTable = () => {
               location.pathname === "/fees"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
-            } `}
-          >
+            } `}>
             <Link to="/fees">Total Fee Collected </Link>
           </Button>
           <Button
@@ -42,8 +53,7 @@ const TotalFeesTable = () => {
               location.pathname === "/payout-summary"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
-            }`}
-          >
+            }`}>
             <Link to="/payout-summary">Payout Summary</Link>
           </Button>
         </div>
@@ -51,18 +61,18 @@ const TotalFeesTable = () => {
       <Table>
         <TableHeader>
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
-            <TableHead className="rounded-l-sm">Agent Name</TableHead>
-            <TableHead>State</TableHead>
-            <TableHead>Total Deliveries</TableHead>
-            <TableHead>Total Fees Collected </TableHead>
-            <TableHead>Total Delivery Fee </TableHead>
+            <TableHead className="rounded-l-sm">Agent Email</TableHead>
+            <TableHead>Transfer Code</TableHead>
+            <TableHead>Recipient Code</TableHead>
+            <TableHead>Reference </TableHead>
+            <TableHead>Amount </TableHead>
             <TableHead>
               <span className="sr-only">Action</span>
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="text-[14px] font-medium font-[Raleway] ">
-          {totalFeesTableData.map((data, index) => (
+          {transaction?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -71,19 +81,19 @@ const TotalFeesTable = () => {
                     alt="avatar"
                     className="h-6 w-6 rounded-full"
                   />
-                  <span>{data.agentName}</span>
+                  <span>{data.email}</span>
                 </div>
               </TableCell>
-              <TableCell>{data.state}</TableCell>
-              <TableCell>{data.totalDeliveries}</TableCell>
-              <TableCell>₦{data.totalRevenueGenerated}</TableCell>
-              <TableCell>₦{data.totalDeliveryFees}</TableCell>
+              <TableCell>{data.transferCode}</TableCell>
+              <TableCell>{data.recipientCode}</TableCell>
+              <TableCell>{data.reference}</TableCell>
+              <TableCell>₦{data.amount}</TableCell>
               <TableCell>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                    {/* <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
                       <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
-                    </button>
+                    </button> */}
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[362px] ">
                     <DialogHeader>
@@ -104,8 +114,7 @@ const TotalFeesTable = () => {
                       </DialogClose>
                       <DialogClose
                         type="submit"
-                        className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9"
-                      >
+                        className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
                         Done
                       </DialogClose>
                     </div>

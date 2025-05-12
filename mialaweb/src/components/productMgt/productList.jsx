@@ -20,11 +20,62 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import PencilEdit from "../../assets/icons/pencil-edit.svg";
-import Delete from "../../assets/icons/delete.svg";
+// import PencilEdit from "../../assets/icons/pencil-edit.svg";
+// import Delete from "../../assets/icons/delete.svg";
 import AlertCircle from "../../assets/icons/alert-circle.svg";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts } from "@/redux/productSlice";
 
 const ProductList = () => {
+  const id = useSelector((state) => state.auth.user.userId);
+  const token = useSelector((state) => state.auth.token);
+  const products = useSelector((state) => state.product.products);
+  const loading = useSelector((state) => state.product.loading);
+  const error = useSelector((state) => state.product.error);
+  const dispatch = useDispatch();
+  const [page, setPage] = useState(0);
+  const query = useSelector((state) => state.search.query);
+  const userRole = useSelector((state) => state.auth.user.userRole);
+
+  const filtered = products?.content?.filter(
+    (product) =>
+      product?.productName.toLowerCase().includes(query.toLowerCase()) ||
+      String(product?.deliveryCode).toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    dispatch(fetchProducts({ token, page, userRole }));
+  }, []);
+  function formatDateArray(dateArray) {
+    if (!Array.isArray(dateArray) || dateArray.length !== 3) {
+      throw new Error("Invalid date array. Expected format: [YYYY, MM, DD]");
+    }
+
+    const [year, month, day] = dateArray;
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
+      2,
+      "0"
+    )}`;
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <h2 className="text-center font-semibold">Loading...</h2>
+      </div>
+    );
+  }
+
+  if (!loading && error) {
+    return (
+      <div>
+        <h2 className="text-center font-semibold">
+          Something went wrong, check internet connection.
+        </h2>
+      </div>
+    );
+  }
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
@@ -32,16 +83,16 @@ const ProductList = () => {
         {/* Add Dialog */}
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-[#B10303] rounded-[4px] hover:bg-[#B10303]/80 cursor-pointer">
+            {/* <Button className="bg-[#B10303] rounded-[4px] hover:bg-[#B10303]/80 cursor-pointer">
               Add New Product
-            </Button>
+            </Button> */}
           </DialogTrigger>
           <DialogContent className="sm:max-w-[362px] ">
-            <DialogHeader>
+            {/* <DialogHeader>
               <DialogTitle className="text-[#B10303] text-left">
                 Add Product
               </DialogTitle>
-            </DialogHeader>
+            </DialogHeader> */}
             <div className="grid gap-2 py-0.5">
               <div className="grid grid-cols-1 items-center gap-1.5">
                 <Label htmlFor="name" className="text-xs">
@@ -83,8 +134,7 @@ const ProductList = () => {
               </DialogClose>
               <Button
                 type="submit"
-                className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9"
-              >
+                className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
                 Done
               </Button>
             </div>
@@ -104,17 +154,19 @@ const ProductList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500]">
-          {tableData.map((data, index) => (
+          {filtered?.map((data, index) => (
             <TableRow key={index}>
-              <TableCell>{data.productid}</TableCell>
-              <TableCell>{data.productname}</TableCell>
-              <TableCell>{data.stockquantity}</TableCell>
-              <TableCell>{data.price}</TableCell>
-              <TableCell>{data.dateadded}</TableCell>
+              <TableCell>{data.deliveryCode}</TableCell>
+              <TableCell>{data.productName}</TableCell>
+              <TableCell>{data.qty}</TableCell>
+              <TableCell>{data.productPrice}</TableCell>
+              <TableCell>{formatDateArray(data.uploadDate)}</TableCell>
               <TableCell>
                 <span
                   className={`inline-block h-2.5 w-2.5 rounded-full ${
-                    data.status === "available" ? "bg-[#0FA301]" : "bg-red-500"
+                    data.deliveryStatus === "PENDING"
+                      ? " bg-red-500"
+                      : " bg-[#0FA301]"
                   }`}
                 />
               </TableCell>
@@ -123,9 +175,9 @@ const ProductList = () => {
                   {/* Edit Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <button className="bg-[#0A55D0] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#0A55D0]/80 transition-colors">
+                      {/* <button className="bg-[#0A55D0] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#0A55D0]/80 transition-colors">
                         <img src={PencilEdit} className="h-6 w-6 text-white" />
-                      </button>
+                      </button> */}
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[362px] ">
                       <DialogHeader>
@@ -140,7 +192,7 @@ const ProductList = () => {
                           </Label>
                           <Input
                             id="name"
-                            defaultValue={data.productname}
+                            defaultValue={data.productName}
                             className="w-full rounded-xs bg-[#8C8C8C33]"
                           />
                         </div>
@@ -150,7 +202,7 @@ const ProductList = () => {
                           </Label>
                           <Input
                             id="stockQty"
-                            defaultValue={data.stockquantity}
+                            defaultValue={data.qty}
                             className="w-full rounded-xs bg-[#8C8C8C33]"
                           />
                         </div>
@@ -170,7 +222,7 @@ const ProductList = () => {
                           </Label>
                           <Input
                             id="status"
-                            defaultValue={data.status}
+                            defaultValue={data.deliveryStatus}
                             className="w-full rounded-xs bg-[#8C8C8C33]"
                           />
                         </div>
@@ -181,8 +233,7 @@ const ProductList = () => {
                         </DialogClose>
                         <Button
                           type="submit"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9"
-                        >
+                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
                           Done
                         </Button>
                       </div>
@@ -192,9 +243,9 @@ const ProductList = () => {
                   {/* Delete Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
+                      {/* <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
                         <img src={Delete} className="h-6 w-6 text-white" />
-                      </button>
+                      </button> */}
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
@@ -216,8 +267,7 @@ const ProductList = () => {
                         </DialogClose>
                         <Button
                           type="submit"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9"
-                        >
+                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
                           Done
                         </Button>
                       </div>
@@ -241,31 +291,31 @@ const ProductList = () => {
                         <div className="flex justify-between items-center">
                           <Label className="text-xs">Product Name</Label>
                           <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.productname}
+                            {data.productName}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <Label className="text-xs">Stock Quantity</Label>
                           <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.stockquantity}
+                            {data.qty}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <Label className="text-xs">Price</Label>
                           <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.price}
+                            {data.productName}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <Label className="text-xs">Date</Label>
                           <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.dateadded}
+                            {data.uploadDate}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <Label className="text-xs">Status</Label>
                           <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.status}
+                            {data.deliveryStatus}
                           </span>
                         </div>
                       </div>
@@ -275,8 +325,7 @@ const ProductList = () => {
                         </DialogClose>
                         <Button
                           type="submit"
-                          className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9"
-                        >
+                          className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
                           Done
                         </Button>
                       </div>

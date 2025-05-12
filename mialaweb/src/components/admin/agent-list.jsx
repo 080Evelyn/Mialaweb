@@ -15,15 +15,71 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import Avatar from "../../assets/icons/avatar.svg";
-import { agentsTableData } from "@/config/agentData";
+// import { agentsTableData } from "@/config/agentData";
+// import PencilEdit from "../../assets/icons/pencil-edit.svg";
+import Delete from "../../assets/icons/delete.svg";
+import AlertCircle from "../../assets/icons/alert-circle.svg";
 import { Link, useLocation } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { fetchRiders } from "@/redux/riderSlice";
+import axios from "axios";
+import { BASE_URL } from "@/lib/Api";
 
 const AdminAgentList = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [erorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const location = useLocation();
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const riders = useSelector((state) => state.riders.riders);
+  const userRole = useSelector((state) => state.auth.user.userRole);
+  const query = useSelector((state) => state.search.query);
 
+  // /api/v1/admin/delete-rider/9
+  const filtered = riders?.filter(
+    (rider) =>
+      rider?.first_name.toLowerCase().includes(query.toLowerCase()) ||
+      String(rider?.last_name).toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    dispatch(fetchRiders({ token, userRole }));
+  }, []);
+  const handleDelete = async (id) => {
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await axios.delete(
+        `${BASE_URL}api/v1/admin/delete-rider/${id}`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.responseCode === "00") {
+        dispatch(fetchRiders({ token, userRole }));
+        setSuccessMessage(response.data.data);
+      } else if (response.data.responseCode === "55") {
+        setErrorMessage(response.data.responseDesc);
+      }
+    } catch (error) {
+      setErrorMessage(`An error occured.`);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
@@ -34,8 +90,7 @@ const AdminAgentList = () => {
               location.pathname === "/admin/agents"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
-            } `}
-          >
+            } `}>
             <Link to="/admin/agents">Agents </Link>
           </Button>
           <Button
@@ -43,8 +98,7 @@ const AdminAgentList = () => {
               location.pathname === "/admin/sub-admins"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
-            }`}
-          >
+            }`}>
             <Link to="/admin/sub-admins">SubAdmins</Link>
           </Button>
         </div>
@@ -63,7 +117,7 @@ const AdminAgentList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] ">
-          {agentsTableData.map((data, index) => (
+          {filtered?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -72,110 +126,150 @@ const AdminAgentList = () => {
                     alt="avatar"
                     className="h-6 w-6 rounded-full"
                   />
-                  <span>{data.agentName}</span>
+                  <span>{`${data.first_name} ${data.last_name}`}</span>
                 </div>
               </TableCell>
               <TableCell>{data.state}</TableCell>
-              <TableCell>{data.totalDeliveriesMade}</TableCell>
-              <TableCell>₦{data.totalRevenueGenerated}</TableCell>
+              <TableCell>{data.totalDeliveries}</TableCell>
+              <TableCell>{data.email}</TableCell>
               <TableCell>{data.date}</TableCell>
               <TableCell>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
-                      <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[362px]">
-                    <DialogHeader>
-                      <DialogTitle className="text-[#B10303] text-left">
-                        Details
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="flex flex-col gap-3 py-0.5">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Agent Name</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.agentName}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Email</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.email}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Phone</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.phone}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">State</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.state}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Status</Label>
-                        <span className="text-sm text-right text-[10px] text-[#0FA301] font-[Raleway]">
-                          {data.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Date</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.date}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">NIN</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.nin}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Total Deliveries Made</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.totalDeliveriesMade}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">
-                          Total Revenue Generated
-                        </Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          ₦{data.totalRevenueGenerated}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Account Number</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.accountNumber}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Bank</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.bank}
-                        </span>
-                      </div>
-                    </div>
+                <div className="flex gap-3 justify-center">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[362px]">
+                      <DialogHeader>
+                        <DialogTitle className="text-[#B10303] text-left">
+                          Details
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex flex-col gap-3 py-0.5">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">Agent Name</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {`${data.first_name} ${data.last_name}`}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">Email</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.email}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">Phone</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.phone}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">State</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.state}
+                          </span>
+                        </div>
 
-                    <div className="flex justify-end gap-2 ">
-                      <Button className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                        Report
-                      </Button>
-                      <DialogClose
-                        type="submit"
-                        className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9"
-                      >
-                        Done
-                      </DialogClose>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">Date</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.date}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">
+                            Total Deliveries Made
+                          </Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.totalDeliveries}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">Account Number</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.accountNumber}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">Bank</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.bankName}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 ">
+                        <Button className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                          Report
+                        </Button>
+                        <DialogClose
+                          type="submit"
+                          className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
+                          Done
+                        </DialogClose>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Delete Dialog */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
+                        <img
+                          onClick={() => {
+                            setErrorMessage("");
+                            setSuccessMessage("");
+                          }}
+                          src={Delete}
+                          className="h-6 w-6 text-white"
+                        />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
+                          <img
+                            src={AlertCircle}
+                            alt="Alert Icon"
+                            className="w-20 h-20 mx-auto"
+                          />
+                          <span>Delete</span>
+                        </DialogTitle>
+                        <DialogDescription className="text-center text-foreground font-semibold text-xs">
+                          Are you sure you want to delete this Agent?
+                        </DialogDescription>
+                      </DialogHeader>
+                      {erorMessage && (
+                        <p className="text-red-500 text-sm text-center">
+                          {erorMessage}
+                        </p>
+                      )}
+                      {successMessage && (
+                        <p className="text-green-500 text-sm text-center">
+                          {successMessage}
+                        </p>
+                      )}
+                      <div className="flex justify-center gap-2">
+                        <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                          Cancel
+                        </DialogClose>
+                        <Button
+                          onClick={() => {
+                            handleDelete(data.userId);
+                          }}
+                          type="submit"
+                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
+                          {isLoading ? "Deleting.." : "Delete"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </TableCell>
             </TableRow>
           ))}

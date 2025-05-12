@@ -9,24 +9,66 @@ import {
 import { PenBox } from "lucide-react";
 import { deliveryTableData } from "@/config/deliveryTableData";
 import Avatar from "../../assets/icons/avatar.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeliveryFormDialog from "./deliveryFormDialog";
 import DeliveryDetailsDialog from "./deliveryDetailsDialog";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDelivery } from "@/redux/deliverySlice";
+import { fetchRiders } from "@/redux/riderSlice";
 
 const initialFormState = {
   productName: "",
-  stockQuantity: "",
-  price: "",
-  location: "",
-  agent: "",
+  qty: "",
+  productPrice: "",
+  receiverAddress: "",
+  riderId: "",
   paymentStatus: "",
   deliveryStatus: "",
+  receiverName: "",
+  receiverPhone: "",
+  deliveryFee: "",
+  dueDate: "",
+  uploadDate: "",
 };
 
 const DeliveryList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formMode, setFormMode] = useState("add");
   const [formData, setFormData] = useState(initialFormState);
+  const token = useSelector((state) => state.auth.token);
+  const deliveryList = useSelector((state) => state.delivery.delivery);
+  const loading = useSelector((state) => state.delivery.loading);
+  const success = useSelector((state) => state.delivery.success);
+  const error = useSelector((state) => state.delivery.error);
+  const userRole = useSelector((state) => state.auth.user.userRole);
+  const dispatch = useDispatch();
+  const query = useSelector((state) => state.search.query);
+
+  const filtered = deliveryList?.filter(
+    (product) =>
+      product?.productName.toLowerCase().includes(query.toLowerCase()) ||
+      String(product?.deliveryCode).toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    dispatch(fetchRiders({ token, userRole }));
+    if (success) {
+      return;
+    }
+    dispatch(fetchDelivery({ token, userRole }));
+  }, []);
+
+  function formatDateArray(dateArray) {
+    if (!Array.isArray(dateArray) || dateArray.length !== 3) {
+      throw new Error("Invalid date array. Expected format: [YYYY, MM, DD]");
+    }
+
+    const [year, month, day] = dateArray;
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
+      2,
+      "0"
+    )}`;
+  }
 
   const handleOpenAdd = () => {
     setFormMode("add");
@@ -37,18 +79,39 @@ const DeliveryList = () => {
   const handleOpenEdit = (data) => {
     setFormMode("edit");
     setFormData({
-      productName: data.product || "",
-      stockQuantity: data.quantity || "",
-      price: data.amountPaid != null ? `₦${data.amountPaid}` : "",
-      location: data.location || "",
-      agent: data.name || "",
-      paymentStatus: data.paymentStatus || "not_paid",
+      productName: data.productName || "",
+      qty: data.qty || "",
+      productPrice: data.productPrice != null ? data.productPrice : "",
+      receiverAddress: data.receiverAddress || "",
+      riderId: `${data.riderId} ` || "",
+      paymentStatus: data.paymentStatus === "NOT_PAID" ? "NOT_PAID" : "PAID",
       deliveryStatus:
-        data.status === "successful" ? "delivered" : "not_delivered",
+        data.deliveryStatus === "PENDING" ? "PENDING" : "DELIVERED",
+      receiverName: data.receiverName || "",
+      receiverPhone: data.receiverPhone || "",
+      deliveryFee: data.deliveryFee || "",
+      dueDate: data.dueDate || "",
+      uploadDate: formatDateArray(data.uploadDate) || "",
     });
     setDialogOpen(true);
   };
+  if (loading) {
+    return (
+      <div>
+        <h2 className="text-center font-semibold">Loading...</h2>
+      </div>
+    );
+  }
 
+  if (!loading && error) {
+    return (
+      <div>
+        <h2 className="text-center font-semibold">
+          Something went wrong, check internet connection.
+        </h2>
+      </div>
+    );
+  }
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
@@ -61,6 +124,7 @@ const DeliveryList = () => {
           formMode={formMode}
           formData={formData}
           setFormData={setFormData}
+          initialState={initialFormState}
         />
       </div>
       <Table>
@@ -68,15 +132,15 @@ const DeliveryList = () => {
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Agent</TableHead>
             <TableHead>Product</TableHead>
-            <TableHead>Package ID</TableHead>
+            <TableHead>Delivery Code</TableHead>
             <TableHead>Date </TableHead>
-            <TableHead>Amount Paid </TableHead>
-            <TableHead>Delivery Fee </TableHead>
+            <TableHead>Amount Paid(₦) </TableHead>
+            <TableHead>Delivery Fee(₦) </TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500]">
-          {deliveryTableData.map((data, index) => (
+          {filtered?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -85,21 +149,25 @@ const DeliveryList = () => {
                     alt="avatar"
                     className="h-6 w-6 rounded-full"
                   />
-                  <span>{data.name}</span>
+                  <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
                 </div>
               </TableCell>
-              <TableCell>{data.product}</TableCell>
-              <TableCell>{data.packageID}</TableCell>
-              <TableCell>{data.date}</TableCell>
-              <TableCell>₦{data.amountPaid}</TableCell>
-              <TableCell>₦{data.deliveryFee}</TableCell>
+              <TableCell>{data.productName}</TableCell>
+              <TableCell>{data.deliveryCode}</TableCell>
+              <TableCell>{data.uploadDate}</TableCell>
+              <TableCell>
+                {Number(data.productPrice).toLocaleString()}
+              </TableCell>
+              <TableCell>
+                {Number(data.productPrice).toLocaleString()}
+              </TableCell>
               <TableCell>
                 <div className="flex gap-3 items-center">
                   <span
                     className={`inline-block h-2.5 w-2.5 rounded-full ${
-                      data.status === "successful"
-                        ? "bg-[#0FA301]"
-                        : "bg-red-500"
+                      data.deliveryStatus === "PENDING"
+                        ? "bg-red-500"
+                        : " bg-[#0FA301]"
                     }`}
                   />
                   <button onClick={() => handleOpenEdit(data)}>

@@ -16,92 +16,96 @@ import TotalFees from "./pages/fees/TotalFees";
 import PayoutSummary from "./pages/fees/PayoutSummary";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 
 function App() {
   return (
     <Routes>
-      <Route
+      {/* <Route
         path="/"
         element={
           <Layout rightSidebar={<OverviewSidebar />}>
-            <Overview />
+            <Login />
           </Layout>
         }
-      />
-      <Route path="login" element={<Login />} />
+      /> */}
+      <Route path="/" element={<Login />} />
       <Route path="sign-up" element={<SignUp />} />
-      <Route
-        path="overview"
-        element={
-          <Layout rightSidebar={<OverviewSidebar />}>
-            <Overview />
-          </Layout>
-        }
-      />
-      <Route
-        path="agents"
-        element={
-          <Layout rightSidebar={<AgentSidebar />}>
-            <Agents />
-          </Layout>
-        }
-      />
-      <Route
-        path="admin/agents"
-        element={
-          <Layout rightSidebar={<AdminAgentSidebar />}>
-            <AdminAgent />
-          </Layout>
-        }
-      />
-      <Route
-        path="admin/sub-admins"
-        element={
-          <Layout rightSidebar={<AdminSidebar />}>
-            <SubAdmin />
-          </Layout>
-        }
-      />
-      <Route
-        path="delivery"
-        element={
-          <Layout>
-            <Delivery />
-          </Layout>
-        }
-      />
-      <Route
-        path="fees"
-        element={
-          <Layout rightSidebar={<FeesSidebar />}>
-            <TotalFees />
-          </Layout>
-        }
-      />
-      <Route
-        path="payout-summary"
-        element={
-          <Layout rightSidebar={<FeesSidebar />}>
-            <PayoutSummary />
-          </Layout>
-        }
-      />
-      <Route
-        path="products"
-        element={
-          <Layout>
-            <ProductManagement />
-          </Layout>
-        }
-      />
-      <Route
-        path="settings"
-        element={
-          <Layout>
-            <Settings />
-          </Layout>
-        }
-      />
+      {/* protected route */}
+      <Route element={<ProtectedRoute />}>
+        <Route
+          path="overview"
+          element={
+            <Layout rightSidebar={<OverviewSidebar />}>
+              <Overview />
+            </Layout>
+          }
+        />
+        <Route
+          path="agents"
+          element={
+            <Layout rightSidebar={<AgentSidebar />}>
+              <Agents />
+            </Layout>
+          }
+        />
+        <Route
+          path="admin/agents"
+          element={
+            <Layout rightSidebar={<AdminAgentSidebar />}>
+              <AdminAgent />
+            </Layout>
+          }
+        />
+        <Route
+          path="admin/sub-admins"
+          element={
+            <Layout rightSidebar={<AdminSidebar />}>
+              <SubAdmin />
+            </Layout>
+          }
+        />
+        <Route
+          path="delivery"
+          element={
+            <Layout>
+              <Delivery />
+            </Layout>
+          }
+        />
+        <Route
+          path="fees"
+          element={
+            <Layout rightSidebar={<FeesSidebar />}>
+              <TotalFees />
+            </Layout>
+          }
+        />
+        <Route
+          path="payout-summary"
+          element={
+            <Layout rightSidebar={<FeesSidebar />}>
+              <PayoutSummary />
+            </Layout>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <Layout>
+              <ProductManagement />
+            </Layout>
+          }
+        />
+        <Route
+          path="settings"
+          element={
+            <Layout>
+              <Settings />
+            </Layout>
+          }
+        />
+      </Route>
     </Routes>
   );
 }

@@ -8,11 +8,19 @@ import Fees from "../../assets/icons/fees.svg";
 import DeliveryBox from "../../assets/icons/delivery-box.svg";
 import { useLocation, useNavigate } from "react-router";
 import useUser from "@/hooks/useUser";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/redux/authSlice";
+import { resetDelivery } from "@/redux/deliverySlice";
+import { resetProducts } from "@/redux/productSlice";
+import { resetSubadmin } from "@/redux/subadminSlice";
+import { resetTransaction } from "@/redux/transactionSlice";
+import { resetriders } from "@/redux/riderSlice";
 
 function MenuItems({ setOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { role } = useUser();
+  const userRole = useSelector((state) => state.auth.user.userRole);
+  const dispatch = useDispatch();
 
   const SidebarMenuItems = [
     {
@@ -47,12 +55,21 @@ function MenuItems({ setOpen }) {
     },
     {
       id: "agent",
-      label: role === "admin" ? "Agents" : "Agents/Admins",
-      path: role === "admin" ? "/agents" : "/admin/agents",
+      label: userRole === "Subadmin" ? "Agents" : "Agents/Admins",
+      path: userRole === "Subadmin" ? "/agents" : "/admin/agents",
       icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
     },
   ];
 
+  const handleSignOut = () => {
+    dispatch(logout());
+    dispatch(resetDelivery());
+    dispatch(resetProducts());
+    dispatch(resetSubadmin());
+    dispatch(resetTransaction());
+    dispatch(resetriders());
+    navigate("/");
+  };
   return (
     <nav className="mt-3 flex flex-col gap-1 pl-3">
       {SidebarMenuItems.map((menuItem) => {
@@ -73,13 +90,17 @@ function MenuItems({ setOpen }) {
             }}
             className={`flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 ${
               isActive ? "bg-[#FFBFBF] text-foreground" : " hover:bg-[#FFBFBF] "
-            }`}
-          >
+            }`}>
             {menuItem.icon}
             <span>{menuItem.label}</span>
           </div>
         );
       })}
+      <div
+        onClick={handleSignOut}
+        className={`flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5`}>
+        <span>Sign Out</span>
+      </div>
       <div className="absolute bottom-10 inset-x-0 ps-4 lg:ps-5.5 px-3">
         <div className="flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 hover:bg-[#FFBFBF]">
           <img src={Admin} alt="Admin-logo" className="w-5 h-5" />
