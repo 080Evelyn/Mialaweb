@@ -34,8 +34,7 @@ const AdminAgentSidebar = () => {
               <div className="flex flex-col gap-1">
                 <Button
                   className="h-6 px-3 text-xs text-[#8C8C8C] hover:bg-gray-100 border-[#8C8C8C] border-[1px] rounded-[4px]"
-                  variant="ghost"
-                >
+                  variant="ghost">
                   Cancel
                 </Button>
                 <Button className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]">
@@ -51,7 +50,7 @@ const AdminAgentSidebar = () => {
               </DialogHeader>
               <div className="flex flex-col gap-3 py-0.5">
                 <div className="flex justify-between items-center">
-                  <Label className="text-xs">Agent Name</Label>
+                  <Label className="text-xs">Agents Name</Label>
                   <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
                     {data.name}
                   </span>
@@ -111,8 +110,7 @@ const AdminAgentSidebar = () => {
                 </DialogClose>
                 <Button
                   type="submit"
-                  className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9"
-                >
+                  className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
                   Submit
                 </Button>
               </div>
