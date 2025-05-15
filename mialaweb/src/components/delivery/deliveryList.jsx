@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PenBox } from "lucide-react";
+import { BanknoteArrowUp, PenBox } from "lucide-react";
 import { deliveryTableData } from "@/config/deliveryTableData";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
@@ -15,6 +15,8 @@ import DeliveryDetailsDialog from "./deliveryDetailsDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDelivery } from "@/redux/deliverySlice";
 import { fetchRiders } from "@/redux/riderSlice";
+import DeliveryPaymentDialog from "./DeliveryPaymentDialog";
+import SuccessModal from "../common/SuccessModal";
 
 const initialFormState = {
   productName: "",
@@ -37,6 +39,8 @@ const DeliveryList = () => {
   const [formData, setFormData] = useState(initialFormState);
   const token = useSelector((state) => state.auth.token);
   const deliveryList = useSelector((state) => state.delivery.delivery);
+  // console.log(deliveryList);
+  const multiCall = useSelector((state) => state.delivery.multiCall);
   const loading = useSelector((state) => state.delivery.loading);
   const success = useSelector((state) => state.delivery.success);
   const error = useSelector((state) => state.delivery.error);
@@ -52,9 +56,9 @@ const DeliveryList = () => {
 
   useEffect(() => {
     dispatch(fetchRiders({ token, userRole }));
-    if (success) {
-      return;
-    }
+    // if (success) {
+    //   return;
+    // }
     dispatch(fetchDelivery({ token, userRole }));
   }, []);
 
@@ -95,7 +99,7 @@ const DeliveryList = () => {
     });
     setDialogOpen(true);
   };
-  if (loading) {
+  if (loading && !multiCall) {
     return (
       <div>
         <h2 className="text-center font-semibold">Loading...</h2>
@@ -127,7 +131,7 @@ const DeliveryList = () => {
           initialState={initialFormState}
         />
       </div>
-      <Table>
+      <Table className={""}>
         <TableHeader>
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Agent</TableHead>
@@ -139,7 +143,7 @@ const DeliveryList = () => {
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className="text-[12px] font-[Raleway] font-[500]">
+        <TableBody className="text-[12px] font-[Raleway] font-[500] ">
           {filtered?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
@@ -154,27 +158,25 @@ const DeliveryList = () => {
               </TableCell>
               <TableCell>{data.productName}</TableCell>
               <TableCell>{data.deliveryCode}</TableCell>
-              <TableCell>{data.uploadDate}</TableCell>
+              <TableCell>{formatDateArray(data.uploadDate)}</TableCell>
               <TableCell>
                 {Number(data.productPrice).toLocaleString()}
               </TableCell>
-              <TableCell>
-                {Number(data.productPrice).toLocaleString()}
-              </TableCell>
+              <TableCell>{Number(data.deliveryFee).toLocaleString()}</TableCell>
               <TableCell>
                 <div className="flex gap-3 items-center">
                   <span
                     className={`inline-block h-2.5 w-2.5 rounded-full ${
-                      data.deliveryStatus === "PENDING"
-                        ? "bg-red-500"
-                        : " bg-[#0FA301]"
+                      data.paymentApproval ? " bg-[#0FA301]" : " bg-red-500"
                     }`}
                   />
                   <button onClick={() => handleOpenEdit(data)}>
-                    <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500" />
+                    <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
                   </button>
-
                   <DeliveryDetailsDialog data={data} />
+                  {data.paymentApproval && (
+                    <DeliveryPaymentDialog data={data} />
+                  )}
                 </div>
               </TableCell>
             </TableRow>
