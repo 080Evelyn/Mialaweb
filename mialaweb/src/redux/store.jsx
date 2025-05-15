@@ -19,6 +19,9 @@ import riderReducer from "./riderSlice";
 import subAdminReducer from "./subadminSlice";
 import searchReducer from "./searchSlice";
 import transactionReducer from "./transactionSlice";
+import allPaymentReducer from "./allCustomerPaymentSlice";
+import riderByIdReducer from "./riderByIdSlice";
+import bankListReducer from "./bankListSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -28,12 +31,15 @@ const rootReducer = combineReducers({
   subadmin: subAdminReducer,
   search: searchReducer,
   transaction: transactionReducer,
+  payment: allPaymentReducer,
+  riderById: riderByIdReducer,
+  bankList: bankListReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"], // only persist auth reducer
+  whitelist: ["auth", "bankList"], // only persist auth reducer
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -29,6 +29,7 @@ import { Input } from "../ui/input";
 import { BASE_URL } from "@/lib/Api";
 import axios from "axios";
 import { fetchSubadmin } from "@/redux/subadminSlice";
+import SuccessModal from "../common/SuccessModal";
 
 const initialFormState = {
   first_name: "",
@@ -47,6 +48,7 @@ const AdminList = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
   const success = useSelector((state) => state.subadmin.success);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
 
@@ -115,6 +117,7 @@ const AdminList = () => {
       if (response.data.responseCode === "00") {
         dispatch(fetchSubadmin({ token, userRole }));
         setSuccessMessage(response.data.data);
+        setSuccessModalOpen(true);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -341,6 +344,11 @@ const AdminList = () => {
           ))}
         </TableBody>
       </Table>
+      <SuccessModal
+        open={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        message={`Subadmin Deleted Successfully.`}
+      />
     </div>
   );
 };

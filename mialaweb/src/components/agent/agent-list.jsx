@@ -26,6 +26,7 @@ import { fetchRiders } from "@/redux/riderSlice";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
+import SuccessModal from "../common/SuccessModal";
 
 const AgentList = () => {
   const dispatch = useDispatch();
@@ -36,7 +37,8 @@ const AgentList = () => {
   const riders = useSelector((state) => state.riders.riders);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const query = useSelector((state) => state.search.query);
-  // console.log(riders);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  console.log(riders);
   useEffect(() => {
     dispatch(fetchRiders({ token, userRole }));
   }, []);
@@ -51,6 +53,7 @@ const AgentList = () => {
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
+
     try {
       const response = await axios.delete(
         `${BASE_URL}api/v1/subadmin/delete-rider/${id}`,
@@ -65,6 +68,7 @@ const AgentList = () => {
       if (response.data.responseCode === "00") {
         dispatch(fetchRiders({ token, userRole }));
         setSuccessMessage(response.data.data);
+        setSuccessModalOpen(true);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -85,161 +89,174 @@ const AgentList = () => {
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Agent Name</TableHead>
             <TableHead>State</TableHead>
-            <TableHead>Total Deliveries</TableHead>
             <TableHead>Email </TableHead>
-            <TableHead>Time Frame </TableHead>
+            <TableHead>Total Deliveries</TableHead>
+            <TableHead>Pending Deliveries</TableHead>
+            <TableHead>Successful Deliveries</TableHead>
             <TableHead>
               <span className="sr-only">Action</span>
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] ">
-          {filtered?.map((data, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={Avatar}
-                    alt="avatar"
-                    className="h-6 w-6 rounded-full"
-                  />
-                  <span>{`${data.first_name} ${data.last_name}`}</span>
-                </div>
-              </TableCell>
-              <TableCell>{data.state}</TableCell>
-              <TableCell>{data.totalDeliveries}</TableCell>
-              <TableCell>{data.email}</TableCell>
-              <TableCell>{data.date}</TableCell>
-              <TableCell>
-                <div className="flex gap-3 justify-center">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
-                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[362px] ">
-                      <DialogHeader>
-                        <DialogTitle className="text-[#B10303] text-left">
-                          Details
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="flex flex-col gap-3 py-0.5">
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Agent Name</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {`${data.first_name} ${data.last_name}`}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Email</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.email}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Phone</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.phone}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">State</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.state}
-                          </span>
+          {filtered.length === 0 ? (
+            <h2 className="text-md font-semibold text-center mt-">
+              No registered agents at the moment.
+            </h2>
+          ) : (
+            filtered?.map((data, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={Avatar}
+                      alt="avatar"
+                      className="h-6 w-6 rounded-full"
+                    />
+                    <span>{`${data.first_name} ${data.last_name}`}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{data.state}</TableCell>
+                <TableCell>{data.email}</TableCell>
+                <TableCell>{data.totalDeliveries}</TableCell>
+                <TableCell>{data.pendingCount}</TableCell>
+                <TableCell>{data.deliveredCount}</TableCell>
+                <TableCell>
+                  <div className="flex gap-3 justify-center">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                          <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[362px] ">
+                        <DialogHeader>
+                          <DialogTitle className="text-[#B10303] text-left">
+                            Details
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col gap-3 py-0.5">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Agent Name</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {`${data.first_name} ${data.last_name}`}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Email</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.email}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Phone</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.phone}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">State</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.state}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">
+                              Total Deliveries Made
+                            </Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.totalDeliveries}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Account Number</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.accountNumber}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Account Name</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.accountName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Bank</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.bank}
+                            </span>
+                          </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">
-                            Total Deliveries Made
-                          </Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.totalDeliveries}
-                          </span>
+                        <div className="flex justify-center">
+                          <DialogClose
+                            type="submit"
+                            className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
+                            Done
+                          </DialogClose>
                         </div>
-
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Account Number</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.accountNumber}
-                          </span>
+                      </DialogContent>
+                    </Dialog>
+                    {/* Delete Dialog */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
+                          <img src={Delete} className="h-6 w-6 text-white" />
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
+                            <img
+                              src={AlertCircle}
+                              alt="Alert Icon"
+                              className="w-20 h-20 mx-auto"
+                            />
+                            <span>Delete</span>
+                          </DialogTitle>
+                          <DialogDescription className="text-center text-foreground font-semibold text-xs">
+                            Are you sure you want to delete this rider?
+                          </DialogDescription>
+                        </DialogHeader>
+                        {erorMessage && (
+                          <p className="text-red-500 text-sm text-center">
+                            {erorMessage}
+                          </p>
+                        )}
+                        {successMessage && (
+                          <p className="text-green-500 text-sm text-center">
+                            {successMessage}
+                          </p>
+                        )}
+                        <div className="flex justify-center gap-2">
+                          <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                            Cancel
+                          </DialogClose>
+                          <Button
+                            onClick={() => {
+                              handleDelete(data.userId);
+                            }}
+                            type="submit"
+                            className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
+                            {isLoading ? "Deleting" : "Delete"}
+                          </Button>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Account Name</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.accountName}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Bank</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.bank}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-center">
-                        <DialogClose
-                          type="submit"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
-                          Done
-                        </DialogClose>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  {/* Delete Dialog */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
-                        <img src={Delete} className="h-6 w-6 text-white" />
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
-                          <img
-                            src={AlertCircle}
-                            alt="Alert Icon"
-                            className="w-20 h-20 mx-auto"
-                          />
-                          <span>Delete</span>
-                        </DialogTitle>
-                        <DialogDescription className="text-center text-foreground font-semibold text-xs">
-                          Are you sure you want to delete this rider?
-                        </DialogDescription>
-                      </DialogHeader>
-                      {erorMessage && (
-                        <p className="text-red-500 text-sm text-center">
-                          {erorMessage}
-                        </p>
-                      )}
-                      {successMessage && (
-                        <p className="text-green-500 text-sm text-center">
-                          {successMessage}
-                        </p>
-                      )}
-                      <div className="flex justify-center gap-2">
-                        <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                          Cancel
-                        </DialogClose>
-                        <Button
-                          onClick={() => {
-                            handleDelete(data.userId);
-                          }}
-                          type="submit"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                          {isLoading ? "Deleting" : "Delete"}
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
+      <SuccessModal
+        open={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        message={`Agent Deleted Successfully.`}
+      />
     </div>
   );
 };

@@ -2,14 +2,14 @@ import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Async thunks to fetch transactions
-export const fetchDelivery = createAsyncThunk(
-  "delivery/fetchDelivery",
+export const fetchAllPayment = createAsyncThunk(
+  "payment/fetchAllPayment",
   async ({ token, userRole }, { rejectWithValue }) => {
     try {
       const response = await fetch(
         userRole === "Admin"
-          ? ` ${BASE_URL}api/v1/admin/delivery/all-rider-deliveries`
-          : `${BASE_URL}api/v1/subadmin/delivery/all-rider-deliveries`,
+          ? ` ${BASE_URL}api/v1/admin/get-all-customer-payments`
+          : `${BASE_URL}api/v1/subadmin/get-all-customer-payments`,
         {
           method: "GET",
           headers: {
@@ -20,49 +20,45 @@ export const fetchDelivery = createAsyncThunk(
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch deliveries");
+      if (!response.ok) throw new Error("Failed to fetch payments");
       const data = await response.json();
 
-      return data.data;
+      return data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-const deliverySlice = createSlice({
-  name: "delivery",
+const allCustomerPaymentSlice = createSlice({
+  name: "payment",
   initialState: {
-    delivery: [],
+    payment: [],
     loading: false,
     error: null,
     success: false,
-    multiCall: false,
   },
   reducers: {
-    resetDelivery(state) {
-      state.delivery = [];
-    },
-    setMultiCall(state) {
-      state.multiCall = true;
+    resetPayment(state) {
+      state.payment = [];
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchDelivery.pending, (state) => {
+      .addCase(fetchAllPayment.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchDelivery.fulfilled, (state, action) => {
+      .addCase(fetchAllPayment.fulfilled, (state, action) => {
         state.loading = false;
-        state.delivery = action.payload;
+        state.payment = action.payload;
         state.success = true;
       })
-      .addCase(fetchDelivery.rejected, (state, action) => {
+      .addCase(fetchAllPayment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.success = false;
       });
   },
 });
-export const { resetDelivery, setMultiCall } = deliverySlice.actions;
-export default deliverySlice.reducer;
+export const { resetPayment } = allCustomerPaymentSlice.actions;
+export default allCustomerPaymentSlice.reducer;

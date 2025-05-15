@@ -35,11 +35,10 @@ const PayoutSummaryTable = () => {
   useEffect(() => {
     dispatch(fetchTransaction({ token, userRole }));
   }, []);
-
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-sm font-semibold">Total Fees Collected</h2>
+        <h2 className="text-sm font-semibold">Payout summary</h2>
         <div className="flex gap-2.5 text-sm">
           <Button
             className={`cursor-pointer rounded-[4px] ${
@@ -64,6 +63,9 @@ const PayoutSummaryTable = () => {
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
             <TableHead className="rounded-l-sm">Agent Email</TableHead>
             <TableHead>Amount</TableHead>
+            <TableHead>Reference</TableHead>
+            <TableHead>Receipient Code</TableHead>
+            <TableHead>Transfer Code</TableHead>
             <TableHead>Status </TableHead>
             <TableHead>
               <span className="sr-only">Action</span>
@@ -84,6 +86,9 @@ const PayoutSummaryTable = () => {
                 </div>
               </TableCell>
               <TableCell>₦{data.amount?.toLocaleString()}</TableCell>
+              <TableCell>{data.reference}</TableCell>
+              <TableCell>{data.recipientCode}</TableCell>
+              <TableCell>{data.transferCode}</TableCell>
 
               <TableCell>
                 <Badge

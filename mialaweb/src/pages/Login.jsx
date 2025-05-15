@@ -36,7 +36,7 @@ const Login = () => {
         navigate("/overview");
       }
     } catch (error) {
-      setErrorMessage(`Error logging in: ${error.response.data.message}`);
+      setErrorMessage(`Error logging in: ${error?.response?.data?.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -55,12 +55,12 @@ const Login = () => {
               <img src={logo} alt="logo" className="max-w-36" />
               <div className="flex flex-col justify-center items-center">
                 <span className="text-2xl font-medium">Login</span>
-                <span className="text-sm">
-                  Enter your details or don’t have an account?{" "}
+                {/* <span className="text-sm">
+                  Enter your details or don’t have an account?
                   <span className="text-[#B10303]">
                     <Link to="/sign-up">Sign Up</Link>
                   </span>
-                </span>
+                </span> */}
               </div>
             </div>
           </CardHeader>
@@ -106,7 +106,7 @@ const Login = () => {
                   </Label>
                 </div>
 
-                <span>Forgotten Password?</span>
+                {/* <span>Forgotten Password?</span> */}
               </div>
               <Button
                 onClick={handleLogin}
