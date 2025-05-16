@@ -93,7 +93,7 @@ const Login = () => {
               </div>
 
               <div className="flex justify-between text-[#B10303] text-[10px]">
-                <div className="flex items-center space-x-2">
+                {/* <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     id="remember-me"
@@ -104,7 +104,7 @@ const Login = () => {
                     className="text-[10px] font-normal">
                     Remember me
                   </Label>
-                </div>
+                </div> */}
 
                 {/* <span>Forgotten Password?</span> */}
               </div>

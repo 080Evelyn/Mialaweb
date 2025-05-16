@@ -30,8 +30,18 @@ const PayoutSummaryTable = () => {
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const transaction = useSelector((state) => state.transaction.transactions);
+  const query = useSelector((state) => state.search.query);
   const dispatch = useDispatch();
 
+  const validTrans = transaction.filter((trans) => {
+    return trans.reference;
+  });
+  const filtered = validTrans.filter((trans) => {
+    return (
+      trans?.reference.toLowerCase().includes(query.toLowerCase()) ||
+      trans?.email.toLowerCase().includes(query.toLowerCase())
+    );
+  });
   useEffect(() => {
     dispatch(fetchTransaction({ token, userRole }));
   }, []);
@@ -73,7 +83,7 @@ const PayoutSummaryTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-sm font-[Raleway] ">
-          {transaction?.map((data, index) => (
+          {filtered?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">

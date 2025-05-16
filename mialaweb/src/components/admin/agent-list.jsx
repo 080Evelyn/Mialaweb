@@ -30,6 +30,7 @@ import { fetchRiders } from "@/redux/riderSlice";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
+import { fetchAllRiders } from "@/redux/allRiderSlice";
 
 const AdminAgentList = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,19 +39,23 @@ const AdminAgentList = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
-  const riders = useSelector((state) => state.riders.riders);
+  const riders = useSelector((state) => state.allRiders.allRiders);
+  const loading = useSelector((state) => state.allRiders.loading);
+  const error = useSelector((state) => state.allRiders.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const query = useSelector((state) => state.search.query);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-
-  const filtered = riders?.filter(
+  const approved = riders?.filter((rider) => {
+    return rider.approvalStatus === "APPROVED";
+  });
+  const filtered = approved?.filter(
     (rider) =>
       rider?.first_name.toLowerCase().includes(query.toLowerCase()) ||
       String(rider?.last_name).toLowerCase().includes(query.toLowerCase())
   );
 
   useEffect(() => {
-    dispatch(fetchRiders({ token, userRole }));
+    dispatch(fetchAllRiders({ token, userRole }));
   }, []);
   const handleDelete = async (id) => {
     setIsLoading(true);
@@ -82,6 +87,12 @@ const AdminAgentList = () => {
       setIsLoading(false);
     }
   };
+  if (loading) {
+    <h2 className="text-center text-sm font-semibold">Loading...</h2>;
+  }
+  if (error && !loading) {
+    <h2 className="text-sm text-center text-red-500">Error fetching agents</h2>;
+  }
   return (
     <div className="sm:me-5 sm:ms-2.5 ">
       <div className="flex justify-between items-center mb-6  w-[80%] ">
@@ -120,7 +131,7 @@ const AdminAgentList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] ">
-          {filtered.length === 0 ? (
+          {filtered?.length === 0 ? (
             <h2 className="text-md font-semibold text-center mt-3">
               No registered agents at the moment.
             </h2>

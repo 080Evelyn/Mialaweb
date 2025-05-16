@@ -164,9 +164,7 @@ const ProductList = () => {
               <TableCell>
                 <span
                   className={`inline-block h-2.5 w-2.5 rounded-full ${
-                    data.paymentStatus === "NOT_PAID"
-                      ? " bg-red-500"
-                      : " bg-[#0FA301]"
+                    data.paymentApproval ? "bg-[#0FA301]" : " bg-red-500 "
                   }`}
                 />
               </TableCell>

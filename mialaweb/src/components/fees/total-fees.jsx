@@ -34,6 +34,7 @@ const TotalFeesTable = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const userId = useSelector((state) => state.auth.user.userId);
   const totalPayments = useSelector((state) => state.payment.payment);
+  const query = useSelector((state) => state.search.query);
   const initialFormState = {
     depositReference: "",
     deliveryCode: "",
@@ -44,6 +45,13 @@ const TotalFeesTable = () => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const filtered = totalPayments.filter((trans) => {
+    return (
+      trans?.reference.toLowerCase().includes(query.toLowerCase()) ||
+      trans?.email.toLowerCase().includes(query.toLowerCase()) ||
+      trans?.paystackTransactionId.toLowerCase().includes(query.toLowerCase())
+    );
+  });
 
   const handleAssignPayment = async (e) => {
     e.preventDefault();
@@ -145,7 +153,7 @@ const TotalFeesTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[14px] font-medium font-[Raleway]">
-          {totalPayments?.map((data, index) => (
+          {filtered?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">

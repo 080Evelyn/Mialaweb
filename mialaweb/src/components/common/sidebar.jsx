@@ -104,7 +104,7 @@ function MenuItems({ setOpen }) {
       <div className="absolute bottom-10 inset-x-0 ps-4 lg:ps-5.5 px-3">
         <div className="flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 hover:bg-[#FFBFBF]">
           <img src={Admin} alt="Admin-logo" className="w-5 h-5" />
-          <span>Admin</span>
+          <span>{userRole}</span>
         </div>
       </div>
     </nav>
