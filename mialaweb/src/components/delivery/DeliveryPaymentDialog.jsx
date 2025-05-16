@@ -12,13 +12,18 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchRidersById } from "@/redux/riderByIdSlice";
 import { fetchBankList } from "@/redux/bankListSlice";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
 
-const DeliveryPaymentDialog = ({ data }) => {
+const DeliveryPaymentDialog = ({
+  data,
+  dialogOpen,
+  setFormData,
+  setDialogOpen,
+}) => {
+  // console.log(data);
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.auth.user.userRole);
   const selectedRider = useSelector((state) => state.riderById.riderById);
@@ -32,22 +37,16 @@ const DeliveryPaymentDialog = ({ data }) => {
   const [step, setStep] = useState(1);
 
   const selectedBank = bankList.filter((bnk) => {
-    return bnk.code === selectedRider.bankName;
+    return bnk.code === data?.bank_code;
   });
   const selectedBankName = selectedBank[0]?.name;
-  const [formDataStep1, setFormDataStep1] = useState({
-    name: selectedRider.accountName || "",
-    userId: selectedRider.userId || "",
-    account_number: selectedRider.accountNumber || "",
-    bank_code: selectedRider.bankName || "",
-  });
+
   const [formDataStep2, setFormDataStep2] = useState({
     amount: "",
     reason: "",
   });
-  const id = data.riderId;
+  const id = data.userId;
   useEffect(() => {
-    dispatch(fetchRidersById({ token, userRole, id }));
     if (success) {
       return;
     } else {
@@ -57,12 +56,14 @@ const DeliveryPaymentDialog = ({ data }) => {
   const handleSubmitStep1 = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
     try {
       const response = await axios.post(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/create-recipient?userId=${id}`
           : `${BASE_URL}api/v1/subadmin/create-recipient?userId=${id}`,
-        formDataStep1,
+        data,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -84,8 +85,9 @@ const DeliveryPaymentDialog = ({ data }) => {
 
   const handleSubmitStep2 = async (e) => {
     e.preventDefault();
-    console.log(formDataStep2);
     setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
     try {
       const response = await axios.post(
         userRole === "Admin"
@@ -103,9 +105,12 @@ const DeliveryPaymentDialog = ({ data }) => {
       if (response.data.responseCode === "00") {
         setSuccessMessage("Payment Initialization Successful");
         setSuccessModalOpen(true);
+      } else if (response.data.responseCode === "55") {
+        setErrorMessage(response.data.responseDesc);
       }
     } catch (error) {
-      setErrorMessage("Payment Initialization failed.");
+      console.log(error);
+      setErrorMessage(error.response.data.responseDesc);
     } finally {
       setIsLoading(false);
     }
@@ -113,12 +118,7 @@ const DeliveryPaymentDialog = ({ data }) => {
 
   return (
     <div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
-            <BanknoteArrowUp className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
-          </button>
-        </DialogTrigger>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[362px] ">
           <DialogHeader>
             <DialogTitle className="text-[#B10303] text-left">
@@ -136,10 +136,10 @@ const DeliveryPaymentDialog = ({ data }) => {
                 <Input
                   className="rounded-xs bg-[#8C8C8C33]"
                   id="name"
-                  value={formDataStep1.name}
+                  value={data.name}
                   onChange={(e) =>
-                    setFormDataStep1({
-                      ...formDataStep1,
+                    setFormData({
+                      ...data,
                       name: e.target.value,
                     })
                   }
@@ -154,10 +154,10 @@ const DeliveryPaymentDialog = ({ data }) => {
                   classaccount_number="rounded-xs bg-[#8C8C8C33]"
                   id="account_number"
                   // readOnly
-                  value={formDataStep1.account_number}
+                  value={data.account_number}
                   onChange={(e) =>
-                    setFormDataStep1({
-                      ...formDataStep1,
+                    setFormData({
+                      ...data,
                       account_number: e.target.value,
                     })
                   }
@@ -287,7 +287,7 @@ const DeliveryPaymentDialog = ({ data }) => {
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
-        message={`Payment for ${selectedRider.first_name} ${selectedRider.last_name} has been initialized.`}
+        message={`Payment for ${selectedRider?.first_name} ${selectedRider?.last_name} has been initialized.`}
       />
     </div>
   );

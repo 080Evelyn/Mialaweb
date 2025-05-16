@@ -2,14 +2,14 @@ import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Async thunks to fetch transactions
-export const fetchRiders = createAsyncThunk(
-  "riders/fetchRiders",
+export const fetchPendingRiders = createAsyncThunk(
+  "pendingRiders/fetchPendingRiders",
   async ({ token, userRole }, { rejectWithValue }) => {
     try {
       const response = await fetch(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/riders-by-state`
-          : `${BASE_URL}api/v1/subadmin/riders-by-state`,
+          ? `${BASE_URL}api/v1/admin/fetch-all-pending-agent-account`
+          : `${BASE_URL}api/v1/subadmin/fetch-all-pending-agent-account`,
         {
           method: "GET",
           headers: {
@@ -30,32 +30,32 @@ export const fetchRiders = createAsyncThunk(
   }
 );
 
-const riderSlice = createSlice({
-  name: "riders",
+const pendingRiderSlice = createSlice({
+  name: "pendingRiders",
   initialState: {
-    riders: null,
+    pendingRiders: null,
     loading: false,
     error: null,
   },
   reducers: {
-    resetriders(state) {
-      state.riders = null;
+    resetPendingRiders(state) {
+      state.pendingRiders = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchRiders.pending, (state) => {
+      .addCase(fetchPendingRiders.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchRiders.fulfilled, (state, action) => {
+      .addCase(fetchPendingRiders.fulfilled, (state, action) => {
         state.loading = false;
-        state.riders = action.payload;
+        state.pendingRiders = action.payload;
       })
-      .addCase(fetchRiders.rejected, (state, action) => {
+      .addCase(fetchPendingRiders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
-export const { resetriders } = riderSlice.actions;
-export default riderSlice.reducer;
+export const { resetPendingRiders } = pendingRiderSlice.actions;
+export default pendingRiderSlice.reducer;

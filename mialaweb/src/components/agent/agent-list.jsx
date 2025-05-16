@@ -22,11 +22,11 @@ import Avatar from "../../assets/icons/avatar.svg";
 import AlertCircle from "../../assets/icons/alert-circle.svg";
 import Delete from "../../assets/icons/delete.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchRiders } from "@/redux/riderSlice";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
+import { fetchAllRiders } from "@/redux/allRiderSlice";
 
 const AgentList = () => {
   const dispatch = useDispatch();
@@ -34,16 +34,17 @@ const AgentList = () => {
   const [erorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const token = useSelector((state) => state.auth.token);
-  const riders = useSelector((state) => state.riders.riders);
+  const riders = useSelector((state) => state.allRiders.allRiders);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const query = useSelector((state) => state.search.query);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  console.log(riders);
   useEffect(() => {
-    dispatch(fetchRiders({ token, userRole }));
+    dispatch(fetchAllRiders({ token, userRole }));
   }, []);
-
-  const filtered = riders?.filter(
+  const approved = riders?.filter((rider) => {
+    return rider.approvalStatus === "APPROVED";
+  });
+  const filtered = approved?.filter(
     (rider) =>
       rider?.first_name.toLowerCase().includes(query.toLowerCase()) ||
       String(rider?.last_name).toLowerCase().includes(query.toLowerCase())
@@ -99,7 +100,7 @@ const AgentList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] ">
-          {filtered.length === 0 ? (
+          {filtered?.length === 0 ? (
             <h2 className="text-md font-semibold text-center mt-">
               No registered agents at the moment.
             </h2>

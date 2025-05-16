@@ -272,7 +272,7 @@ const AdminList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] ">
-          {subAdmins.map((data, index) => (
+          {subAdmins?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">

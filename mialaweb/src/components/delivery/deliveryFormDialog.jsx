@@ -88,6 +88,8 @@ const DeliveryFormDialog = ({
         setSuccessModalOpen(true);
         setFormData(initialState);
         dispatch(setMultiCall());
+      } else if (response.data.responseCode === "55") {
+        setErrorMessage(response.data.responseDesc);
       }
     } catch (error) {
       setErrorMessage(`An error occured while creating delivery.`);
@@ -289,11 +291,11 @@ const DeliveryFormDialog = ({
                   <SelectValue placeholder="Select Agent" />
                 </SelectTrigger>
                 <SelectContent>
-                  {riders.map((rider) => {
+                  {riders?.map((rider) => {
                     return (
                       <SelectItem
                         className="hover:bg-gray-200 cursor-pointer"
-                        value={`${rider.userId}`}>
+                        value={`${rider.riderId}`}>
                         {`${rider.first_name} ${rider.last_name}`}
                       </SelectItem>
                     );

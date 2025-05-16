@@ -17,6 +17,7 @@ import { fetchDelivery } from "@/redux/deliverySlice";
 import { fetchRiders } from "@/redux/riderSlice";
 import DeliveryPaymentDialog from "./DeliveryPaymentDialog";
 import SuccessModal from "../common/SuccessModal";
+import { fetchRidersById } from "@/redux/riderByIdSlice";
 
 const initialFormState = {
   productName: "",
@@ -35,11 +36,18 @@ const initialFormState = {
 
 const DeliveryList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [formMode, setFormMode] = useState("add");
   const [formData, setFormData] = useState(initialFormState);
   const token = useSelector((state) => state.auth.token);
   const deliveryList = useSelector((state) => state.delivery.delivery);
-  // console.log(deliveryList);
+  const selectedRider = useSelector((state) => state.riderById.riderById);
+  const [formDataStep1, setFormDataStep1] = useState({
+    name: "",
+    userId: "",
+    account_number: "",
+    bank_code: "",
+  });
   const multiCall = useSelector((state) => state.delivery.multiCall);
   const loading = useSelector((state) => state.delivery.loading);
   const success = useSelector((state) => state.delivery.success);
@@ -99,6 +107,18 @@ const DeliveryList = () => {
     });
     setDialogOpen(true);
   };
+
+  const handleOpenPaymentModal = (data) => {
+    const id = data.riderId;
+    dispatch(fetchRidersById({ token, userRole, id }));
+    setFormDataStep1({
+      name: selectedRider.accountName || "",
+      userId: selectedRider.userId || "",
+      account_number: selectedRider.accountNumber || "",
+      bank_code: selectedRider.bankName || "",
+    });
+    setModalOpen(true);
+  };
   if (loading && !multiCall) {
     return (
       <div>
@@ -131,6 +151,12 @@ const DeliveryList = () => {
           initialState={initialFormState}
         />
       </div>
+      <DeliveryPaymentDialog
+        data={formDataStep1}
+        setFormData={setFormDataStep1}
+        dialogOpen={modalOpen}
+        setDialogOpen={setModalOpen}
+      />
       <Table className={""}>
         <TableHeader>
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
@@ -140,6 +166,7 @@ const DeliveryList = () => {
             <TableHead>Date </TableHead>
             <TableHead>Amount Paid(₦) </TableHead>
             <TableHead>Delivery Fee(₦) </TableHead>
+            <TableHead>Total(₦) </TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -164,6 +191,11 @@ const DeliveryList = () => {
               </TableCell>
               <TableCell>{Number(data.deliveryFee).toLocaleString()}</TableCell>
               <TableCell>
+                {(
+                  Number(data.deliveryFee) + Number(data.productPrice)
+                ).toLocaleString()}
+              </TableCell>
+              <TableCell>
                 <div className="flex gap-3 items-center">
                   <span
                     className={`inline-block h-2.5 w-2.5 rounded-full ${
@@ -175,7 +207,13 @@ const DeliveryList = () => {
                   </button>
                   <DeliveryDetailsDialog data={data} />
                   {data.paymentApproval && (
-                    <DeliveryPaymentDialog data={data} />
+                    <button
+                      onClick={() => {
+                        handleOpenPaymentModal(data);
+                      }}
+                      className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                      <BanknoteArrowUp className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+                    </button>
                   )}
                 </div>
               </TableCell>

@@ -31,14 +31,14 @@ export const fetchSubadmin = createAsyncThunk(
 const subadminSlice = createSlice({
   name: "subadmin",
   initialState: {
-    subadmin: [],
+    subadmin: null,
     loading: false,
     error: null,
     success: false,
   },
   reducers: {
     resetSubadmin(state) {
-      state.subadmin = [];
+      state.subadmin = null;
     },
   },
   extraReducers: (builder) => {

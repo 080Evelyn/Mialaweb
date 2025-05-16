@@ -22,6 +22,8 @@ import transactionReducer from "./transactionSlice";
 import allPaymentReducer from "./allCustomerPaymentSlice";
 import riderByIdReducer from "./riderByIdSlice";
 import bankListReducer from "./bankListSlice";
+import pendingRiderReducer from "./pendingRidersSlice";
+import allRidersReducer from "./allRiderSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -34,6 +36,8 @@ const rootReducer = combineReducers({
   payment: allPaymentReducer,
   riderById: riderByIdReducer,
   bankList: bankListReducer,
+  pendingRiders: pendingRiderReducer,
+  allRiders: allRidersReducer,
 });
 
 const persistConfig = {
