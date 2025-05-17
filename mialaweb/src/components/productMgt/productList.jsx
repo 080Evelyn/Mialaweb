@@ -70,7 +70,7 @@ const ProductList = () => {
   if (!loading && error) {
     return (
       <div>
-        <h2 className="text-center font-semibold">
+        <h2 className="text-center font-semibold text-sm  text-red-600">
           Something went wrong, check internet connection.
         </h2>
       </div>
