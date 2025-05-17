@@ -22,6 +22,7 @@ import { BASE_URL } from "@/lib/Api";
 import axios from "axios";
 import { fetchDelivery, setMultiCall } from "@/redux/deliverySlice";
 import SuccessModal from "../common/SuccessModal";
+import { NIGERIAN_STATES } from "@/config/stateData";
 
 const DeliveryFormDialog = ({
   dialogOpen,
@@ -36,11 +37,38 @@ const DeliveryFormDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const riders = useSelector((state) => state.riders.riders);
+  const riders = useSelector((state) => state.allRiders.allRiders);
   const id = useSelector((state) => state.auth.user.userId);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const token = useSelector((state) => state.auth.token);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [selectedState, setSelectedState] = useState("");
+  const [agents, setAgents] = useState([]);
+  const [loadingAgents, setLoadingAgents] = useState(false);
+
+  const handleStateChange = async (stateName) => {
+    setSelectedState(stateName);
+    setFormData({ ...formData, riderId: "" });
+    setLoadingAgents(true);
+    try {
+      const response = await axios.get(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/riders-by-state?state=${stateName}`
+          : `${BASE_URL}api/v1/subadmin/riders-by-state?state=${stateName}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAgents(response.data.data);
+    } catch (error) {
+      console.error("Failed to fetch agents by state", error);
+      setAgents([]);
+    } finally {
+      setLoadingAgents(false);
+    }
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -127,6 +155,9 @@ const DeliveryFormDialog = ({
       setIsLoading(false);
     }
   };
+  const approved = riders?.filter((rider) => {
+    return rider.approvalStatus === "APPROVED";
+  });
   return (
     <>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -280,7 +311,7 @@ const DeliveryFormDialog = ({
                 }
               />
             </div>
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
               <Label className="text-xs">Agent</Label>
               <Select
                 value={formData.riderId}
@@ -291,7 +322,7 @@ const DeliveryFormDialog = ({
                   <SelectValue placeholder="Select Agent" />
                 </SelectTrigger>
                 <SelectContent>
-                  {riders?.map((rider) => {
+                  {approved?.map((rider) => {
                     return (
                       <SelectItem
                         className="hover:bg-gray-200 cursor-pointer"
@@ -302,6 +333,60 @@ const DeliveryFormDialog = ({
                   })}
                 </SelectContent>
               </Select>
+            </div> */}
+
+            <div className="flex flex-col gap-4">
+              {/* State Dropdown */}
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs">State</Label>
+                <Select onValueChange={handleStateChange}>
+                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
+                    <SelectValue placeholder="Select State" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NIGERIAN_STATES.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Agent Dropdown */}
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs">Agent</Label>
+                <Select
+                  value={formData.riderId}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, riderId: value })
+                  }
+                  disabled={!selectedState || loadingAgents}>
+                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
+                    <SelectValue
+                      placeholder={
+                        loadingAgents ? "Loading..." : "Select Agent"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {agents.length === 0 ? (
+                      <div className="p-2 text-sm text-gray-500">
+                        No agents found
+                      </div>
+                    ) : (
+                      agents?.map((rider) => (
+                        <SelectItem
+                          key={rider.riderId}
+                          className="hover:bg-gray-200 cursor-pointer"
+                          value={rider.riderId.toString()}>
+                          {`${rider.first_name} ${rider.last_name}`}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="flex flex-col gap-1">
               <Label className="text-xs" htmlFor="dueDate">

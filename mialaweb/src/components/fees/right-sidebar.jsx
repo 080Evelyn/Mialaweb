@@ -18,6 +18,8 @@ const FeesSidebar = () => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const riders = useSelector((state) => state.riders.riders);
+  const loading = useSelector((state) => state.riders.loading);
+  const error = useSelector((state) => state.riders.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
 
   // Track open modal state
@@ -50,6 +52,16 @@ const FeesSidebar = () => {
       setLoadingDetails(false);
     }
   };
+  if (loading) {
+    return <p className="text-center">Loading agents..</p>;
+  }
+  if (!loading && error) {
+    return (
+      <p className="text-sm text-red-600 text-center">
+        Error fetching agents..
+      </p>
+    );
+  }
   return (
     <div className="flex flex-col gap-4 mt-2">
       <div className="text-sm font-medium text-gray-700">Active Agents</div>

@@ -7,17 +7,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BanknoteArrowUp, PenBox } from "lucide-react";
-import { deliveryTableData } from "@/config/deliveryTableData";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
 import DeliveryFormDialog from "./deliveryFormDialog";
 import DeliveryDetailsDialog from "./deliveryDetailsDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDelivery } from "@/redux/deliverySlice";
-import { fetchRiders } from "@/redux/riderSlice";
 import DeliveryPaymentDialog from "./DeliveryPaymentDialog";
-import SuccessModal from "../common/SuccessModal";
+
 import { fetchRidersById } from "@/redux/riderByIdSlice";
+import { fetchAllRiders } from "@/redux/allRiderSlice";
 
 const initialFormState = {
   productName: "",
@@ -63,7 +62,7 @@ const DeliveryList = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchRiders({ token, userRole }));
+    dispatch(fetchAllRiders({ token, userRole }));
     // if (success) {
     //   return;
     // }
@@ -122,7 +121,7 @@ const DeliveryList = () => {
   if (loading && !multiCall) {
     return (
       <div>
-        <h2 className="text-center font-semibold">Loading...</h2>
+        <p className="text-center font-semibold">Loading...</p>
       </div>
     );
   }
@@ -130,9 +129,9 @@ const DeliveryList = () => {
   if (!loading && error) {
     return (
       <div>
-        <h2 className="text-center font-semibold">
+        <p className="text-center font-semibold text-sm text-red-600">
           Something went wrong, check internet connection.
-        </h2>
+        </p>
       </div>
     );
   }

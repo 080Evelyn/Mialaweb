@@ -56,6 +56,7 @@ const AdminAgentSidebar = () => {
       );
 
       dispatch(fetchAllRiders({ token, userRole }));
+      dispatch(fetchPendingRiders({ token, userRole }));
       setSuccessModalOpen(true);
       setSuccessMessage("Agent Approved!");
     } catch (error) {
