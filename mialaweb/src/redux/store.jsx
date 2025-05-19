@@ -24,6 +24,7 @@ import riderByIdReducer from "./riderByIdSlice";
 import bankListReducer from "./bankListSlice";
 import pendingRiderReducer from "./pendingRidersSlice";
 import allRidersReducer from "./allRiderSlice";
+import deliveryCountReducer from "./deliveriesByState";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
   bankList: bankListReducer,
   pendingRiders: pendingRiderReducer,
   allRiders: allRidersReducer,
+  deliveryByStateCount: deliveryCountReducer,
 });
 
 const persistConfig = {

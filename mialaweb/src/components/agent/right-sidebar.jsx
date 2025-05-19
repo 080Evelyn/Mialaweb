@@ -16,6 +16,7 @@ import { fetchPendingRiders } from "@/redux/pendingRidersSlice";
 import SuccessModal from "../common/SuccessModal";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
+import { fetchAllRiders } from "@/redux/allRiderSlice";
 
 const AgentSidebar = () => {
   const [successMessage, setSuccessMessage] = useState("");
@@ -42,6 +43,7 @@ const AgentSidebar = () => {
     try {
       const response = await axios.patch(
         `${BASE_URL}api/v1/subadmin/approve-rider-signup/${id}`,
+        {},
 
         {
           headers: {
@@ -50,14 +52,15 @@ const AgentSidebar = () => {
           },
         }
       );
-      console.log(response);
-      // if (response.status === 201) {
+      // if (response.data.responseCode === "00") {
+      setSuccessModalOpen(true);
+      dispatch(fetchAllRiders({ token, userRole }));
       dispatch(fetchPendingRiders({ token, userRole }));
       setSuccessMessage("Agent Approved!");
 
       // }
     } catch (error) {
-      setErrorMessage(`An error occured while creating subadmin.`);
+      setErrorMessage(`An error occured.`);
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -108,7 +111,11 @@ const AgentSidebar = () => {
                   variant="ghost">
                   View
                 </Button> */}
-                  <Button className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]">
+                  <Button
+                    onClick={() => {
+                      setErrorMessage(""), setSuccessMessage("");
+                    }}
+                    className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]">
                     Approve
                   </Button>
                 </div>

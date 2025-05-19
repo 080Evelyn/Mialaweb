@@ -113,7 +113,7 @@ const AdminAgentSidebar = () => {
                     Cancel
                   </Button> */}
                   <Button className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]">
-                    Approved
+                    Approve
                   </Button>
                 </div>
               </DialogTrigger>

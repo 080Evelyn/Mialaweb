@@ -2,7 +2,6 @@ import { useSelector } from "react-redux";
 
 const SuperAdminOverview = () => {
   const riders = useSelector((state) => state.riders.riders);
-  console.log(riders);
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
   const pendingRiders = useSelector(
     (state) => state.pendingRiders.pendingRiders

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router";
+import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import { useDispatch } from "react-redux";
@@ -17,6 +18,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -77,18 +79,34 @@ const Login = () => {
                   placeholder="Enter your email"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 relative">
                 <Label htmlFor="password" className="text-sm">
                   Password
                 </Label>
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 {erorMessage && (
                   <p className="text-xs text-red-500">{erorMessage}</p>
+                )}
+                {showPassword && (
+                  <Eye
+                    onClick={() => {
+                      setShowPassword(false);
+                    }}
+                    className={`absolute  right-0 top-8`}
+                  />
+                )}
+                {!showPassword && (
+                  <EyeOff
+                    onClick={() => {
+                      setShowPassword(true);
+                    }}
+                    className="absolute right-0 top-8"
+                  />
                 )}
               </div>
 
