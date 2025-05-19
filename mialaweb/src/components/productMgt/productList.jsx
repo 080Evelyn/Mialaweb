@@ -28,17 +28,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/redux/productSlice";
 
 const ProductList = () => {
-  const id = useSelector((state) => state.auth.user.userId);
   const token = useSelector((state) => state.auth.token);
-  const products = useSelector((state) => state.product.products);
-  const loading = useSelector((state) => state.product.loading);
-  const error = useSelector((state) => state.product.error);
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
   const query = useSelector((state) => state.search.query);
   const userRole = useSelector((state) => state.auth.user.userRole);
+  const { products, loading, error, currentPage, totalPages } = useSelector(
+    (state) => state.product
+  );
+  useEffect(() => {
+    if (token && userRole) {
+      dispatch(fetchProducts({ token, page: currentPage, userRole }));
+    }
+  }, [dispatch, token, userRole, currentPage]);
 
-  const filtered = products?.content?.filter(
+  const handlePageChange = (page) => {
+    if (page !== currentPage) {
+      dispatch(fetchProducts({ token, page, userRole }));
+    }
+  };
+
+  const filtered = products?.filter(
     (product) =>
       product?.productName.toLowerCase().includes(query.toLowerCase()) ||
       String(product?.deliveryCode).toLowerCase().includes(query.toLowerCase())
@@ -335,6 +345,23 @@ const ProductList = () => {
           ))}
         </TableBody>
       </Table>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-4 py-2 rounded border ${
+                currentPage === page
+                  ? "bg-[#FFBFBF] text-black"
+                  : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}>
+              {page}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
