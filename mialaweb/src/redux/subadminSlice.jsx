@@ -39,6 +39,7 @@ const subadminSlice = createSlice({
   reducers: {
     resetSubadmin(state) {
       state.subadmin = null;
+      state.success = false;
     },
   },
   extraReducers: (builder) => {

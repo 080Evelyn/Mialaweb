@@ -13,7 +13,11 @@ import { Label } from "@/components/ui/label";
 const DeliveryDetailsDialog = ({ data }) => {
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger
+        // onClick={() => {
+        //   console.log(data);
+        // }}
+        asChild>
         <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
           <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
         </button>
@@ -38,9 +42,37 @@ const DeliveryDetailsDialog = ({ data }) => {
             </span>
           </div>
           <div className="flex justify-between items-center">
+            <Label className="text-xs">Product Price</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              ₦{data.productPrice.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <Label className="text-xs">Quantity</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              {data.qty}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
             <Label className="text-xs">Amount</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦{data.productPrice}
+              ₦{(Number(data.productPrice) * data.qty).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <Label className="text-xs">Delivery Fee</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              ₦{Number(data.deliveryFee).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <Label className="text-xs">Total Amount </Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              ₦
+              {(
+                Number(data.productPrice) * data.qty +
+                Number(data.deliveryFee)
+              ).toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between items-center">
@@ -101,12 +133,6 @@ const DeliveryDetailsDialog = ({ data }) => {
             {data.date}
           </span>
         </div> */}
-          <div className="flex justify-between items-center">
-            <Label className="text-xs">Total Amount Paid</Label>
-            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦{data.productPrice}
-            </span>
-          </div>
         </div>
         <div className="flex justify-end gap-2 ">
           <DialogClose className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">

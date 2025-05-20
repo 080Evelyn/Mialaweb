@@ -41,6 +41,7 @@ const allCustomerPaymentSlice = createSlice({
   reducers: {
     resetPayment(state) {
       state.payment = [];
+      state.success = false;
     },
   },
   extraReducers: (builder) => {

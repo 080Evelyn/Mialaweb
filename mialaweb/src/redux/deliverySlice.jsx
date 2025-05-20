@@ -42,6 +42,8 @@ const deliverySlice = createSlice({
   reducers: {
     resetDelivery(state) {
       state.delivery = [];
+      state.multiCall = false;
+      state.success = false;
     },
     setMultiCall(state) {
       state.multiCall = true;

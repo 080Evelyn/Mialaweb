@@ -36,6 +36,7 @@ const bankListSlice = createSlice({
   reducers: {
     resetbankList(state) {
       state.bankList = [];
+      state.success = false;
     },
   },
   extraReducers: (builder) => {

@@ -27,6 +27,7 @@ import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
+import { fetchBankList } from "@/redux/bankListSlice";
 
 const AgentList = () => {
   const dispatch = useDispatch();
@@ -38,8 +39,24 @@ const AgentList = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const query = useSelector((state) => state.search.query);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const bankList = useSelector((state) => state.bankList.bankList);
+  const success = useSelector((state) => state.bankList.success);
+  const [filteredBank, setFilteredBank] = useState([]);
+
+  const handleBankSelection = (data) => {
+    const selectedBank = bankList.filter((bnk) => {
+      return bnk.code === data?.bankName;
+    });
+    setFilteredBank(selectedBank[0]?.name);
+  };
+
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
+    if (success) {
+      return;
+    } else {
+      dispatch(fetchBankList({ token }));
+    }
   }, []);
   const approved = riders?.filter((rider) => {
     return rider.approvalStatus === "APPROVED";
@@ -125,7 +142,11 @@ const AgentList = () => {
                 <TableCell>
                   <div className="flex gap-3 justify-center">
                     <Dialog>
-                      <DialogTrigger asChild>
+                      <DialogTrigger
+                        onClick={() => {
+                          handleBankSelection(data);
+                        }}
+                        asChild>
                         <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
                           <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                         </button>
@@ -186,7 +207,7 @@ const AgentList = () => {
                           <div className="flex justify-between items-center">
                             <Label className="text-xs">Bank</Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.bank}
+                              {filteredBank}
                             </span>
                           </div>
                         </div>

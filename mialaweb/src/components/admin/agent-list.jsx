@@ -31,6 +31,7 @@ import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
+import { fetchBankList } from "@/redux/bankListSlice";
 
 const AdminAgentList = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +46,16 @@ const AdminAgentList = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const query = useSelector((state) => state.search.query);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const bankList = useSelector((state) => state.bankList.bankList);
+  const success = useSelector((state) => state.bankList.success);
+  const [filteredBank, setFilteredBank] = useState([]);
+
+  const handleBankSelection = (data) => {
+    const selectedBank = bankList.filter((bnk) => {
+      return bnk.code === data?.bankName;
+    });
+    setFilteredBank(selectedBank[0]?.name);
+  };
   const approved = riders?.filter((rider) => {
     return rider.approvalStatus === "APPROVED";
   });
@@ -56,6 +67,11 @@ const AdminAgentList = () => {
 
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
+    if (success) {
+      return;
+    } else {
+      dispatch(fetchBankList({ token }));
+    }
   }, []);
   const handleDelete = async (id) => {
     setIsLoading(true);
@@ -156,7 +172,11 @@ const AdminAgentList = () => {
                 <TableCell>
                   <div className="flex gap-3 justify-center">
                     <Dialog>
-                      <DialogTrigger asChild>
+                      <DialogTrigger
+                        onClick={() => {
+                          handleBankSelection(data);
+                        }}
+                        asChild>
                         <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
                           <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                         </button>
@@ -193,12 +213,12 @@ const AdminAgentList = () => {
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center">
+                          {/* <div className="flex justify-between items-center">
                             <Label className="text-xs">Date</Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
                               {data.date}
                             </span>
-                          </div>
+                          </div> */}
 
                           <div className="flex justify-between items-center">
                             <Label className="text-xs">
@@ -218,15 +238,15 @@ const AdminAgentList = () => {
                           <div className="flex justify-between items-center">
                             <Label className="text-xs">Bank</Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.bankName}
+                              {filteredBank}
                             </span>
                           </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 ">
-                          <Button className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                        <div className="flex justify-center gap-2 ">
+                          {/* <Button className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
                             Report
-                          </Button>
+                          </Button> */}
                           <DialogClose
                             type="submit"
                             className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">

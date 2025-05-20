@@ -41,6 +41,7 @@ const transactionSlice = createSlice({
   reducers: {
     resetTransaction(state) {
       state.transactions = [];
+      state.success = false;
     },
   },
   extraReducers: (builder) => {
