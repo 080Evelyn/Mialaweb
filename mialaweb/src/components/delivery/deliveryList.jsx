@@ -63,9 +63,9 @@ const DeliveryList = () => {
 
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
-    // if (success) {
-    //   return;
-    // }
+    if (success) {
+      return;
+    }
     dispatch(fetchDelivery({ token, userRole }));
   }, []);
 
@@ -106,18 +106,23 @@ const DeliveryList = () => {
     });
     setDialogOpen(true);
   };
-
+  // Open the modal and fetch the rider
   const handleOpenPaymentModal = (data) => {
     const id = data.riderId;
     dispatch(fetchRidersById({ token, userRole, id }));
-    setFormDataStep1({
-      name: selectedRider.accountName || "",
-      userId: selectedRider.userId || "",
-      account_number: selectedRider.accountNumber || "",
-      bank_code: selectedRider.bankName || "",
-    });
-    setModalOpen(true);
+    setModalOpen(true); // open modal first
   };
+  useEffect(() => {
+    if (modalOpen && selectedRider) {
+      setFormDataStep1({
+        name: selectedRider.accountName || "",
+        userId: selectedRider.userId || "",
+        account_number: selectedRider.accountNumber || "",
+        bank_code: selectedRider.bankName || "",
+      });
+    }
+  }, [selectedRider, modalOpen]);
+
   if (loading && !multiCall) {
     return (
       <div>
@@ -163,7 +168,9 @@ const DeliveryList = () => {
             <TableHead>Product</TableHead>
             <TableHead>Delivery Code</TableHead>
             <TableHead>Date </TableHead>
-            <TableHead>Amount Paid(₦) </TableHead>
+            <TableHead>Product Price(₦) </TableHead>
+            <TableHead>Quantity </TableHead>
+            <TableHead>Amount(₦) </TableHead>
             <TableHead>Delivery Fee(₦) </TableHead>
             <TableHead>Total(₦) </TableHead>
             <TableHead>Status</TableHead>
@@ -188,10 +195,17 @@ const DeliveryList = () => {
               <TableCell>
                 {Number(data.productPrice).toLocaleString()}
               </TableCell>
+              <TableCell>{parseFloat(data.qty)}</TableCell>
+              <TableCell>
+                {(
+                  Number(data.productPrice) * parseFloat(data.qty)
+                ).toLocaleString()}
+              </TableCell>
               <TableCell>{Number(data.deliveryFee).toLocaleString()}</TableCell>
               <TableCell>
                 {(
-                  Number(data.deliveryFee) + Number(data.productPrice)
+                  Number(data.deliveryFee) +
+                  Number(data.productPrice) * data.qty
                 ).toLocaleString()}
               </TableCell>
               <TableCell>

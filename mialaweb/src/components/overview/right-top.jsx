@@ -4,10 +4,10 @@ import PayoutIcon from "../../assets/icons/payout.svg";
 import AgentIcon from "../../assets/icons/user-group.svg";
 // import SockJS from "sockjs-client";
 // For browser (ESM)
-import SockJS from "sockjs-client/dist/sockjs";
-import { Stomp } from "@stomp/stompjs";
-import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+// import SockJS from "sockjs-client/dist/sockjs";
+// import { Stomp } from "@stomp/stompjs";
+// import { useSelector } from "react-redux";
+// import { useEffect, useState } from "react";
 
 const getIconByType = (type) => {
   switch (type) {
@@ -36,9 +36,9 @@ const getIconByType = (type) => {
 };
 
 const NotificationList = () => {
-  let stompClient;
-  const userId = useSelector((state) => state.auth.user.userId);
-  const [notifications, setNotifications] = useState([]);
+  // let stompClient;
+  // const userId = useSelector((state) => state.auth.user.userId);
+  // const [notifications, setNotifications] = useState([]);
 
   // const connectWebSocket = () => {
   //   const socket = new SockJS("https://miala.onrender.com/ws-notifications"); // Spring Boot endpoint
