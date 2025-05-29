@@ -141,7 +141,7 @@ const TotalFeesTable = () => {
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
             <TableHead className="rounded-l-sm">Email</TableHead>
             <TableHead>Transaction ID</TableHead>
-            <TableHead>Customer Code</TableHead>
+            {/* <TableHead>Customer Code</TableHead> */}
             <TableHead>Reference </TableHead>
             <TableHead>Amount </TableHead>
             <TableHead>link Delivery Code </TableHead>
@@ -166,7 +166,7 @@ const TotalFeesTable = () => {
                 </div>
               </TableCell>
               <TableCell>{data.paystackTransactionId}</TableCell>
-              <TableCell>{data.customerCode}</TableCell>
+              {/* <TableCell>{data.customerCode}</TableCell> */}
               <TableCell>{data.reference}</TableCell>
               <TableCell>₦{data.amount}</TableCell>
               <TableCell>{data.linkedDeliveryCode}</TableCell>
