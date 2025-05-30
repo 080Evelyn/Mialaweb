@@ -18,7 +18,7 @@ const Layout = ({ children, rightSidebar }) => {
         </main>
       </div>
       {rightSidebar && (
-        <aside className="hidden lg:flex flex-col w-64 border-l bg-background p-4 overflow-auto">
+        <aside className="hidden lg:flex flex-col  border-l bg-background p-4 overflow-auto w-[20%]">
           {rightSidebar}
         </aside>
       )}

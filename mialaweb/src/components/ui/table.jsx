@@ -2,17 +2,18 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router";
-
 function Table({ className, ...props }) {
   const location = useLocation();
   return (
     <div
       data-slot="table-container"
-      className={`relative  ${
-        location.pathname === "/fees" ? "w-[35%]" : "w-[55%]"
-      } ${location.pathname === "/admin/agents" ? "w-[70%]" : "w-[55%]"} ${
+      className={`relative  
+        ${location.pathname === "/fees" ? "w-[35%]" : "w-[55%]"} 
+      ${location.pathname === "/admin/agents" ? "w-[70%]" : "w-[55%]"} ${
         location.pathname === "/admin/sub-admins" ? "w-[90%]" : "w-[55%]"
-      }  md:w-full overflow-x-scroll md:overflow-x-auto`}>
+      } 
+        md:w-full overflow-x-scroll md:overflow-x-auto
+       `}>
       <table
         data-slot="table"
         className={cn(" md:w-full  caption-bottom text-sm", className)}
@@ -26,7 +27,7 @@ function TableHeader({ className, ...props }) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      className={cn("[&_tr]:border-b ", className)}
       {...props}
     />
   );
@@ -36,7 +37,7 @@ function TableBody({ className, ...props }) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0", className)}
+      className={cn("[&_tr:last-child]:border-0  ", className)}
       {...props}
     />
   );

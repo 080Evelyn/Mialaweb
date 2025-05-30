@@ -98,7 +98,7 @@ const AgentList = () => {
     }
   };
   return (
-    <div className="sm:me-5 sm:ms-2.5">
+    <div className="sm:me-5 sm:ms-2.5 overflow-x-scroll  ">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Agent Listing</h2>
       </div>
@@ -116,7 +116,7 @@ const AgentList = () => {
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className="text-[12px] font-[Raleway] ">
+        <TableBody className="text-[12px] font-[Raleway] overflow-x-scroll ">
           {filtered?.length === 0 ? (
             <h2 className="text-md font-semibold text-center mt-">
               No registered agents at the moment.

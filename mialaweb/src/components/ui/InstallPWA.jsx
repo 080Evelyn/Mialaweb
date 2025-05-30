@@ -40,7 +40,6 @@ const InstallPWA = () => {
       setShowPopup(false);
     }
   };
-
   if (isInstalled) return null;
 
   return (
