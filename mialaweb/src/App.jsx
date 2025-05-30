@@ -60,7 +60,8 @@ function App() {
         <Route
           path="admin/sub-admins"
           element={
-            <Layout rightSidebar={<AdminSidebar />}>
+            // <Layout rightSidebar={<AdminSidebar />}>
+            <Layout>
               <SubAdmin />
             </Layout>
           }
