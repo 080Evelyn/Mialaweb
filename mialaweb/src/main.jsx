@@ -7,7 +7,8 @@ import UserProvider from "./context/UserProvider";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./redux/store";
-import * as serviceWorkerRegistration from "./services/ServiceWorkerRegistration";
+import * as serviceWorkerRegistration from "./services/serviceWorkerRegistration";
+// import { serviceWorkerRegistration } from "./services/serviceWorkerRegistration"; // match the exact file name
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
