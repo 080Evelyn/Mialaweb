@@ -110,7 +110,7 @@ const AdminAgentList = () => {
     <h2 className="text-sm text-center text-red-500">Error fetching agents</h2>;
   }
   return (
-    <div className="sm:me-5 sm:ms-2.5 ">
+    <div className="sm:me-5 sm:ms-2.5 overflow-x-scroll ">
       <div className="flex justify-between items-center mb-6  w-[80%] ">
         <h2 className="text-sm font-semibold">Agent Listing</h2>
         <div className="flex gap-2.5 text-sm">

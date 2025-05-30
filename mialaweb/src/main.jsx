@@ -7,6 +7,7 @@ import UserProvider from "./context/UserProvider";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./redux/store";
+import * as serviceWorkerRegistration from "./services/ServiceWorkerRegistration";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -23,3 +24,4 @@ createRoot(document.getElementById("root")).render(
     </UserProvider>
   </BrowserRouter>
 );
+serviceWorkerRegistration.register();

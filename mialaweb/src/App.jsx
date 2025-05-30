@@ -8,7 +8,6 @@ import FeesSidebar from "./components/fees/right-sidebar";
 import ProductManagement from "./pages/ProductManagement";
 import Settings from "./pages/Settings";
 import Layout from "./components/common/layout";
-import AdminSidebar from "./components/admin/admin-r-sidebar";
 import AdminAgent from "./pages/super-admin/Agents";
 import AdminAgentSidebar from "./components/admin/agent-r-sidebar";
 import SubAdmin from "./pages/super-admin/SubAdmin";
@@ -17,97 +16,95 @@ import PayoutSummary from "./pages/fees/PayoutSummary";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
+import InstallPWA from "./components/ui/InstallPWA";
 
 function App() {
   return (
-    <Routes>
-      {/* <Route
-        path="/"
-        element={
-          <Layout rightSidebar={<OverviewSidebar />}>
-            <Login />
-          </Layout>
-        }
-      /> */}
-      <Route path="/" element={<Login />} />
-      <Route path="sign-up" element={<SignUp />} />
-      {/* protected route */}
-      <Route element={<ProtectedRoute />}>
-        <Route
-          path="overview"
-          element={
-            <Layout rightSidebar={<OverviewSidebar />}>
-              <Overview />
-            </Layout>
-          }
-        />
-        <Route
-          path="agents"
-          element={
-            <Layout rightSidebar={<AgentSidebar />}>
-              <Agents />
-            </Layout>
-          }
-        />
-        <Route
-          path="admin/agents"
-          element={
-            <Layout rightSidebar={<AdminAgentSidebar />}>
-              <AdminAgent />
-            </Layout>
-          }
-        />
-        <Route
-          path="admin/sub-admins"
-          element={
-            // <Layout rightSidebar={<AdminSidebar />}>
-            <Layout>
-              <SubAdmin />
-            </Layout>
-          }
-        />
-        <Route
-          path="delivery"
-          element={
-            <Layout>
-              <Delivery />
-            </Layout>
-          }
-        />
-        <Route
-          path="fees"
-          element={
-            <Layout rightSidebar={<FeesSidebar />}>
-              <TotalFees />
-            </Layout>
-          }
-        />
-        <Route
-          path="payout-summary"
-          element={
-            <Layout rightSidebar={<FeesSidebar />}>
-              <PayoutSummary />
-            </Layout>
-          }
-        />
-        <Route
-          path="products"
-          element={
-            <Layout>
-              <ProductManagement />
-            </Layout>
-          }
-        />
-        <Route
-          path="settings"
-          element={
-            <Layout>
-              <Settings />
-            </Layout>
-          }
-        />
-      </Route>
-    </Routes>
+    <>
+      {/* InstallPWA outside Routes so it can run globally */}
+      <InstallPWA />
+
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="sign-up" element={<SignUp />} />
+
+        {/* Protected routes wrapper */}
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path="overview"
+            element={
+              <Layout rightSidebar={<OverviewSidebar />}>
+                <Overview />
+              </Layout>
+            }
+          />
+          <Route
+            path="agents"
+            element={
+              <Layout rightSidebar={<AgentSidebar />}>
+                <Agents />
+              </Layout>
+            }
+          />
+          <Route
+            path="admin/agents"
+            element={
+              <Layout rightSidebar={<AdminAgentSidebar />}>
+                <AdminAgent />
+              </Layout>
+            }
+          />
+          <Route
+            path="admin/sub-admins"
+            element={
+              <Layout>
+                <SubAdmin />
+              </Layout>
+            }
+          />
+          <Route
+            path="delivery"
+            element={
+              <Layout>
+                <Delivery />
+              </Layout>
+            }
+          />
+          <Route
+            path="fees"
+            element={
+              <Layout rightSidebar={<FeesSidebar />}>
+                <TotalFees />
+              </Layout>
+            }
+          />
+          <Route
+            path="payout-summary"
+            element={
+              <Layout rightSidebar={<FeesSidebar />}>
+                <PayoutSummary />
+              </Layout>
+            }
+          />
+          <Route
+            path="products"
+            element={
+              <Layout>
+                <ProductManagement />
+              </Layout>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <Layout>
+                <Settings />
+              </Layout>
+            }
+          />
+        </Route>
+      </Routes>
+    </>
   );
 }
 
