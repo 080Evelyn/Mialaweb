@@ -93,11 +93,11 @@ const AdminAgentSidebar = () => {
         pendingRiders?.map((data, index) => (
           <div className="flex items-center justify-between gap-2" key={index}>
             <div className="flex items-center gap-3">
-              <img
+              {/* <img
                 src={NewAgentAvatar}
                 alt="agent avatar"
                 className="h-10 w-10"
-              />
+              /> */}
               <div className="flex flex-col">
                 <span className="text-sm font-semibold">{`${data.first_name} ${data.last_name}`}</span>
                 {/* <span className="text-[9px] text-[#8C8C8C] ">{data.date}</span> */}

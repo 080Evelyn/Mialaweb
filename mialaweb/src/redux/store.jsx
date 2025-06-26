@@ -25,6 +25,10 @@ import bankListReducer from "./bankListSlice";
 import pendingRiderReducer from "./pendingRidersSlice";
 import allRidersReducer from "./allRiderSlice";
 import deliveryCountReducer from "./deliveriesByState";
+import revenueReducer from "./revenueSlice";
+import notificationReducer from "./notificationSlice";
+import proposedFeeReducer from "./proposedFeeSlice";
+import approveRejectReducer from "./approveRejectProposalFeeSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -40,6 +44,10 @@ const rootReducer = combineReducers({
   pendingRiders: pendingRiderReducer,
   allRiders: allRidersReducer,
   deliveryByStateCount: deliveryCountReducer,
+  revenue: revenueReducer,
+  notification: notificationReducer,
+  proposedFee: proposedFeeReducer,
+  approveReject: approveRejectReducer,
 });
 
 const persistConfig = {

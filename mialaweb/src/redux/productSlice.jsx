@@ -3,16 +3,12 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
-  async ({ token, page, userRole }, { rejectWithValue }) => {
+  async ({ token, userRole }, { rejectWithValue }) => {
     try {
       const response = await fetch(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/all-created-product?page=${
-              page - 1
-            }&size=20`
-          : `${BASE_URL}api/v1/subadmin/all-created-product?page=${
-              page - 1
-            }&size=20`,
+          ? `${BASE_URL}api/v1/admin/products`
+          : `${BASE_URL}api/v1/subadmin/products`,
         {
           method: "GET",
           headers: {
@@ -25,7 +21,7 @@ export const fetchProducts = createAsyncThunk(
 
       if (!response.ok) throw new Error("Failed to fetch products");
       const data = await response.json();
-      return data.data;
+      return data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -38,15 +34,15 @@ const productSlice = createSlice({
     products: [],
     loading: false,
     error: null,
-    currentPage: 1,
-    totalPages: 1,
+    multiCallProducts: false,
   },
   reducers: {
     resetProducts(state) {
       state.products = [];
       state.error = null;
-      state.currentPage = 1;
-      state.totalPages = 1;
+    },
+    setMultiCallProducts(state) {
+      state.multiCallProducts = true;
     },
   },
   extraReducers: (builder) => {
@@ -57,9 +53,7 @@ const productSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload.content;
-        state.totalPages = action.payload.totalPages;
-        state.currentPage = action.payload.pageable.pageNumber + 1;
+        state.products = action.payload.data;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
@@ -68,5 +62,5 @@ const productSlice = createSlice({
   },
 });
 
-export const { resetProducts } = productSlice.actions;
+export const { resetProducts, setMultiCallProducts } = productSlice.actions;
 export default productSlice.reducer;

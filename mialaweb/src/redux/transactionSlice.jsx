@@ -20,7 +20,7 @@ export const fetchTransaction = createAsyncThunk(
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch deliveries");
+      if (!response.ok) throw new Error("Failed to fetch transactions");
       const data = await response.json();
 
       return data.data;
@@ -33,14 +33,14 @@ export const fetchTransaction = createAsyncThunk(
 const transactionSlice = createSlice({
   name: "transaction",
   initialState: {
-    transactions: [],
+    transactions: null,
     loading: false,
     error: null,
     success: false,
   },
   reducers: {
     resetTransaction(state) {
-      state.transactions = [];
+      state.transactions = null;
       state.success = false;
     },
   },

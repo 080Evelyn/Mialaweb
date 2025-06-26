@@ -26,6 +26,7 @@ const FeesSidebar = () => {
   const [openDialog, setOpenDialog] = useState("");
   const [details, setDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  // console.log(details);
 
   useEffect(() => {
     dispatch(fetchRiders({ token, userRole }));
@@ -69,11 +70,11 @@ const FeesSidebar = () => {
       {riders?.map((data, index) => (
         <div className="flex items-center justify-between gap-2" key={index}>
           <div className="flex items-center gap-3">
-            <img
+            {/* <img
               src={NewAgentAvatar}
               alt="agent avatar"
               className="h-10 w-10"
-            />
+            /> */}
             <div className="flex flex-col">
               <span className="text-sm font-semibold">
                 {data.first_name} {data.last_name}
@@ -116,21 +117,32 @@ const FeesSidebar = () => {
                         <tr className="bg-gray-100 text-left">
                           <th className="p-1 border">Product Name</th>
                           <th className="p-1 border">Delivery Code</th>
-                          <th className="p-1 border"> Price</th>
-                          <th className="p-1 border"> Fee</th>
-                          <th className="p-1 border">Total Price</th>
+                          <th className="p-1 border"> Price(₦)</th>
+                          <th className="p-1 border">Delivery Fee (₦)</th>
+                          <th className="p-1 border">Total Price(₦)</th>
                         </tr>
                       </thead>
                       <tbody>
                         {details.map((item, i) => (
                           <tr key={i}>
-                            <td className="p-1 border">{item.productName}</td>
+                            <td className="p-1 border">
+                              {item?.products?.map((product, index) => (
+                                <div key={index}>{product.productName}</div>
+                              ))}
+                            </td>
                             <td className="p-1 border">{item.deliveryCode}</td>
-                            <td className="p-1 border">{item.productPrice}</td>
+                            <td className="p-1 border">
+                              {item?.products?.map((product, index) => (
+                                <div key={index}>
+                                  {Number(
+                                    product?.productPrice
+                                  ).toLocaleString()}
+                                </div>
+                              ))}
+                            </td>
                             <td className="p-1 border">{item.deliveryFee}</td>
                             <td className="p-1 border">
-                              {Number(item.productPrice) +
-                                Number(item.deliveryFee)}
+                              {Number(item.totalFee).toLocaleString()}
                             </td>
                           </tr>
                         ))}

@@ -15,6 +15,8 @@ import { resetProducts } from "@/redux/productSlice";
 import { resetSubadmin } from "@/redux/subadminSlice";
 import { resetTransaction } from "@/redux/transactionSlice";
 import { resetriders } from "@/redux/riderSlice";
+import { resetNotifications } from "@/redux/notificationSlice";
+import { resetPayment } from "@/redux/allCustomerPaymentSlice";
 
 function MenuItems({ setOpen }) {
   const navigate = useNavigate();
@@ -43,9 +45,15 @@ function MenuItems({ setOpen }) {
     },
     {
       id: "delivery",
-      label: "Delivery",
+      label: "Orders",
       path: "/delivery",
       icon: <img src={DeliveryBox} alt="delivery box" className="w-5 h-5" />,
+    },
+    {
+      id: "proposedFee",
+      label: "Proposed Fees",
+      path: "/proposedFee",
+      icon: <img src={Fees} alt="proposedFee box" className="w-5 h-5" />,
     },
     {
       id: "fees",
@@ -68,6 +76,9 @@ function MenuItems({ setOpen }) {
     dispatch(resetSubadmin());
     dispatch(resetTransaction());
     dispatch(resetriders());
+    dispatch(resetNotifications());
+    dispatch(resetPayment());
+
     navigate("/");
   };
   return (

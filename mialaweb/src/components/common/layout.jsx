@@ -13,12 +13,14 @@ const Layout = ({ children, rightSidebar }) => {
       <div className="flex-1 flex flex-col lg:ml-53">
         <AdminHeader setOpen={setOpenSidebar} rightSidebar={rightSidebar} />
         <ScrollToTop scrollRef={mainRef} />
-        <main ref={mainRef} className="flex-1 overflow-auto p-4 md:p-6">
+        <main
+          ref={mainRef}
+          className="flex-1 overflow-auto md:overflow-x-scroll p-4 md:p-6">
           {children}
         </main>
       </div>
       {rightSidebar && (
-        <aside className="hidden lg:flex flex-col  border-l bg-background p-4 overflow-auto w-[20%]">
+        <aside className="hidden lg:flex flex-col  border-l bg-background p-4 overflow-auto !w-[20%]">
           {rightSidebar}
         </aside>
       )}

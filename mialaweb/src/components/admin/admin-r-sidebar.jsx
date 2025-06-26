@@ -18,11 +18,11 @@ const AgentSidebar = () => {
       {newAdminData.map((data, index) => (
         <div className="flex items-center justify-between gap-2" key={index}>
           <div className="flex items-center gap-3">
-            <img
+            {/* <img
               src={NewAgentAvatar}
               alt="agent avatar"
               className="h-10 w-10"
-            />
+            /> */}
             <div className="flex flex-col">
               <span className="text-sm font-semibold">{data.agentName}</span>
               <span className="text-[9px] text-[#8C8C8C] ">{data.date}</span>
@@ -34,8 +34,7 @@ const AgentSidebar = () => {
               <div className="flex flex-col gap-1">
                 <Button
                   className="h-6 px-3 text-xs text-[#8C8C8C] hover:bg-gray-100 border-[#8C8C8C] border-[1px] rounded-[4px]"
-                  variant="ghost"
-                >
+                  variant="ghost">
                   Cancel
                 </Button>
                 <Button className="h-6 px-3 text-xs bg-[#153D80] hover:bg-[#153D80]/80 text-white rounded-[4px]">
@@ -93,8 +92,7 @@ const AgentSidebar = () => {
                 </DialogClose>
                 <Button
                   type="submit"
-                  className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9"
-                >
+                  className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
                   Submit
                 </Button>
               </div>
