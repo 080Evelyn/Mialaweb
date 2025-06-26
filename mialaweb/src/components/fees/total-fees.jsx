@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, EllipsisVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,7 @@ const TotalFeesTable = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const userId = useSelector((state) => state.auth.user.userId);
   const totalPayments = useSelector((state) => state.payment.payment);
+  // console.log(totalPayments);
   const query = useSelector((state) => state.search.query);
   const initialFormState = {
     depositReference: "",
@@ -98,23 +99,24 @@ const TotalFeesTable = () => {
     dispatch(fetchAllPayment({ token, userRole }));
   }, [dispatch, token, userRole]);
 
-  function formatDateArray(dateArr) {
-    const [year, month, day, hour, minute, second] = dateArr;
-    const date = new Date(year, month - 1, day, hour, minute, second); // month is 0-indexed in JS
-    const options = {
+  function formatDateArray(dateArray) {
+    if (!Array.isArray(dateArray) || dateArray.length < 3) {
+      throw new Error("Invalid date array.");
+    }
+
+    const [year, month, day] = dateArray;
+
+    const date = new Date(year, month - 1, day);
+
+    return date.toLocaleDateString("en-NG", {
       year: "numeric",
-      month: "long", // change to 'short' for "May"
-      day: "2-digit",
-      hour: "numeric",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true, // set to false for 24-hour format
-    };
-    return date.toLocaleString("en-US", options);
+      month: "long",
+      day: "numeric",
+    });
   }
 
   return (
-    <div className="sm:me-5 sm:ms-2.5 overflow-x-scroll">
+    <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Total Fees Collected</h2>
         <div className="flex gap-2.5 text-sm">
@@ -140,15 +142,16 @@ const TotalFeesTable = () => {
         <TableHeader>
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
             <TableHead className="rounded-l-sm">Email</TableHead>
-            <TableHead>Transaction ID</TableHead>
-            {/* <TableHead>Customer Code</TableHead> */}
-            <TableHead>Reference </TableHead>
+            <TableHead>Payment Assigned</TableHead>
             <TableHead>Amount </TableHead>
             <TableHead>link Delivery Code </TableHead>
             <TableHead>Status </TableHead>
             <TableHead>Date </TableHead>
             <TableHead>
               <span className="sr-only">Action</span>
+            </TableHead>
+            <TableHead>
+              <span className="sr-only">more</span>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -165,9 +168,7 @@ const TotalFeesTable = () => {
                   <span>{data.email}</span>
                 </div>
               </TableCell>
-              <TableCell>{data.paystackTransactionId}</TableCell>
-              {/* <TableCell>{data.customerCode}</TableCell> */}
-              <TableCell>{data.reference}</TableCell>
+              <TableCell>{data.usedForDelivery ? "True" : "False"}</TableCell>
               <TableCell>₦{data.amount}</TableCell>
               <TableCell>{data.linkedDeliveryCode}</TableCell>
               <TableCell>
@@ -192,7 +193,7 @@ const TotalFeesTable = () => {
                             deliveryCode: data.linkedDeliveryCode || "",
                           })
                         }>
-                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                        <EllipsisVertical className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                       </button>
                     }
                   </DialogTrigger>
@@ -263,6 +264,93 @@ const TotalFeesTable = () => {
                         </Button>
                       </div>
                     </form>
+                  </DialogContent>
+                </Dialog>
+              </TableCell>
+              <TableCell>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    {
+                      // data.usedForDelivery === 0 &&
+                      <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                      </button>
+                    }
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[362px]">
+                    <DialogHeader>
+                      <DialogTitle className="text-[#B10303] text-left">
+                        Details
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3 py-0.5">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Agent Email</Label>
+                        <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.email}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Reference</Label>
+                        <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.reference}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Status</Label>
+                        <span
+                          className={` text-right text-[10px] font-[Raleway] ${
+                            data.status === "Pending"
+                              ? "text-[#FBBC02]"
+                              : "text-[#0FA301]"
+                          }`}>
+                          {data.status}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Customer Code</Label>
+                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.customerCode}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Channel </Label>
+                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.channel}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Currency </Label>
+                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.currency}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">
+                          Paystack TransactionId{" "}
+                        </Label>
+                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.paystackTransactionId}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Amount </Label>
+                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          ₦{Number(data.amount).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 mt-4">
+                      <DialogClose className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                        Cancel
+                      </DialogClose>
+                      {/* <Button
+                        type="button"
+                        className="bg-[#B10303] hover:bg-[#B10303]/80 cursor-pointer text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                        {isLoading ? "Loading.." : "Submit"}
+                      </Button> */}
+                    </div>
                   </DialogContent>
                 </Dialog>
               </TableCell>

@@ -17,12 +17,13 @@ import {
 } from "@/components/ui/select";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BASE_URL } from "@/lib/Api";
 import axios from "axios";
 import { fetchDelivery, setMultiCall } from "@/redux/deliverySlice";
 import SuccessModal from "../common/SuccessModal";
 import { NIGERIAN_STATES } from "@/config/stateData";
+import { fetchProducts } from "@/redux/productSlice";
 
 const DeliveryFormDialog = ({
   dialogOpen,
@@ -32,6 +33,7 @@ const DeliveryFormDialog = ({
   setFormData,
   handleOpenAdd,
   initialState,
+  deliveryId,
 }) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +47,13 @@ const DeliveryFormDialog = ({
   const [selectedState, setSelectedState] = useState("");
   const [agents, setAgents] = useState([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
+  const { products } = useSelector((state) => state.product);
 
+  useEffect(() => {
+    if (token && userRole) {
+      dispatch(fetchProducts({ token, userRole }));
+    }
+  }, [dispatch, token, userRole]);
   const handleStateChange = async (stateName) => {
     setSelectedState(stateName);
     setFormData({ ...formData, riderId: "" });
@@ -69,6 +77,43 @@ const DeliveryFormDialog = ({
       setLoadingAgents(false);
     }
   };
+  const handleProductChange = (index, field, value) => {
+    const updated = [...formData.products];
+    updated[index][field] = value;
+    setFormData((prev) => ({
+      ...prev,
+      products: updated,
+    }));
+  };
+  // Add new product row
+  const handleAddProduct = () => {
+    setFormData((prev) => ({
+      ...prev,
+      products: [
+        ...prev.products,
+        { productName: "", qty: "", productPrice: "" },
+      ],
+    }));
+  };
+
+  // Remove a product row
+  const handleRemoveProduct = (index) => {
+    const updated = formData.products.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, products: updated }));
+  };
+
+  const resetProducts = () => {
+    setFormData((prev) => ({
+      ...prev,
+      products: [
+        {
+          productName: "",
+          qty: "",
+          productPrice: "",
+        },
+      ],
+    }));
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -76,21 +121,24 @@ const DeliveryFormDialog = ({
     setSuccessMessage("");
 
     if (
-      formData.productName === "" ||
-      formData.qty === "" ||
-      formData.productPrice === "" ||
       formData.receiverAddress === "" ||
       formData.riderId === "" ||
-      formData.paymentStatus === "" ||
-      formData.deliveryStatus === "" ||
       formData.receiverName === "" ||
       formData.receiverPhone === "" ||
-      formData.dueDate === "" ||
-      formData.uploadDate === "" ||
-      formData.deliveryFee === ""
+      formData.dueDate === ""
     ) {
       setErrorMessage("All Fields Must be Filled!!");
       return;
+    }
+    // Check each product entry
+    const invalidProduct = formData.products.some(
+      (product) =>
+        !product.productName || !product.quantity || !product.productPrice
+    );
+
+    if (invalidProduct) {
+      setErrorMessage("All product fields must be filled!");
+      return false;
     }
     setIsLoading(true);
     setErrorMessage("");
@@ -115,6 +163,7 @@ const DeliveryFormDialog = ({
         setSuccessMessage("Delivery Assigned Successfully!");
         setSuccessModalOpen(true);
         setFormData(initialState);
+        resetProducts();
         dispatch(setMultiCall());
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
@@ -133,8 +182,8 @@ const DeliveryFormDialog = ({
     try {
       const response = await axios.put(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/update-delivery/${id}`
-          : `${BASE_URL}api/v1/subadmin/update-delivery/${id}`,
+          ? `${BASE_URL}api/v1/admin/delivery/${deliveryId}`
+          : `${BASE_URL}api/v1/subadmin/delivery/${deliveryId}`,
 
         formData,
 
@@ -145,9 +194,11 @@ const DeliveryFormDialog = ({
           },
         }
       );
-      if (response.status === 200) {
-        dispatch(fetchDelivery({ token }));
+      if (response.data.responseMsg === "Success") {
+        dispatch(fetchDelivery({ token, userRole }));
+        dispatch(setMultiCall());
         setSuccessMessage("Delivery Edited Successfully!");
+        setSuccessModalOpen(true);
       }
     } catch (error) {
       setErrorMessage(`An error occured while editing delivery.`);
@@ -158,6 +209,7 @@ const DeliveryFormDialog = ({
   const approved = riders?.filter((rider) => {
     return rider.approvalStatus === "APPROVED";
   });
+  // console.log(formData);
   return (
     <>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -177,48 +229,92 @@ const DeliveryFormDialog = ({
           </DialogHeader>
 
           <form className="flex flex-col gap-2 h-[600px] overflow-y-scroll">
-            <div className="flex flex-col gap-1">
-              <Label className="text-xs" htmlFor="productName">
-                Product Name
-              </Label>
-              <Input
-                className="rounded-xs bg-[#8C8C8C33]"
-                id="productName"
-                value={formData.productName}
-                onChange={(e) =>
-                  setFormData({ ...formData, productName: e.target.value })
-                }
-              />
-            </div>
+            {formData?.products?.map((product, index) => (
+              <div
+                key={index}
+                className="mb-6 p-4 border rounded-xl space-y-3 relative">
+                {/* Product Selection */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor={`productName-${index}`}>
+                    Product Name
+                  </Label>
+                  <select
+                    id={`productName-${index}`}
+                    value={product.productName}
+                    onChange={(e) => {
+                      const selectedName = e.target.value;
+                      const selectedProduct = products.find(
+                        (p) => p.productName === selectedName
+                      );
+                      handleProductChange(index, "productName", selectedName);
+                      handleProductChange(
+                        index,
+                        "productPrice",
+                        selectedProduct ? selectedProduct.unitPrice : ""
+                      );
+                    }}
+                    className="rounded-xs bg-[#8C8C8C33] px-2 py-2  overflow-y-scroll">
+                    <option value="">Select a product</option>
+                    {products.map((item) => (
+                      <option key={item.id} value={item.productName}>
+                        {item.productName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div className="flex flex-col gap-1">
-              <Label className="text-xs" htmlFor="qty">
-                Stock Quantity
-              </Label>
-              <Input
-                className="rounded-xs bg-[#8C8C8C33]"
-                id="qty"
-                value={formData.qty}
-                onChange={(e) =>
-                  setFormData({ ...formData, qty: e.target.value })
-                }
-              />
-            </div>
+                {/* Quantity */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor={`quantity-${index}`}>
+                    Product Quantity
+                  </Label>
+                  <Input
+                    id={`quantity-${index}`}
+                    type="number"
+                    placeholder="Quantity"
+                    value={product.quantity}
+                    onChange={(e) =>
+                      handleProductChange(index, "quantity", e.target.value)
+                    }
+                    className="rounded-xs bg-[#8C8C8C33]"
+                  />
+                </div>
 
-            <div className="flex flex-col gap-1">
-              <Label className="text-xs" htmlFor="productPrice">
-                Product Price(₦)
-              </Label>
-              <Input
-                className="rounded-xs bg-[#8C8C8C33]"
-                type={"number"}
-                id="productPrice"
-                value={formData.productPrice}
-                onChange={(e) =>
-                  setFormData({ ...formData, productPrice: e.target.value })
-                }
-              />
-            </div>
+                {/* Price (Read-only) */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor={`productPrice-${index}`}>
+                    Product Price (₦)
+                  </Label>
+                  <Input
+                    id={`productPrice-${index}`}
+                    type="number"
+                    placeholder="Price"
+                    value={product.productPrice}
+                    className="rounded-xs bg-gray-100"
+                    readOnly
+                  />
+                </div>
+
+                {/* Remove Button */}
+                {formData.products.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveProduct(index)}
+                    className="absolute top-2 right-2 text-red-500 text-xs hover:underline">
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+
+            {/* Add Product Button */}
+            <button
+              type="button"
+              onClick={handleAddProduct}
+              className="mt-4 px-4 py-2 bg-[#006181] hover:bg-[#004e65] text-white rounded-md text-sm shadow-sm transition">
+              + Add Another Product
+            </button>
+
             <div className="flex flex-col gap-1">
               <Label className="text-xs" htmlFor="receiverAddress">
                 Receiver Address
@@ -283,7 +379,7 @@ const DeliveryFormDialog = ({
               </SelectContent>
             </Select>
           </div> */}
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
               <Label className="text-xs" htmlFor="deliveryFee">
                 Delivery Fee
               </Label>
@@ -296,8 +392,8 @@ const DeliveryFormDialog = ({
                   setFormData({ ...formData, deliveryFee: e.target.value })
                 }
               />
-            </div>
-            <div className="flex flex-col gap-1">
+            </div> */}
+            {/* <div className="flex flex-col gap-1">
               <Label className="text-xs" htmlFor="uploadDate">
                 Upload Date
               </Label>
@@ -310,7 +406,7 @@ const DeliveryFormDialog = ({
                   setFormData({ ...formData, uploadDate: e.target.value })
                 }
               />
-            </div>
+            </div> */}
             {/* <div className="flex flex-col gap-1">
               <Label className="text-xs">Agent</Label>
               <Select
@@ -326,7 +422,8 @@ const DeliveryFormDialog = ({
                     return (
                       <SelectItem
                         className="hover:bg-gray-200 cursor-pointer"
-                        value={`${rider.riderId}`}>
+                        value={`${rider.riderId}`}
+                        key={rider.riderId}>
                         {`${rider.first_name} ${rider.last_name}`}
                       </SelectItem>
                     );
@@ -403,7 +500,7 @@ const DeliveryFormDialog = ({
               />
             </div>
 
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
               <Label className="text-xs">Payment Status</Label>
               <Select
                 value={formData.paymentStatus}
@@ -421,9 +518,9 @@ const DeliveryFormDialog = ({
                   </SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
 
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
               <Label className="text-xs">Delivery Status</Label>
               <Select
                 value={formData.deliveryStatus}
@@ -434,11 +531,11 @@ const DeliveryFormDialog = ({
                   <SelectValue placeholder="Select Delivery Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* <SelectItem
+                  <SelectItem
                   className="hover:bg-gray-200 cursor-pointer"
                   value="DELIVERED">
                   Delivered
-                </SelectItem> */}
+                </SelectItem>
                   <SelectItem
                     className="hover:bg-gray-200 cursor-pointer"
                     value="PENDING">
@@ -447,6 +544,7 @@ const DeliveryFormDialog = ({
                 </SelectContent>
               </Select>
             </div>
+            */}
             {successMessage && (
               <p className="text-green-500 text-sm">{successMessage}</p>
             )}
@@ -457,6 +555,8 @@ const DeliveryFormDialog = ({
               <DialogClose
                 onClick={() => {
                   setErrorMessage(""), setSuccessMessage("");
+                  setFormData(initialState);
+                  resetProducts();
                 }}
                 className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
                 Cancel

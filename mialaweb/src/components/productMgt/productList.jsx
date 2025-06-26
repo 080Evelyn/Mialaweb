@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
 import { ArrowRightCircle } from "lucide-react";
-import { tableData } from "@/config/productTableData";
 import {
   Dialog,
   DialogContent,
@@ -25,51 +24,160 @@ import { Label } from "@/components/ui/label";
 import AlertCircle from "../../assets/icons/alert-circle.svg";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "@/redux/productSlice";
+import { fetchProducts, setMultiCallProducts } from "@/redux/productSlice";
+import axios from "axios";
+import SuccessModal from "../common/SuccessModal";
+import { BASE_URL } from "@/lib/Api";
+import DeliveryList from "../delivery/deliveryList";
+const initialFormState = {
+  productName: "",
+  unitPrice: "",
+  quantity: "",
+};
 
 const ProductList = () => {
+  const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [erorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [formData, setFormData] = useState(initialFormState);
   const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
   const query = useSelector((state) => state.search.query);
   const userRole = useSelector((state) => state.auth.user.userRole);
-  const { products, loading, error, currentPage, totalPages } = useSelector(
+  const { products, loading, error, multiCallProducts } = useSelector(
     (state) => state.product
   );
+  // console.log(products);
   useEffect(() => {
     if (token && userRole) {
-      dispatch(fetchProducts({ token, page: currentPage, userRole }));
+      dispatch(fetchProducts({ token, userRole }));
     }
-  }, [dispatch, token, userRole, currentPage]);
+  }, [dispatch, token, userRole]);
 
-  const handlePageChange = (page) => {
-    if (page !== currentPage) {
-      dispatch(fetchProducts({ token, page, userRole }));
+  const handleProductUpload = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (formData.productName === "" || formData.unitPrice === "") {
+      setErrorMessage("All Fields Must be Filled!!");
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await axios.post(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/products`
+          : `${BASE_URL}api/v1/subadmin/products`,
+
+        formData,
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 200) {
+        dispatch(fetchProducts({ token, page, userRole }));
+        setSuccessMessage("Product Added Successfully!");
+        setSuccessModalOpen(true);
+        setFormData(initialFormState);
+        setValue("");
+        dispatch(setMultiCallProducts());
+      }
+      // else if (response.data.responseCode === "55") {
+      //   setErrorMessage(response.data.responseDesc);
+      // }
+    } catch (error) {
+      setErrorMessage(`An error occured while creating delivery.`);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const filtered = products?.filter(
-    (product) =>
-      product?.productName.toLowerCase().includes(query.toLowerCase()) ||
-      String(product?.deliveryCode).toLowerCase().includes(query.toLowerCase())
+  const filtered = products?.filter((product) =>
+    product?.productName.toLowerCase().includes(query.toLowerCase())
   );
 
   useEffect(() => {
     dispatch(fetchProducts({ token, page, userRole }));
   }, []);
+
   function formatDateArray(dateArray) {
-    if (!Array.isArray(dateArray) || dateArray.length !== 3) {
-      throw new Error("Invalid date array. Expected format: [YYYY, MM, DD]");
+    // If the value is null, undefined, or not a proper array
+    if (!Array.isArray(dateArray) || dateArray.length < 3) {
+      return ""; // or return "-" or any fallback value
     }
 
-    const [year, month, day] = dateArray;
-    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
-      2,
-      "0"
-    )}`;
+    const [
+      year,
+      month,
+      day,
+      hour = 0,
+      minute = 0,
+      second = 0,
+      nanoseconds = 0,
+    ] = dateArray;
+
+    // Check for any invalid number like undefined or NaN
+    if (
+      typeof year !== "number" ||
+      typeof month !== "number" ||
+      typeof day !== "number"
+    ) {
+      return "";
+    }
+
+    const milliseconds = Math.floor(nanoseconds / 1_000_000);
+
+    const date = new Date(
+      year,
+      month - 1, // JS months are 0-indexed
+      day,
+      hour,
+      minute,
+      second,
+      milliseconds
+    );
+
+    // Optional: check for invalid date object
+    if (isNaN(date.getTime())) {
+      return "";
+    }
+
+    return date.toLocaleDateString("en-NG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   }
 
-  if (loading) {
+  const formatCurrency = (amount) => {
+    const number = parseFloat(amount.replace(/[^0-9]/g, ""));
+    if (isNaN(number)) return "";
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+      minimumFractionDigits: 0,
+    }).format(number);
+  };
+  const handleChange = (e) => {
+    const rawValue = e.target.value.replace(/[^0-9]/g, "");
+    const numericValue = rawValue ? parseInt(rawValue, 10) : "";
+    const formatted = rawValue ? formatCurrency(rawValue) : "";
+
+    setValue(formatted);
+    setFormData({ ...formData, unitPrice: numericValue });
+  };
+  if (loading && !multiCallProducts) {
     return (
       <div>
         <h2 className="text-center font-semibold">Loading...</h2>
@@ -93,59 +201,78 @@ const ProductList = () => {
         {/* Add Dialog */}
         <Dialog>
           <DialogTrigger asChild>
-            {/* <Button className="bg-[#B10303] rounded-[4px] hover:bg-[#B10303]/80 cursor-pointer">
+            <Button
+              onClick={() => {
+                setFormData(initialFormState);
+              }}
+              className="bg-[#B10303] rounded-[4px] hover:bg-[#B10303]/80 cursor-pointer">
               Add New Product
-            </Button> */}
+            </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[362px] ">
-            {/* <DialogHeader>
+            <DialogHeader>
               <DialogTitle className="text-[#B10303] text-left">
                 Add Product
               </DialogTitle>
-            </DialogHeader> */}
+            </DialogHeader>
             <div className="grid gap-2 py-0.5">
               <div className="grid grid-cols-1 items-center gap-1.5">
                 <Label htmlFor="name" className="text-xs">
                   Product Name
                 </Label>
-                <Input id="name" className="w-full rounded-xs bg-[#8C8C8C33]" />
-              </div>
-              <div className="grid grid-cols-1 items-center gap-1.5">
-                <Label htmlFor="stockQty" className="text-xs">
-                  Stock Quantity
-                </Label>
                 <Input
-                  id="stockQty"
+                  value={formData.productName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, productName: e.target.value })
+                  }
+                  id="name"
                   className="w-full rounded-xs bg-[#8C8C8C33]"
                 />
               </div>
+
               <div className="grid grid-cols-1 items-center gap-1.5">
-                <Label htmlFor="price" className="text-xs">
+                <Label htmlFor="unitPrice" className="text-xs">
                   Price
                 </Label>
                 <Input
-                  id="price"
+                  id="unitPrice"
+                  type="text"
                   className="w-full rounded-xs bg-[#8C8C8C33]"
+                  value={value}
+                  onChange={handleChange}
                 />
               </div>
               <div className="grid grid-cols-1 items-center gap-1.5">
-                <Label htmlFor="status" className="text-xs">
-                  Status
+                <Label htmlFor="quantity" className="text-xs">
+                  Quantity
                 </Label>
                 <Input
-                  id="status"
+                  id="quantity"
+                  type="text"
                   className="w-full rounded-xs bg-[#8C8C8C33]"
+                  value={formData.quantity}
+                  onChange={(e) =>
+                    setFormData({ ...formData, quantity: e.target.value })
+                  }
                 />
               </div>
+              {successMessage && (
+                <p className="text-green-500 text-sm">{successMessage}</p>
+              )}
+              {erorMessage && (
+                <p className="text-red-500 text-sm">{erorMessage}</p>
+              )}
             </div>
             <div className="flex justify-end gap-2 -mt-2">
               <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
                 Cancel
               </DialogClose>
               <Button
+                onClick={handleProductUpload}
+                disable={isLoading}
                 type="submit"
                 className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                Done
+                {isLoading ? "Uploading..." : "Uplaod"}
               </Button>
             </div>
           </DialogContent>
@@ -156,28 +283,20 @@ const ProductList = () => {
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Product ID</TableHead>
             <TableHead>Product Name</TableHead>
-            <TableHead>Stock Quantity</TableHead>
             <TableHead>Price (₦)</TableHead>
+            <TableHead>Quantity</TableHead>
             <TableHead>Date Added</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="rounded-r-sm text-center">Activity</TableHead>
+            {/* <TableHead className="rounded-r-sm text-center">Activity</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500]">
           {filtered?.map((data, index) => (
             <TableRow key={index}>
-              <TableCell>{data.deliveryCode}</TableCell>
+              <TableCell>{data.id}</TableCell>
               <TableCell>{data.productName}</TableCell>
-              <TableCell>{data.qty}</TableCell>
-              <TableCell>{data.productPrice}</TableCell>
-              <TableCell>{formatDateArray(data.uploadDate)}</TableCell>
-              <TableCell>
-                <span
-                  className={`inline-block h-2.5 w-2.5 rounded-full ${
-                    data.paymentApproval ? "bg-[#0FA301]" : " bg-red-500 "
-                  }`}
-                />
-              </TableCell>
+              <TableCell>{data.unitPrice}</TableCell>
+              <TableCell>{data.quantity}</TableCell>
+              <TableCell>{formatDateArray(data.createdAt)}</TableCell>
               <TableCell>
                 <div className="flex gap-3 justify-center">
                   {/* Edit Dialog */}
@@ -285,9 +404,9 @@ const ProductList = () => {
                   {/* View Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                      {/* <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
                         <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
-                      </button>
+                      </button> */}
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[362px] ">
                       <DialogHeader>
@@ -321,9 +440,15 @@ const ProductList = () => {
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <Label className="text-xs">Status</Label>
+                          <Label className="text-xs">Delivery Status</Label>
                           <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
                             {data.deliveryStatus}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs">Payment Status</Label>
+                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                            {data.paymentStatus}
                           </span>
                         </div>
                       </div>
@@ -346,7 +471,7 @@ const ProductList = () => {
         </TableBody>
       </Table>
       {/* Pagination */}
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && (
         <div className="flex justify-center mt-6 space-x-2">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
@@ -361,7 +486,12 @@ const ProductList = () => {
             </button>
           ))}
         </div>
-      )}
+      )} */}
+      <SuccessModal
+        open={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        message={`Product Added Successfully!.`}
+      />
     </div>
   );
 };

@@ -38,7 +38,9 @@ const Login = () => {
         navigate("/overview");
       }
     } catch (error) {
-      setErrorMessage(`Error logging in: ${error?.response?.data?.message}`);
+      setErrorMessage(
+        `Error logging in: ${error?.response?.data?.responseDesc}`
+      );
     } finally {
       setIsLoading(false);
     }

@@ -13,11 +13,7 @@ import { Label } from "@/components/ui/label";
 const DeliveryDetailsDialog = ({ data }) => {
   return (
     <Dialog>
-      <DialogTrigger
-        // onClick={() => {
-        //   console.log(data);
-        // }}
-        asChild>
+      <DialogTrigger asChild>
         <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
           <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
         </button>
@@ -32,105 +28,115 @@ const DeliveryDetailsDialog = ({ data }) => {
           <div className="flex justify-between items-center">
             <Label className="text-xs">Agent Name</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {`${data.riderFirstName} ${data.riderLastName}`}
+              {`${data?.riderFirstName} ${data?.riderLastName}`}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Package</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {data.productName}
+              {data?.products?.map((product, index) => (
+                <div key={index}>{product.productName}</div>
+              ))}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Product Price</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦{data.productPrice.toLocaleString()}
+              {data?.products?.map((product, index) => (
+                <div key={index}>
+                  ₦{Number(product?.productPrice).toLocaleString()}
+                </div>
+              ))}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Quantity</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {data.qty}
+              {data?.products?.map((product, index) => (
+                <div key={index}>{Number(product?.qty)}</div>
+              ))}
             </span>
           </div>
-          <div className="flex justify-between items-center">
-            <Label className="text-xs">Amount</Label>
-            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦{(Number(data.productPrice) * data.qty).toLocaleString()}
-            </span>
-          </div>
+
           <div className="flex justify-between items-center">
             <Label className="text-xs">Delivery Fee</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦{Number(data.deliveryFee).toLocaleString()}
+              ₦{Number(data?.deliveryFee).toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Total Amount </Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦
-              {(
-                Number(data.productPrice) * data.qty +
-                Number(data.deliveryFee)
-              ).toLocaleString()}
+              ₦{Number(data?.totalFee).toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Delivery Code</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {data.deliveryCode}
+              {data?.deliveryCode}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Receiver Address</Label>
             <span className="text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {data.receiverAddress}
+              {data?.receiverAddress}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Receiver Name</Label>
             <span className="text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {data.receiverName}
+              {data?.receiverName}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Receiver Phone Number</Label>
             <span className="text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {data.receiverPhone}
+              {data?.receiverPhone}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <Label className="text-xs">Due Date</Label>
             <span className="text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              {data.dueDate}
+              {data?.dueDate}
             </span>
           </div>
           <div className={`flex justify-between items-center`}>
             <Label className="text-xs">Delivery Status</Label>
             <span
               className={`text-right w-[45%] text-[10px] ${
-                data.deliveryStatus === "PENDING"
+                data?.deliveryStatus === "PENDING"
                   ? "text-yellow-400"
                   : "text-[#0FA301]"
               } font-[Raleway]`}>
-              {data.deliveryStatus}
+              {data?.deliveryStatus}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <Label className="text-xs">Payment Status</Label>
+            <Label className="text-xs">Customer Payment Status</Label>
             <span
               className={`text-right w-[45%] text-[10px] ${
-                data.paymentStatus === "NOT_PAID"
+                data?.custPaymentStatus === "CUSTOMER_NOT_PAID"
                   ? "text-red-600"
                   : "text-[#0FA301]"
               }  font-[Raleway]`}>
-              {data.paymentStatus}
+              {data?.custPaymentStatus}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <Label className="text-xs">Rider Payment Status</Label>
+            <span
+              className={`text-right w-[45%] text-[10px] ${
+                data?.riderPaymentStatus === "RIDER_NOT_CREDITED"
+                  ? "text-red-600"
+                  : "text-[#0FA301]"
+              }  font-[Raleway]`}>
+              {data?.riderPaymentStatus}
             </span>
           </div>
           {/* <div className="flex justify-between items-center">
           <Label className="text-xs">Date</Label>
           <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-            {data.date}
+            {data?.date}
           </span>
         </div> */}
         </div>

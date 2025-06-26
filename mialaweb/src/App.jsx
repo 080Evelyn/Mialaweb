@@ -17,6 +17,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import InstallPWA from "./components/ui/InstallPWA";
+import ProposedFeeReview from "./pages/ProposedFeeReview";
 
 function App() {
   return (
@@ -67,6 +68,14 @@ function App() {
             element={
               <Layout>
                 <Delivery />
+              </Layout>
+            }
+          />
+          <Route
+            path="proposedFee"
+            element={
+              <Layout>
+                <ProposedFeeReview />
               </Layout>
             }
           />
