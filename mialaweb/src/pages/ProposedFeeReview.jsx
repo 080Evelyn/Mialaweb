@@ -1,4 +1,4 @@
-import ProposedFee from "@/components/proposedFee/proposedFee";
+import ProposedFee from "../components/proposedFee/ProposedFee";
 import React from "react";
 
 const ProposedFeeReview = () => {

@@ -167,7 +167,7 @@ const ProposedFee = () => {
                         handleViewProposedFee(index);
                       }}
                       className="text-[12px] font-bold text-black hover:bg-[#D6D6D6] hover:shadow-2xl px-3 py-2 cursor-pointer ">
-                      View all proposed fee
+                      View proposed fee
                     </button>
                     <button
                       onClick={() => {

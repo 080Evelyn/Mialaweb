@@ -116,14 +116,14 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
                 className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
                 {approvalLoading ? "processing..." : "Reject"}
               </Button>
-              {success && (
-                <p className="text-center text-green-500">
-                  Fee approved successfully!
-                </p>
-              )}
             </>
           )}
         </div>
+        {success && (
+          <p className="text-center text-green-500">
+            Fee approved successfully!
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   );
