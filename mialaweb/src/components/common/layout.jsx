@@ -2,10 +2,13 @@ import { useRef, useState } from "react";
 import ScrollToTop from "./scrollToTop";
 import AdminSidebar from "./sidebar";
 import AdminHeader from "./header";
+import { useLocation } from "react-router";
 
 const Layout = ({ children, rightSidebar }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const mainRef = useRef(null);
+  const location = useLocation();
+  const dash = location.pathname === "/overview";
 
   return (
     <div className="flex h-screen w-full overflow-x-hidden">
@@ -20,7 +23,10 @@ const Layout = ({ children, rightSidebar }) => {
         </main>
       </div>
       {rightSidebar && (
-        <aside className="hidden lg:flex flex-col  border-l bg-background p-4 overflow-auto !w-[20%]">
+        <aside
+          className={`hidden lg:flex flex-col  border-l bg-background p-4 ${
+            dash ? "!w-[22%]" : "!w-[20%]"
+          }  overflow-auto `}>
           {rightSidebar}
         </aside>
       )}

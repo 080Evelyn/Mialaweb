@@ -1,15 +1,19 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useLocation } from "react-router";
+// overflow-x-scroll md:w-[1100px]
+// const loaction = useLocation();
+// const dash = location.pathname === "/delivery";
 function Table({ className, ...props }) {
   return (
     <div
       data-slot="table-container"
-      className={`relative  md:w-full  
-       `}>
+      className={`relative 
+       ${className}`}>
       <table
         data-slot="table"
-        className={cn(" md:w-full  caption-bottom text-sm", className)}
+        className={cn("   caption-bottom text-sm w-full  ")}
         {...props}
       />
     </div>
@@ -30,7 +34,7 @@ function TableBody({ className, ...props }) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0  ", className)}
+      className={cn("[&_tr:last-child]:border-0 ", className)}
       {...props}
     />
   );

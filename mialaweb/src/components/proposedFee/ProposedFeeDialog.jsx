@@ -29,7 +29,12 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
   const loading = useSelector((state) => state.proposedFee.loading);
   const error = useSelector((state) => state.proposedFee.error);
   const adminId = useSelector((state) => state.auth.user.userId);
-  const approvalLoading = useSelector((state) => state.approveReject.loading);
+  const approvalLoading = useSelector(
+    (state) => state.approveReject.approveLoading
+  );
+  const rejectLoading = useSelector(
+    (state) => state.approveReject.rejectLoading
+  );
   const approvalError = useSelector((state) => state.approveReject.error);
   const success = useSelector((state) => state.approveReject.success);
   //   const reject = useSelector((state) => state.approveReject.reject);
@@ -114,7 +119,7 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
                 onClick={handleReject}
                 type="submit"
                 className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
-                {approvalLoading ? "processing..." : "Reject"}
+                {rejectLoading ? "processing..." : "Reject"}
               </Button>
             </>
           )}
