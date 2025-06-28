@@ -1,28 +1,44 @@
 import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Async thunks to fetch transactions
 export const fetchDelivery = createAsyncThunk(
   "delivery/fetchDelivery",
-  async ({ token, userRole }, { rejectWithValue }) => {
+  async (
+    { token, userRole, page = 0, size = 20 },
+    { rejectWithValue, getState }
+  ) => {
     try {
-      const response = await fetch(
+      const { query, filters } = getState().search;
+
+      // Build query params
+      const params = new URLSearchParams({
+        page,
+        size,
+        query,
+        status: filters.status || "",
+        agent: filters.agent || "",
+        state: filters.state || "",
+        startDate: filters.startDate || "",
+        endDate: filters.endDate || "",
+      });
+
+      const url =
         userRole === "Admin"
-          ? ` ${BASE_URL}api/v1/admin/delivery/all-rider-deliveries`
-          : `${BASE_URL}api/v1/subadmin/delivery/all-rider-deliveries`,
-        {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+          ? `${BASE_URL}api/v1/admin/deliveries/all-rider-deliveries?${params}`
+          : `${BASE_URL}api/v1/subadmin/deliveries/all?${params}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch deliveries");
-      const data = await response.json();
 
+      const data = await response.json();
       return data.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -34,6 +50,9 @@ const deliverySlice = createSlice({
   name: "delivery",
   initialState: {
     delivery: [],
+    totalPages: 0,
+    totalElements: 0,
+    currentPage: 0,
     loading: false,
     error: null,
     success: false,
@@ -56,9 +75,13 @@ const deliverySlice = createSlice({
       })
       .addCase(fetchDelivery.fulfilled, (state, action) => {
         state.loading = false;
-        state.delivery = action.payload;
+        state.delivery = action.payload.content;
+        state.totalPages = action.payload.totalPages;
+        state.totalElements = action.payload.totalElements;
+        state.currentPage = action.payload.number;
         state.success = true;
       })
+
       .addCase(fetchDelivery.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

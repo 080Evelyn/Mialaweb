@@ -77,7 +77,8 @@ const approveRejectProposalFeeSlice = createSlice({
   name: "approveRejectProposalFee",
   initialState: {
     approve: false,
-    loading: false,
+    approveLoading: false,
+    rejectLoading: false,
     error: false,
     reject: false,
     success: false,
@@ -85,7 +86,8 @@ const approveRejectProposalFeeSlice = createSlice({
   reducers: {
     resetApproveReject(state) {
       state.approve = false;
-      state.loading = false;
+      state.approveLoading = false;
+      state.rejectLoading = false;
       state.error = false;
       state.reject = false;
       state.success = false;
@@ -94,28 +96,30 @@ const approveRejectProposalFeeSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(approveProposalFee.pending, (state) => {
-        state.loading = true;
+        state.approveLoading = true;
+        state.success = false;
       })
       .addCase(approveProposalFee.fulfilled, (state, action) => {
-        state.loading = false;
+        state.approveLoading = false;
         state.proposedFee = action.payload;
         state.success = true;
       })
       .addCase(approveProposalFee.rejected, (state, action) => {
-        state.loading = false;
+        state.approveLoading = false;
         state.error = action.payload;
         state.success = false;
       })
       .addCase(rejectProposalFee.pending, (state) => {
-        state.loading = true;
+        state.rejectLoading = true;
+        state.success = false;
       })
       .addCase(rejectProposalFee.fulfilled, (state, action) => {
-        state.loading = false;
+        state.rejectLoading = false;
         state.proposedFee = action.payload;
         state.success = true;
       })
       .addCase(rejectProposalFee.rejected, (state, action) => {
-        state.loading = false;
+        state.rejectLoading = false;
         state.error = action.payload;
         state.success = false;
       });

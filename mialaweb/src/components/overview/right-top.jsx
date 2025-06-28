@@ -155,8 +155,8 @@ const NotificationList = () => {
 
                   <div className="flex flex-col flex-grow gap-1">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm -mt-1">{notif.message}</span>
-                      <span className="text-[#8C8C8C] text-[14px] ml-2 whitespace-nowrap">
+                      <span className="text-[12px] -mt-1">{notif.message}</span>
+                      <span className="text-[#8C8C8C] text-[12px] ml-2 whitespace-nowrap">
                         {formatDateArray(notif?.createdAt)}
                       </span>
                       <EllipsisVertical
@@ -188,10 +188,6 @@ const NotificationList = () => {
               );
             })
         ) : (
-          <p className="text-black">No Unread notifications at the moment</p>
-        )}
-
-        {unreadCount === 0 && (
           <p className="text-black">No Unread notifications at the moment</p>
         )}
       </div>

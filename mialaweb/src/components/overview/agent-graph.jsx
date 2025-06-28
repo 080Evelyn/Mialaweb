@@ -22,12 +22,12 @@ const AgentGraph = () => {
     <div className="p-4 rounded-2xl bg-[#F9F9FA] w-full">
       <div className="flex items-center gap-4 mb-4 flex-wrap">
         <span className="font-semibold text-sm text-[#1C1C1C]">
-          Total Agents
+          Total Monthly Deliveries
         </span>
-        <span className="text-black/40 text-sm">Total Projects</span>
-        <span className="text-black/40 text-sm">Operating Status</span>
-        <span className="text-black/40 text-sm mr-1">|</span>
-        <div className="flex gap-8">
+        {/* <span className="text-black/40 text-sm">Total Projects</span>
+        <span className="text-black/40 text-sm">Operating Status</span> */}
+        {/* <span className="text-black/40 text-sm mr-1">|</span> */}
+        {/* <div className="flex gap-8">
           <div className="flex items-center gap-1 text-xs text-[#1C1C1C]">
             <span className="w-2 h-2 rounded-full bg-[#1C1C1C]" />
             This Year
@@ -36,14 +36,13 @@ const AgentGraph = () => {
             <span className="w-2 h-2 rounded-full bg-[#8FB6FF]" />
             Last Year
           </div>
-        </div>
+        </div> */}
       </div>
 
       <ResponsiveContainer className="w-full mt-6" height={240}>
         <LineChart
           data={data}
-          margin={{ top: 20, right: 30, left: -30, bottom: 0 }}
-        >
+          margin={{ top: 20, right: 30, left: -30, bottom: 0 }}>
           <XAxis
             dataKey="name"
             axisLine={false}

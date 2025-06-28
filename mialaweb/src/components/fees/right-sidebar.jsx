@@ -102,7 +102,7 @@ const FeesSidebar = () => {
               {loadingDetails ? (
                 <div className="py-4 text-center text-sm">Loading...</div>
               ) : (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col !h-[400px] overflow-y-scroll gap-3">
                   <div className="flex justify-between items-center">
                     <Label className="text-xs">Agent Name</Label>
                     <span className="text-[10px] text-[#8C8C8C]">
@@ -112,7 +112,7 @@ const FeesSidebar = () => {
 
                   {/* Render delivery data in a table */}
                   {details ? (
-                    <table className="w-full text-xs border mt-2">
+                    <table className="w-full text-xs border mt-2 ">
                       <thead>
                         <tr className="bg-gray-100 text-left">
                           <th className="p-1 border">Product Name</th>

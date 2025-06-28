@@ -42,7 +42,11 @@ const DeliveryList = () => {
   const token = useSelector((state) => state.auth.token);
   const deliveryList = useSelector((state) => state.delivery.delivery);
   const selectedRider = useSelector((state) => state.riderById.riderById);
-  // console.log(deliveryList);
+  const [page, setPage] = useState(0);
+  const { totalPages, currentPage, loading } = useSelector(
+    (state) => state.delivery
+  );
+
   const [formDataStep1, setFormDataStep1] = useState({
     name: "",
     userId: "",
@@ -50,30 +54,53 @@ const DeliveryList = () => {
     bank_code: "",
   });
   const multiCall = useSelector((state) => state.delivery.multiCall);
-  const loading = useSelector((state) => state.delivery.loading);
-  const success = useSelector((state) => state.delivery.success);
+  // const success = useSelector((state) => state.delivery.success);
   const error = useSelector((state) => state.delivery.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const dispatch = useDispatch();
+  const filters = useSelector((state) => state.search.filters);
+
   const query = useSelector((state) => state.search.query);
-  // console.log(deliveryList);
   const filtered = deliveryList?.filter((item) => {
     const productNames =
-      item.products &&
-      item?.products.map((p) => p.productName?.toLowerCase()).join(" "); // Join names into one string to use includes
+      item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
 
-    return (
-      productNames?.includes(query.toLowerCase()) ||
-      item.deliveryCode.toLowerCase().includes(query.toLowerCase())
-    );
+    const searchMatch =
+      productNames.includes(query.toLowerCase()) ||
+      item.deliveryCode.toLowerCase().includes(query.toLowerCase());
+
+    const agentMatch = filters.agent
+      ? `${item.riderFirstName} ${item.riderLastName}`
+          .toLowerCase()
+          .includes(filters.agent.toLowerCase())
+      : true;
+
+    const statusMatch = filters.status
+      ? (item?.custPaymentStatus ?? "").toLowerCase() ===
+        filters.status.toLowerCase()
+      : true;
+
+    const dateMatch = filters.dateRange
+      ? (() => {
+          const [startDate, endDate] = filters.dateRange;
+          const uploadDate = new Date(...item.uploadDate);
+
+          return (
+            uploadDate >= new Date(startDate) && uploadDate <= new Date(endDate)
+          );
+        })()
+      : true;
+
+    return searchMatch && agentMatch && statusMatch && dateMatch;
   });
+
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
-    if (success) {
-      return;
-    }
-    dispatch(fetchDelivery({ token, userRole }));
-  }, []);
+    // if (success) {
+    //   return;
+    // }
+    dispatch(fetchDelivery({ token, userRole, page }));
+  }, [dispatch, token, userRole, page]);
 
   function formatDateArray(dateArray) {
     if (!Array.isArray(dateArray) || dateArray.length !== 3) {
@@ -207,7 +234,7 @@ const DeliveryList = () => {
         dialogOpen={modalOpen}
         setDialogOpen={setModalOpen}
       /> */}
-      <Table className={""}>
+      <Table className={"overflow-x-scroll md:w-[1100px]"}>
         <TableHeader>
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Agent</TableHead>
@@ -284,6 +311,31 @@ const DeliveryList = () => {
           ))}
         </TableBody>
       </Table>
+      <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
+        <button
+          className={`${
+            page === 0
+              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
+          } `}
+          disabled={page === 0}
+          onClick={() => setPage(page - 1)}>
+          Prev
+        </button>
+        <span className="items-center px-3 py-1.5">
+          Page {currentPage + 1} of {totalPages}
+        </span>
+        <button
+          className={`${
+            page + 1 >= totalPages
+              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
+          } `}
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage(page + 1)}>
+          Next
+        </button>
+      </div>
     </div>
   );
 };

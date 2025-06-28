@@ -31,10 +31,11 @@ const ProposedFee = () => {
     setAction(!action);
     setSelectedFee(id);
   };
-
+  const [page, setPage] = useState(0);
+  const { delivery, totalPages, currentPage, loading } = useSelector(
+    (state) => state.delivery
+  );
   const multiCall = useSelector((state) => state.delivery.multiCall);
-  const loading = useSelector((state) => state.delivery.loading);
-  const success = useSelector((state) => state.delivery.success);
   const error = useSelector((state) => state.delivery.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const dispatch = useDispatch();
@@ -58,11 +59,11 @@ const ProposedFee = () => {
   });
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
-    if (success) {
-      return;
-    }
-    dispatch(fetchDelivery({ token, userRole }));
-  }, []);
+    // if (success) {
+    //   return;
+    // }
+    dispatch(fetchDelivery({ token, userRole, page }));
+  }, [dispatch, token, userRole, page]);
 
   function formatDateArray(dateArray) {
     if (!Array.isArray(dateArray) || dateArray.length !== 3) {
@@ -183,6 +184,31 @@ const ProposedFee = () => {
           ))}
         </TableBody>
       </Table>
+      <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
+        <button
+          className={`${
+            page === 0
+              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
+          } `}
+          disabled={page === 0}
+          onClick={() => setPage(page - 1)}>
+          Prev
+        </button>
+        <span className="items-center px-3 py-1.5">
+          Page {currentPage + 1} of {totalPages}
+        </span>
+        <button
+          className={`${
+            page + 1 >= totalPages
+              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
+          } `}
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage(page + 1)}>
+          Next
+        </button>
+      </div>
     </div>
   );
 };
