@@ -13,9 +13,11 @@ import { Label } from "../ui/label";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRiders } from "@/redux/riderSlice";
 import { BASE_URL } from "@/lib/Api";
+import { Copy } from "lucide-react";
 
 const FeesSidebar = () => {
   const dispatch = useDispatch();
+  const [copiedCode, setCopiedCode] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const riders = useSelector((state) => state.riders.riders);
   const loading = useSelector((state) => state.riders.loading);
@@ -130,7 +132,27 @@ const FeesSidebar = () => {
                                 <div key={index}>{product.productName}</div>
                               ))}
                             </td>
-                            <td className="p-1 border">{item.deliveryCode}</td>
+                            <td className="p-1 border flex items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                <span>{item.deliveryCode}</span>
+                                <Copy
+                                  size={16}
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(
+                                      item.deliveryCode
+                                    );
+                                    setCopiedCode(item.deliveryCode);
+                                    setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
+                                  }}
+                                />
+                                {copiedCode === item.deliveryCode && (
+                                  <span className="text-green-600 text-xs">
+                                    Copied!
+                                  </span>
+                                )}
+                              </div>
+                            </td>
                             <td className="p-1 border">
                               {item?.products?.map((product, index) => (
                                 <div key={index}>

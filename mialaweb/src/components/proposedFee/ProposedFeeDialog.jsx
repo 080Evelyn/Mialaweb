@@ -36,6 +36,7 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
     (state) => state.approveReject.rejectLoading
   );
   const approvalError = useSelector((state) => state.approveReject.error);
+  // console.log(proposals);
   const success = useSelector((state) => state.approveReject.success);
   //   const reject = useSelector((state) => state.approveReject.reject);
   //   console.log(approve, reject);
@@ -55,7 +56,7 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
     <Dialog
       open={openDialog === index}
       onOpenChange={(isOpen) => !isOpen && setOpenDialog(null)}>
-      <DialogContent className=" ">
+      <DialogContent className=" w-[100%] ">
         <DialogHeader>
           <DialogTitle className="text-[#B10303] text-left">
             Details
@@ -66,41 +67,41 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
         ) : !loading && error ? (
           <p className="text-center">{error}</p>
         ) : (
-          <Table className={""}>
-            <TableHeader>
-              <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
-                <TableHead className="rounded-l-sm">Agent</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Delivery Code</TableHead>
-                <TableHead>Proposed Fee(₦) </TableHead>
-                <TableHead>Quantity </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="text-[12px] font-[Raleway] font-[500] ">
-              <TableRow key={index}>
-                <TableCell>
+          <table className={"!w-[100%]"}>
+            <thead className={""}>
+              <tr className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
+                <th className="rounded-l-sm">Agent</th>
+                <th>Product</th>
+                <th>Delivery Code</th>
+                <th>Proposed Fee(₦) </th>
+                <th>Quantity </th>
+                <th>Adress </th>
+              </tr>
+            </thead>
+            <tbody className="text-[12px] font-[Raleway] font-[500] ">
+              <tr key={index}>
+                <td>
                   <div className="flex items-center gap-2">
                     <span>{`${proposals?.riderName} `}</span>
                   </div>
-                </TableCell>
-                <TableCell>
+                </td>
+                <td>
                   {proposals?.products?.map((product, index) => (
                     <div key={index}>{product.productName}</div>
                   ))}
-                </TableCell>
+                </td>
 
-                <TableCell>{proposals?.deliveryCode}</TableCell>
-                <TableCell>
-                  {Number(proposals?.proposedFee).toLocaleString()}
-                </TableCell>
-                <TableCell>
+                <td>{proposals?.deliveryCode}</td>
+                <td>{Number(proposals?.proposedFee).toLocaleString()}</td>
+                <td>
                   {proposals?.products?.map((product, index) => (
                     <div key={index}>{parseFloat(product.quantity)}</div>
                   ))}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+                </td>
+                <td>{proposals?.receiverAddress}</td>
+              </tr>
+            </tbody>
+          </table>
         )}
         <div className="flex justify-end gap-2 ">
           {error && (
@@ -109,19 +110,19 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
             </DialogClose>
           )}
           {!error && (
-            <>
+            <div className="flex justify-center w-full gap-2">
               <Button
                 onClick={handleApprove}
-                className="bg-green-600 border  cursor-pointer hover:bg-green-500 text-[#fff] w-1/2 text-sm rounded-[3px] h-9">
+                className="bg-green-600 border  cursor-pointer hover:bg-green-500 text-[#fff] md:w-1/2 text-sm rounded-[3px] h-9">
                 {approvalLoading ? "processing..." : "Approve"}
               </Button>
               <Button
                 onClick={handleReject}
                 type="submit"
-                className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
+                className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white md:w-1/2 text-sm rounded-[3px] h-9">
                 {rejectLoading ? "processing..." : "Reject"}
               </Button>
-            </>
+            </div>
           )}
         </div>
         {success && (

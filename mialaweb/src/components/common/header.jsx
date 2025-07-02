@@ -28,6 +28,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
   // console.log(riders);
   const location = useLocation();
   const path = location.pathname;
+  const showFilter = path === "/delivery" || path === "/proposedFee";
 
   const breadcrumbMap = {
     "/": "Home",
@@ -110,58 +111,68 @@ function AdminHeader({ setOpen, rightSidebar }) {
           </div>
 
           {/* Filter Controls */}
-          <div className="flex flex-wrap gap-2 mt-2 items-center">
-            <select
-              value={filters.status || ""}
-              onChange={(e) => handleFilterChange("status", e.target.value)}
-              className="px-2 py-1 border rounded text-sm">
-              <option value="">Status</option>
-              <option value="CUSTOMER_PAID">CUSTOMER_PAID</option>
-              <option value="CUSTOMER_NOT_PAID">CUSTOMER_NOT_PAID</option>
-            </select>
+          {showFilter && (
+            <div className="flex flex-wrap gap-2 mt-2 items-center">
+              <select
+                value={filters.status || ""}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
+                className="px-2 py-1 border rounded text-sm">
+                <option value="">Status</option>
+                {/* <option value="CUSTOMER_PAID">CUSTOMER_PAID</option>
+                <option value="CUSTOMER_NOT_PAID">CUSTOMER_NOT_PAID</option> */}
+                <option value="PENDING">PENDING</option>
+                <option value="PACKAGE_DELIVERED">PACKAGE_DELIVERED</option>
+                <option value="CANCELLED">CANCELLED</option>
+                <option value="PROCESSING">PROCESSING</option>
+                <option value="FEE_PROPOSED">FEE_PROPOSED</option>
+                <option value="FEE_REJECTED">FEE_REJECTED</option>
+              </select>
 
-            <select
-              value={filters.agent || ""}
-              onChange={(e) => handleFilterChange("agent", e.target.value)}
-              className="px-2 py-1 border rounded text-sm">
-              <option value="">Agent</option>
-              {riders?.map((rider) => (
-                <option
-                  key={rider.riderId}
-                  value={`${rider.first_name} ${rider.last_name}`}>
-                  {`${rider.first_name} ${rider.last_name}`}
-                </option>
-              ))}
-            </select>
-            {/* <>
-              <label className="text-sm"> start date</label>
-              <input
-                type="date"
-                value={filters.startDate || ""}
-                onChange={(e) =>
-                  handleFilterChange("startDate", e.target.value)
-                }
-                className="px-2 py-1 border rounded text-sm"
-              />
-            </>
-            <>
-              <label className="text-sm"> end date</label>
-              <input
-                type="date"
-                value={filters.endDate || ""}
-                onChange={(e) => handleFilterChange("endDate", e.target.value)}
-                className="px-2 py-1 border rounded text-sm"
-              />
-            </> */}
+              <select
+                value={filters.agent || ""}
+                onChange={(e) => handleFilterChange("agent", e.target.value)}
+                className="px-2 py-1 border rounded text-sm">
+                <option value="">Agent</option>
+                {riders?.map((rider) => (
+                  <option
+                    key={rider.riderId}
+                    value={`${rider.first_name} ${rider.last_name}`}>
+                    {`${rider.first_name} ${rider.last_name}`}
+                  </option>
+                ))}
+              </select>
+              <>
+                <label className="text-sm"> start date</label>
+                <input
+                  type="date"
+                  value={filters.startDate || ""}
+                  onChange={(e) =>
+                    handleFilterChange("startDate", e.target.value)
+                  }
+                  className="px-2 py-1 border rounded text-sm"
+                />
+              </>
+              <>
+                <label className="text-sm"> end date</label>
+                <input
+                  type="date"
+                  value={filters.endDate || ""}
+                  onChange={(e) =>
+                    handleFilterChange("endDate", e.target.value)
+                  }
+                  className="px-2 py-1 border rounded text-sm"
+                />
+              </>
 
-            <Button
-              variant="ghost"
-              onClick={handleResetFilters}
-              className="text-red-500 px-2 py-1 hover:text-red-600 flex items-center gap-1 text-sm">
-              <XCircle className="h-4 w-4" />
-              Reset Filters
-            </Button>
-          </div>
+              <Button
+                variant="ghost"
+                onClick={handleResetFilters}
+                className="text-red-500 px-2 py-1 hover:text-red-600 flex items-center gap-1 text-sm">
+                <XCircle className="h-4 w-4" />
+                Reset Filters
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>

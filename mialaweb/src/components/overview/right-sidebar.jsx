@@ -1,4 +1,4 @@
-import Activities from "./right-bottom";
+// import Activities from "./right-bottom";
 import NotificationList from "./right-top";
 
 const OverviewSidebar = () => {

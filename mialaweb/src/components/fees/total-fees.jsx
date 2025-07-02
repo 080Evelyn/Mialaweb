@@ -53,7 +53,9 @@ const TotalFeesTable = () => {
       trans?.paystackTransactionId.toLowerCase().includes(query.toLowerCase())
     );
   });
-
+  const sortedTransactions = filtered.sort((a, b) => {
+    return new Date(b.paidAt) - new Date(a.paidAt);
+  });
   const handleAssignPayment = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -156,7 +158,7 @@ const TotalFeesTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[14px] font-medium font-[Raleway]">
-          {filtered?.map((data, index) => (
+          {sortedTransactions?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -179,7 +181,7 @@ const TotalFeesTable = () => {
                   {data.status}
                 </Badge>
               </TableCell>
-              <TableCell>{formatDateArray(data.paidAt)}</TableCell>
+              <TableCell>{data.paidAt.split("T")[0]}</TableCell>
               <TableCell>
                 <Dialog>
                   <DialogTrigger asChild>
@@ -327,7 +329,7 @@ const TotalFeesTable = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <Label className="text-xs">
-                          Paystack TransactionId{" "}
+                          Paystack TransactionId
                         </Label>
                         <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
                           {data.paystackTransactionId}
