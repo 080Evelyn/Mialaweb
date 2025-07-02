@@ -1,17 +1,17 @@
 import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 // Async thunks to fetch transactions
 export const fetchTransaction = createAsyncThunk(
   "transactions/fetchTransaction",
   async ({ token, userRole }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         userRole === "Admin"
           ? ` ${BASE_URL}api/v1/admin/all-transactions-to-riders`
           : ` ${BASE_URL}api/v1/subadmin/all-transactions-to-riders`,
         {
-          method: "GET",
           headers: {
             accept: "application/json",
             "Content-Type": "application/json",
@@ -19,13 +19,13 @@ export const fetchTransaction = createAsyncThunk(
           },
         }
       );
-
+      // console.log(response);
       if (!response.ok) throw new Error("Failed to fetch transactions");
       const data = await response.json();
 
       return data.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response.data.responseDesc);
     }
   }
 );
