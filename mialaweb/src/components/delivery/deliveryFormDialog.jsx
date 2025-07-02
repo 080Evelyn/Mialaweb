@@ -91,7 +91,7 @@ const DeliveryFormDialog = ({
       ...prev,
       products: [
         ...prev.products,
-        { productName: "", qty: "", productPrice: "" },
+        { productName: "", quantity: "", productPrice: "" },
       ],
     }));
   };
@@ -108,7 +108,7 @@ const DeliveryFormDialog = ({
       products: [
         {
           productName: "",
-          qty: "",
+          quantity: "",
           productPrice: "",
         },
       ],

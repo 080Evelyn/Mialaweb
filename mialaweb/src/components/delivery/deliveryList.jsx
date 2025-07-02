@@ -59,8 +59,8 @@ const DeliveryList = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.search.filters);
-
   const query = useSelector((state) => state.search.query);
+  // console.log(deliveryList);
   const filtered = deliveryList?.filter((item) => {
     const productNames =
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
@@ -76,20 +76,24 @@ const DeliveryList = () => {
       : true;
 
     const statusMatch = filters.status
-      ? (item?.custPaymentStatus ?? "").toLowerCase() ===
+      ? (item?.deliveryStatus ?? "").toLowerCase() ===
         filters.status.toLowerCase()
       : true;
 
-    const dateMatch = filters.dateRange
-      ? (() => {
-          const [startDate, endDate] = filters.dateRange;
-          const uploadDate = new Date(...item.uploadDate);
+    const dateMatch = (() => {
+      const { startDate, endDate } = filters;
 
-          return (
-            uploadDate >= new Date(startDate) && uploadDate <= new Date(endDate)
-          );
-        })()
-      : true;
+      if (!startDate || !endDate) return true; // No filtering if not both provided
+
+      const uploadDate = new Date(item.uploadDate);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // Include the whole end day
+
+      if (isNaN(uploadDate) || isNaN(start) || isNaN(end)) return false;
+
+      return uploadDate >= start && uploadDate <= end;
+    })();
 
     return searchMatch && agentMatch && statusMatch && dateMatch;
   });
@@ -269,7 +273,7 @@ const DeliveryList = () => {
               </TableCell>
 
               <TableCell>{data.deliveryCode}</TableCell>
-              <TableCell>{formatDateArray(data.uploadDate)}</TableCell>
+              <TableCell>{data.uploadDate}</TableCell>
               <TableCell>
                 {data?.products?.map((product, index) => (
                   <div key={index}>

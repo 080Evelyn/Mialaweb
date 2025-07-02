@@ -7,7 +7,7 @@ const Overview = () => {
   return (
     <div>
       <AdminOverview />
-      <AgentGraph />
+      {/* <AgentGraph /> */}
       <div className="grid grid-cols-1 md:grid-cols- mt-4 gap-4">
         <RevenueBarChart />
         {/* <RevenuePieChart /> */}

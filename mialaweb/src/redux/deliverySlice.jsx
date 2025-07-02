@@ -24,8 +24,8 @@ export const fetchDelivery = createAsyncThunk(
 
       const url =
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/deliveries/all-rider-deliveries?${params}`
-          : `${BASE_URL}api/v1/subadmin/deliveries/all?${params}`;
+          ? `${BASE_URL}api/v1/admin/deliveriy/all?${params}`
+          : `${BASE_URL}api/v1/subadmin/deliveriy/all?${params}`;
 
       const response = await fetch(url, {
         method: "GET",

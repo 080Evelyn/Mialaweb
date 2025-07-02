@@ -40,6 +40,7 @@ const ProposedFee = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const dispatch = useDispatch();
   const query = useSelector((state) => state.search.query);
+  const filters = useSelector((state) => state.search.filters);
 
   const handleViewProposedFee = (index) => {
     setOpenDialog(index);
@@ -47,16 +48,44 @@ const ProposedFee = () => {
   const handleOpenAssignModal = (index) => {
     setDialogOpen(index);
   };
+
   const filtered = deliveryList?.filter((item) => {
     const productNames =
-      item.products &&
-      item?.products.map((p) => p.productName?.toLowerCase()).join(" "); // Join names into one string to use includes
+      item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
 
-    return (
-      productNames?.includes(query.toLowerCase()) ||
-      item.deliveryCode.toLowerCase().includes(query.toLowerCase())
-    );
+    const searchMatch =
+      productNames.includes(query.toLowerCase()) ||
+      item.deliveryCode.toLowerCase().includes(query.toLowerCase());
+
+    const agentMatch = filters.agent
+      ? `${item.riderFirstName} ${item.riderLastName}`
+          .toLowerCase()
+          .includes(filters.agent.toLowerCase())
+      : true;
+
+    const statusMatch = filters.status
+      ? (item?.deliveryStatus ?? "").toLowerCase() ===
+        filters.status.toLowerCase()
+      : true;
+
+    const dateMatch = (() => {
+      const { startDate, endDate } = filters;
+
+      if (!startDate || !endDate) return true; // No filtering if not both provided
+
+      const uploadDate = new Date(item.uploadDate);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // Include the whole end day
+
+      if (isNaN(uploadDate) || isNaN(start) || isNaN(end)) return false;
+
+      return uploadDate >= start && uploadDate <= end;
+    })();
+
+    return searchMatch && agentMatch && statusMatch && dateMatch;
   });
+
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
     // if (success) {
@@ -139,7 +168,7 @@ const ProposedFee = () => {
                 ))}
               </TableCell>
               <TableCell>{data.deliveryCode}</TableCell>
-              <TableCell>{formatDateArray(data.uploadDate)}</TableCell>
+              <TableCell>{data.uploadDate}</TableCell>
               <TableCell>
                 <div className="flex gap-3 items-center">
                   <EllipsisVertical

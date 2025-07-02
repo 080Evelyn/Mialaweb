@@ -157,7 +157,7 @@ const NotificationList = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-[12px] -mt-1">{notif.message}</span>
                       <span className="text-[#8C8C8C] text-[12px] ml-2 whitespace-nowrap">
-                        {formatDateArray(notif?.createdAt)}
+                        {notif?.createdAt.split("T")[0]}
                       </span>
                       <EllipsisVertical
                         onClick={() => {
