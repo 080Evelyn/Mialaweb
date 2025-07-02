@@ -11,10 +11,12 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      const { jwt, userRole, userId } = action.payload;
+      const { jwt, userRole, userId, first_name, last_name } = action.payload;
       state.user = {
         userId,
         userRole,
+        first_name,
+        last_name,
       };
       state.token = jwt;
     },

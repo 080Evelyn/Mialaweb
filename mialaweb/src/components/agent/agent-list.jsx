@@ -28,6 +28,7 @@ import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 import { fetchBankList } from "@/redux/bankListSlice";
+import { fetchRiders } from "@/redux/riderSlice";
 
 const AgentList = () => {
   const dispatch = useDispatch();
