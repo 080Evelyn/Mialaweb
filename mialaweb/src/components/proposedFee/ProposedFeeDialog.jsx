@@ -21,6 +21,7 @@ import {
 import {
   approveProposalFee,
   rejectProposalFee,
+  resetApproveRejectState,
 } from "@/redux/approveRejectProposalFeeSlice";
 const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
   const token = useSelector((state) => state.auth.token);
@@ -38,8 +39,9 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
   const approvalError = useSelector((state) => state.approveReject.error);
   // console.log(proposals);
   const success = useSelector((state) => state.approveReject.success);
-  //   const reject = useSelector((state) => state.approveReject.reject);
-  //   console.log(approve, reject);
+  const rejectSuccess = useSelector(
+    (state) => state.approveReject.rejectSuccess
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -105,7 +107,11 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
         )}
         <div className="flex justify-end gap-2 ">
           {error && (
-            <DialogClose className="bg-white border justify-center m-auto border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+            <DialogClose
+              onClick={() => {
+                dispatch(resetApproveRejectState());
+              }}
+              className="bg-white border justify-center m-auto border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
               Close
             </DialogClose>
           )}
@@ -130,6 +136,12 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
             Fee approved successfully!
           </p>
         )}
+        {rejectSuccess && (
+          <p className="text-center text-green-500">
+            Fee rejected successfully!
+          </p>
+        )}
+        {approvalError && <p className="text-red-500">Something went wrong.</p>}
       </DialogContent>
     </Dialog>
   );

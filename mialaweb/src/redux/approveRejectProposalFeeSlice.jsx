@@ -57,7 +57,7 @@ export const rejectProposalFee = createAsyncThunk(
       );
 
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       if (!response.ok) {
         console.log(data);
         // Pass backend message if it exists
@@ -80,19 +80,26 @@ const approveRejectProposalFeeSlice = createSlice({
     approveLoading: false,
     rejectLoading: false,
     error: false,
-    reject: false,
+    rejectSuccess: false,
     success: false,
   },
   reducers: {
-    resetApproveReject(state) {
+    resetApproveSuccess(state) {
       state.approve = false;
       state.approveLoading = false;
-      state.rejectLoading = false;
+      state.SuccessLoading = false;
       state.error = false;
-      state.reject = false;
+      state.rejectSuccess = false;
       state.success = false;
     },
+
+    resetApproveRejectState(state) {
+      state.success = false;
+      state.rejectSuccess = false;
+      state.error = false;
+    },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(approveProposalFee.pending, (state) => {
@@ -111,19 +118,20 @@ const approveRejectProposalFeeSlice = createSlice({
       })
       .addCase(rejectProposalFee.pending, (state) => {
         state.rejectLoading = true;
-        state.success = false;
+        state.rejectSuccess = false;
       })
       .addCase(rejectProposalFee.fulfilled, (state, action) => {
         state.rejectLoading = false;
         state.proposedFee = action.payload;
-        state.success = true;
+        state.rejectSuccess = true;
       })
       .addCase(rejectProposalFee.rejected, (state, action) => {
         state.rejectLoading = false;
         state.error = action.payload;
-        state.success = false;
+        state.rejectSuccess = false;
       });
   },
 });
-export const { resetApproveReject } = approveRejectProposalFeeSlice.actions;
+export const { resetApproveReject, resetApproveRejectState } =
+  approveRejectProposalFeeSlice.actions;
 export default approveRejectProposalFeeSlice.reducer;
