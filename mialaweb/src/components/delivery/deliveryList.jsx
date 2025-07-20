@@ -61,6 +61,7 @@ const DeliveryList = () => {
   const filters = useSelector((state) => state.search.filters);
   const query = useSelector((state) => state.search.query);
   // console.log(deliveryList);
+  // console.log(deliveryList);
   const filtered = deliveryList?.filter((item) => {
     const productNames =
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
