@@ -14,7 +14,7 @@ import DeliveryDetailsDialog from "./deliveryDetailsDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDelivery } from "@/redux/deliverySlice";
 // import DeliveryPaymentDialog from "./DeliveryPaymentDialog";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 // import { fetchRidersById } from "@/redux/riderByIdSlice";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 
@@ -106,25 +106,14 @@ const DeliveryList = () => {
     dispatch(fetchDelivery({ token, userRole, page }));
   }, [dispatch, token, userRole, page]);
 
-  function formatDateArray(dateArray) {
-    if (!Array.isArray(dateArray) || dateArray.length !== 3) {
-      throw new Error("Invalid date array. Expected format: [YYYY, MM, DD]");
-    }
-
-    const [year, month, day] = dateArray;
-    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
-      2,
-      "0"
-    )}`;
-  }
-  const exportToExcel = (data) => {
+  const exportToExcel = async (data) => {
     const flatData = data.map((item) => {
       const products = Array.isArray(item.products) ? item.products : [];
 
       return {
         Agent: `${item.riderFirstName ?? ""} ${item.riderLastName ?? ""}`,
         DeliveryCode: item.deliveryCode ?? "",
-        UploadDate: formatDateArray(item.uploadDate ?? []),
+        UploadDate: item.uploadDate ?? [],
         Products: products.map((p) => p.productName).join(", "),
         ProductPrices: products
           .map((p) => Number(p.productPrice).toLocaleString())
@@ -137,11 +126,32 @@ const DeliveryList = () => {
       };
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(flatData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Deliveries");
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Deliveries");
 
-    XLSX.writeFile(workbook, "delivery-list.xlsx");
+    // Add headers
+    worksheet.columns = Object.keys(flatData[0]).map((key) => ({
+      header: key,
+      key: key,
+      width: 20, // You can adjust width as needed
+    }));
+
+    // Add rows
+    flatData.forEach((row) => worksheet.addRow(row));
+
+    // Generate Excel file and trigger download
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "delivery-list.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleOpenAdd = () => {
