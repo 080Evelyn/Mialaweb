@@ -96,18 +96,6 @@ const ProposedFee = () => {
     dispatch(fetchDelivery({ token, userRole, page }));
   }, [dispatch, token, userRole, page]);
 
-  function formatDateArray(dateArray) {
-    if (!Array.isArray(dateArray) || dateArray.length !== 3) {
-      throw new Error("Invalid date array. Expected format: [YYYY, MM, DD]");
-    }
-
-    const [year, month, day] = dateArray;
-    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
-      2,
-      "0"
-    )}`;
-  }
-
   if (loading && !multiCall) {
     return (
       <div>
