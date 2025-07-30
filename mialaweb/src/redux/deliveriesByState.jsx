@@ -9,7 +9,12 @@ export const fetchDeliveriesByState = createAsyncThunk(
       const response = await fetch(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/delivery-ranking-by-rider-state`
-          : `${BASE_URL}api/v1/subadmin/delivery-ranking-by-rider-state`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/delivery-ranking-by-rider-state`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/delivery-ranking-by-rider-state`
+          : `${BASE_URL}api/v1/accountant/delivery-ranking-by-rider-state`,
+
         {
           method: "POST",
           headers: {

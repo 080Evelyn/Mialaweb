@@ -9,7 +9,11 @@ export const fetchAllPayment = createAsyncThunk(
       const response = await fetch(
         userRole === "Admin"
           ? ` ${BASE_URL}api/v1/admin/get-all-customer-payments`
-          : `${BASE_URL}api/v1/subadmin/get-all-customer-payments`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/get-all-customer-payments`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/get-all-customer-payments`
+          : `${BASE_URL}api/v1/accountant/get-all-customer-payments`,
         {
           method: "GET",
           headers: {

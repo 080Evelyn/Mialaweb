@@ -9,7 +9,12 @@ export const fetchRevenue = createAsyncThunk(
       const response = await fetch(
         userRole === "Admin"
           ? ` ${BASE_URL}api/v1/admin/transaction-summary-and-revenue`
-          : `${BASE_URL}api/v1/subadmin/transaction-summary-and-revenue`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/transaction-summary-and-revenue`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/transaction-summary-and-revenue`
+          : `${BASE_URL}api/v1/accountant/transaction-summary-and-revenue`,
+
         {
           method: "GET",
           headers: {

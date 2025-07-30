@@ -10,7 +10,12 @@ export const fetchTransaction = createAsyncThunk(
       const response = await axios.get(
         userRole === "Admin"
           ? ` ${BASE_URL}api/v1/admin/all-transactions-to-riders`
-          : ` ${BASE_URL}api/v1/subadmin/all-transactions-to-riders`,
+          : userRole === "CustomerCare"
+          ? ` ${BASE_URL}api/v1/customercare/all-transactions-to-riders`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/all-transactions-to-riders`
+          : `${BASE_URL}api/v1/accountant/all-transactions-to-riders`,
+
         {
           headers: {
             accept: "application/json",

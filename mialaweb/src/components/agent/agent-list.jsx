@@ -75,7 +75,7 @@ const AgentList = () => {
 
     try {
       const response = await axios.delete(
-        `${BASE_URL}api/v1/subadmin/delete-rider/${id}`,
+        `${BASE_URL}api/v1/cutomercare/delete-rider/${id}`,
 
         {
           headers: {

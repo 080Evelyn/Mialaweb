@@ -18,6 +18,8 @@ import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import InstallPWA from "./components/ui/InstallPWA";
 import ProposedFeeReview from "./pages/ProposedFeeReview";
+import OrderSummary from "./pages/OrderSummary";
+import PerformanceMenu from "./pages/PerformanceMenu";
 
 function App() {
   return (
@@ -90,7 +92,9 @@ function App() {
           <Route
             path="payout-summary"
             element={
-              <Layout rightSidebar={<FeesSidebar />}>
+              <Layout
+              // rightSidebar={<FeesSidebar />}
+              >
                 <PayoutSummary />
               </Layout>
             }
@@ -100,6 +104,22 @@ function App() {
             element={
               <Layout>
                 <ProductManagement />
+              </Layout>
+            }
+          />
+          <Route
+            path="orderSummary"
+            element={
+              <Layout>
+                <OrderSummary />
+              </Layout>
+            }
+          />
+          <Route
+            path="performance"
+            element={
+              <Layout>
+                <PerformanceMenu />
               </Layout>
             }
           />

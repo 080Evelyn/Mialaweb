@@ -14,11 +14,15 @@ const DeliveryDetailsDialog = ({ data }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+        <button
+          // onClick={() => {
+          //   console.log(data);
+          // }}
+          className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
           <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[362px] ">
+      <DialogContent className="sm:max-w-[362px] h-[600px] overflow-y-scroll ">
         <DialogHeader>
           <DialogTitle className="text-[#B10303] text-left">
             Details
@@ -123,6 +127,24 @@ const DeliveryDetailsDialog = ({ data }) => {
             </span>
           </div>
           <div className="flex justify-between items-center">
+            <Label className="text-xs">Payment type</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              {data?.paymentType}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <Label className="text-xs">Amount paid</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              ₦{Number(data?.amountPaid).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <Label className="text-xs">Balance</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              ₦{Number(data?.balance).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
             <Label className="text-xs">Rider Payment Status</Label>
             <span
               className={`text-right w-[45%] text-[10px] ${
@@ -133,12 +155,12 @@ const DeliveryDetailsDialog = ({ data }) => {
               {data?.riderPaymentStatus}
             </span>
           </div>
-          {/* <div className="flex justify-between items-center">
-          <Label className="text-xs">Date</Label>
-          <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-            {data?.date}
-          </span>
-        </div> */}
+          <div className="flex justify-between items-center">
+            <Label className="text-xs">Negotiation status</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              {data?.negotiationStatus}
+            </span>
+          </div>
         </div>
         <div className="flex justify-end gap-2 ">
           <DialogClose className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">

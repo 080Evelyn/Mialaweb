@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EllipsisVertical, PenBox } from "lucide-react";
+import { EllipsisVertical, Loader2, PenBox } from "lucide-react";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
 // import DeliveryDetailsDialog from "./deliveryDetailsDialog";
@@ -48,7 +48,9 @@ const ProposedFee = () => {
   const handleOpenAssignModal = (index) => {
     setDialogOpen(index);
   };
-
+  const delivered = deliveryList?.filter((rider) => {
+    return rider.deliveryStatus === "DELIVERED";
+  });
   const filtered = deliveryList?.filter((item) => {
     const productNames =
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
@@ -109,7 +111,7 @@ const ProposedFee = () => {
   if (loading && !multiCall) {
     return (
       <div>
-        <p className="text-center font-semibold">Loading...</p>
+        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
       </div>
     );
   }

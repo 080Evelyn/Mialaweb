@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PenBox } from "lucide-react";
+import { Loader2, PenBox } from "lucide-react";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
 import DeliveryFormDialog from "./deliveryFormDialog";
@@ -17,6 +17,8 @@ import { fetchDelivery } from "@/redux/deliverySlice";
 import ExcelJS from "exceljs";
 // import { fetchRidersById } from "@/redux/riderByIdSlice";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
+import RestrictionModal from "../common/RestrictionModal";
+import { setRestricted } from "@/redux/restrictionSlice";
 
 const initialFormState = {
   products: [
@@ -24,13 +26,22 @@ const initialFormState = {
       productName: "",
       quantity: "",
       productPrice: "",
+      discountPercent: "",
     },
   ],
   riderId: "",
   receiverName: "",
   receiverPhone: "",
   receiverAddress: "",
+  customerPaymentStatus: "",
+  // riderPaymentStatus: "",
+  // agreementStatus: "",
+  // negotiationStatus: "",
+  paymentType: "",
+  amountPaid: "",
+  balance: "",
   dueDate: "",
+  deliveryStatus: "",
 };
 
 const DeliveryList = () => {
@@ -42,11 +53,13 @@ const DeliveryList = () => {
   const token = useSelector((state) => state.auth.token);
   const deliveryList = useSelector((state) => state.delivery.delivery);
   const selectedRider = useSelector((state) => state.riderById.riderById);
+  const restricted = useSelector((state) => state.restriction.restricted);
+
   const [page, setPage] = useState(0);
   const { totalPages, currentPage, loading } = useSelector(
     (state) => state.delivery
   );
-
+  // console.log(deliveryList);
   const [formDataStep1, setFormDataStep1] = useState({
     name: "",
     userId: "",
@@ -60,8 +73,7 @@ const DeliveryList = () => {
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.search.filters);
   const query = useSelector((state) => state.search.query);
-  // console.log(deliveryList);
-  // console.log(deliveryList);
+
   const filtered = deliveryList?.filter((item) => {
     const productNames =
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
@@ -156,17 +168,29 @@ const DeliveryList = () => {
   };
 
   const handleOpenAdd = () => {
+    if (userRole === "Accountant") {
+      dispatch(setRestricted(true));
+
+      return;
+    }
     setFormMode("add");
     setFormData(initialFormState);
     setDialogOpen(true);
   };
 
   const handleOpenEdit = (data) => {
+    if (userRole === "Accountant") {
+      dispatch(setRestricted(true));
+
+      return;
+    }
+    // console.log(data);
     setFormMode("edit");
     setDeliveryId(data.id);
     setFormData({
       products: Array.isArray(data.products)
         ? data.products.map((product) => ({
+            productId: product.id || "",
             productName: product.productName || "",
             quantity: product.qty || "",
             productPrice:
@@ -184,6 +208,14 @@ const DeliveryList = () => {
       receiverName: data.receiverName || "",
       receiverPhone: data.receiverPhone || "",
       dueDate: data.dueDate || "",
+      customerPaymentStatus: data.custPaymentStatus || "",
+      // riderPaymentStatus: data.riderPaymentStatus || "",
+      // agreementStatus: data.agreementStatus || "",
+      // negotiationStatus: data.negotiationStatus || "",
+      paymentType: data.paymentType || "",
+      amountPaid: data.amountPaid || "",
+      balance: data.balance || "",
+      deliveryStatus: data.deliveryStatus || "",
     });
     setDialogOpen(true);
   };
@@ -207,7 +239,7 @@ const DeliveryList = () => {
   if (loading && !multiCall) {
     return (
       <div>
-        <p className="text-center font-semibold">Loading...</p>
+        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
       </div>
     );
   }
@@ -265,53 +297,58 @@ const DeliveryList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500] ">
-          {filtered?.map((data, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={Avatar}
-                    alt="avatar"
-                    className="h-6 w-6 rounded-full"
-                  />
-                  <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                {data?.products?.map((product, index) => (
-                  <div key={index}>{product.productName}</div>
-                ))}
-              </TableCell>
-
-              <TableCell>{data.deliveryCode}</TableCell>
-              <TableCell>{data.uploadDate}</TableCell>
-              <TableCell>
-                {data?.products?.map((product, index) => (
-                  <div key={index}>
-                    {Number(product?.productPrice).toLocaleString()}
+          {filtered.length === 0 ? (
+            <p className="!text-center py-4">No orders at the momemnt.</p>
+          ) : (
+            filtered?.map((data, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={Avatar}
+                      alt="avatar"
+                      className="h-6 w-6 rounded-full"
+                    />
+                    <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
                   </div>
-                ))}
-              </TableCell>
-              <TableCell>
-                {data?.products?.map((product, index) => (
-                  <div key={index}>{parseFloat(product.qty)}</div>
-                ))}
-              </TableCell>
-              <TableCell>{Number(data.deliveryFee).toLocaleString()}</TableCell>
-              <TableCell>{Number(data.totalFee).toLocaleString()}</TableCell>
-              <TableCell>
-                <div className="flex gap-3 items-center">
-                  {data.custPaymentStatus}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-3 items-center">
-                  {data.riderPaymentStatus}
-                  <button onClick={() => handleOpenEdit(data)}>
-                    <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
-                  </button>
-                  <DeliveryDetailsDialog data={data} />
-                  {/* {data.paymentApproval && (
+                </TableCell>
+                <TableCell>
+                  {data?.products?.map((product, index) => (
+                    <div key={index}>{product.productName}</div>
+                  ))}
+                </TableCell>
+
+                <TableCell>{data.deliveryCode}</TableCell>
+                <TableCell>{data.uploadDate}</TableCell>
+                <TableCell>
+                  {data?.products?.map((product, index) => (
+                    <div key={index}>
+                      {Number(product?.productPrice).toLocaleString()}
+                    </div>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {data?.products?.map((product, index) => (
+                    <div key={index}>{parseFloat(product.qty)}</div>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {Number(data.deliveryFee).toLocaleString()}
+                </TableCell>
+                <TableCell>{Number(data.totalFee).toLocaleString()}</TableCell>
+                <TableCell>
+                  <div className="flex gap-3 items-center">
+                    {data.custPaymentStatus}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-3 items-center">
+                    {data.riderPaymentStatus}
+                    <button onClick={() => handleOpenEdit(data)}>
+                      <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+                    </button>
+                    <DeliveryDetailsDialog data={data} />
+                    {/* {data.paymentApproval && (
                     <button
                       onClick={() => {
                         handleOpenPaymentModal(data);
@@ -320,12 +357,20 @@ const DeliveryList = () => {
                       <BanknoteArrowUp className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
                     </button>
                   )} */}
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
+      />
       <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
         <button
           className={`${

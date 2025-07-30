@@ -29,6 +29,8 @@ import revenueReducer from "./revenueSlice";
 import notificationReducer from "./notificationSlice";
 import proposedFeeReducer from "./proposedFeeSlice";
 import approveRejectReducer from "./approveRejectProposalFeeSlice";
+import restrictionReducer from "./restrictionSlice";
+import orderSummaryReducer from "./orderSummarySlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -48,6 +50,8 @@ const rootReducer = combineReducers({
   notification: notificationReducer,
   proposedFee: proposedFeeReducer,
   approveReject: approveRejectReducer,
+  restriction: restrictionReducer,
+  orderSummary: orderSummaryReducer,
 });
 
 const persistConfig = {

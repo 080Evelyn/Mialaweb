@@ -7,9 +7,21 @@ export const fetchRiders = createAsyncThunk(
   async ({ token, userRole }, { rejectWithValue }) => {
     try {
       const response = await fetch(
+        // userRole === "Admin"
+        //   ? `${BASE_URL}api/v1/admin/riders-by-state`
+        //   : userRole === "CustomerCare"
+        //   ? `${BASE_URL}api/v1/customercare/riders-by-state`
+        //   : userRole === "Manager"
+        //   ? `${BASE_URL}api/v1/manager/riders-by-state`
+        //   : `${BASE_URL}api/v1/accountant/riders-by-state`,
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/riders-by-state`
-          : `${BASE_URL}api/v1/subadmin/riders-by-state`,
+          ? `${BASE_URL}api/v1/admin/list-riders`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/list-riders`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/list-riders`
+          : `${BASE_URL}api/v1/accountant/list-riders`,
+
         {
           method: "GET",
           headers: {
@@ -36,6 +48,7 @@ const riderSlice = createSlice({
     riders: null,
     loading: false,
     error: null,
+    multiCall: false,
   },
   reducers: {
     resetriders(state) {

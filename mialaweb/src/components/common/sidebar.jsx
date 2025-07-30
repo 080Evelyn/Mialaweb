@@ -17,6 +17,7 @@ import { resetriders } from "@/redux/riderSlice";
 import { resetNotifications } from "@/redux/notificationSlice";
 import { resetPayment } from "@/redux/allCustomerPaymentSlice";
 import { resetApproveReject } from "@/redux/approveRejectProposalFeeSlice";
+import { BarChart3, FileText, LogOut, TrendingUp } from "lucide-react";
 
 function MenuItems({ setOpen }) {
   const navigate = useNavigate();
@@ -51,6 +52,12 @@ function MenuItems({ setOpen }) {
       icon: <img src={DeliveryBox} alt="delivery box" className="w-5 h-5" />,
     },
     {
+      id: "order-summary",
+      label: "Order Summary",
+      path: "/orderSummary",
+      icon: <FileText className="w-5 h-5" />,
+    },
+    {
       id: "proposedFee",
       label: "Proposed Fees",
       path: "/proposedFee",
@@ -61,6 +68,19 @@ function MenuItems({ setOpen }) {
       label: "Fees",
       path: "/fees",
       icon: <img src={Fees} alt="Fees-logo" className="w-5 h-5" />,
+    },
+
+    {
+      id: "payout-summary",
+      label: "payout-summary",
+      path: "/payout-summary",
+      icon: <TrendingUp className="w-5 h-5" />,
+    },
+    {
+      id: "performance",
+      label: "performance",
+      path: "/performance",
+      icon: <BarChart3 className="w-5 h-5" />,
     },
     {
       id: "agent",
@@ -82,15 +102,15 @@ function MenuItems({ setOpen }) {
     navigate("/");
   };
   return (
-    <nav className="mt-3 flex flex-col gap-1 pl-3">
+    <nav className="mt-0 flex flex-col gap-1 pl-3 ">
       {SidebarMenuItems.map((menuItem) => {
         const isActive =
           location.pathname === menuItem.path ||
           (menuItem.id === "agent" &&
             (location.pathname.startsWith("/admin/agents") ||
-              location.pathname.startsWith("/admin/sub-admins"))) ||
-          (menuItem.id === "fees" &&
-            location.pathname.startsWith("/payout-summary"));
+              location.pathname.startsWith("/admin/sub-admins")));
+        // (menuItem.id === "fees" &&
+        //   location.pathname.startsWith("/payout-summary"));
 
         return (
           <div
@@ -109,7 +129,8 @@ function MenuItems({ setOpen }) {
       })}
       <div
         onClick={handleSignOut}
-        className={`flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5`}>
+        className={`flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 relative bottom-3 `}>
+        <LogOut className="w-5 h-5" />
         <span>Sign Out</span>
       </div>
       <div className="absolute bottom-10 inset-x-0 ps-4 lg:ps-5.5 px-3">

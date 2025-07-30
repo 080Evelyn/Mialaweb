@@ -9,7 +9,12 @@ export const fetchProposedFee = createAsyncThunk(
       const response = await fetch(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/deliveries/${id}/proposal?adminId=${adminId}`
-          : `${BASE_URL}api/v1/subadmin/deliveries/${id}/proposal?adminId=${adminId}`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/deliveries/${id}/proposal?adminId=${adminId}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/deliveries/${id}/proposal?adminId=${adminId}`
+          : `${BASE_URL}api/v1/accountant/deliveries/${id}/proposal?adminId=${adminId}`,
+
         {
           method: "GET",
           headers: {
