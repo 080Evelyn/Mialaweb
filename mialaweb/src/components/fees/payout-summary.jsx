@@ -42,22 +42,6 @@ const PayoutSummaryTable = () => {
     dispatch(fetchTransaction({ token, userRole }));
   }, []);
 
-  function formatDateArray(dateArray) {
-    if (!Array?.isArray(dateArray) || dateArray.length < 3) {
-      throw new Error("Invalid date array.");
-    }
-
-    const [year, month, day] = dateArray;
-
-    const date = new Date(year, month - 1, day);
-
-    return date.toLocaleDateString("en-NG", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
