@@ -282,7 +282,6 @@ const DeliveryFormDialog = ({
           },
         }
       );
-
       if (response.data.responseMsg === "Success") {
         dispatch(fetchDelivery({ token, userRole }));
         dispatch(setMultiCall());
