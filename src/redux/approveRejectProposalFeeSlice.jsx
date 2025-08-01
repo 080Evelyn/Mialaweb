@@ -45,7 +45,12 @@ export const rejectProposalFee = createAsyncThunk(
       const response = await fetch(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/approve-fee/${adminId}/${id}?approved=false`
-          : `${BASE_URL}api/v1/subadmin/approve-fee/${adminId}/${id}?approved=false`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/approve-fee/${adminId}/${id}?approved=false`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/approve-fee/${adminId}/${id}?approved=false`
+          : `${BASE_URL}api/v1/accountant/approve-fee/${adminId}/${id}?approved=false`,
+
         {
           method: "POST",
           headers: {

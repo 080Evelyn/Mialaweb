@@ -13,7 +13,8 @@ import { Label } from "../ui/label";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRiders } from "@/redux/riderSlice";
 import { BASE_URL } from "@/lib/Api";
-import { Copy } from "lucide-react";
+import { Copy, Loader2, LoaderCircle, Pin } from "lucide-react";
+import axios from "axios";
 
 const FeesSidebar = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,8 @@ const FeesSidebar = () => {
   const loading = useSelector((state) => state.riders.loading);
   const error = useSelector((state) => state.riders.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState(null);
 
   // Track open modal state
   const [openDialog, setOpenDialog] = useState("");
@@ -34,6 +37,47 @@ const FeesSidebar = () => {
     dispatch(fetchRiders({ token, userRole }));
   }, []);
 
+  const handlePinRider = async (id, status) => {
+    setIsLoading(true);
+    setLoadingId(id);
+    // setErrorMessage("");
+    // setSuccessMessage("");
+    try {
+      const response = await axios.post(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/pin-rider`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/pin-rider`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/pin-rider`
+          : `${BASE_URL}api/v1/accountant/pin-rider`,
+
+        {
+          riderId: id,
+          pin: status,
+        },
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // if (response.data.responseCode === "00") {
+
+      dispatch(fetchRiders({ token, userRole }));
+
+      // }
+    } catch (error) {
+      // setErrorMessage(`An error occured.`);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+      setLoadingId(null);
+    }
+  };
+
   // Fetch details when dialog opens
   const handleOpen = async (index, agentId) => {
     setOpenDialog(index);
@@ -42,7 +86,12 @@ const FeesSidebar = () => {
       const response = await fetch(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/delivery-by-riderId/${agentId}`
-          : `${BASE_URL}api/v1/subadmin/delivery-by-riderId/${agentId}`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/delivery-by-riderId/${agentId}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/delivery-by-riderId/${agentId}`
+          : `${BASE_URL}api/v1/accountant/delivery-by-riderId/${agentId}`,
+
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -65,11 +114,17 @@ const FeesSidebar = () => {
       </p>
     );
   }
+  const approved = riders?.filter((rider) => {
+    return rider.approvalStatus === "APPROVED";
+  });
+  const sorted = [...approved].sort((a, b) => b.pinned - a.pinned);
+  console.log(sorted);
+
   return (
     <div className="flex flex-col gap-4 mt-2">
       <div className="text-sm font-medium text-gray-700">Active Agents</div>
 
-      {riders?.map((data, index) => (
+      {sorted?.map((data, index) => (
         <div className="flex items-center justify-between gap-2" key={index}>
           <div className="flex items-center gap-3">
             {/* <img
@@ -77,6 +132,38 @@ const FeesSidebar = () => {
               alt="agent avatar"
               className="h-10 w-10"
             /> */}
+
+            {/* <button
+              disabled={isLoading}
+              onClick={() => handlePinRider(data.userId, !data.pinned)}
+              className="ml-2"
+              title={data.pinned ? "Unpin rider" : "Pin rider"}>
+              <Pin
+                className={`w-4 h-4 cursor-pointer ${
+                  data.pinned
+                    ? "!text-yellow-500 !fill-yellow-500"
+                    : "!text-gray-400"
+                }`}
+              />
+              <Loader2 className="animate-spin w-6 h-6" />
+            </button> */}
+            <button
+              disabled={loadingId === data.userId}
+              onClick={() => handlePinRider(data.userId, !data.pinned)}
+              className="ml-2 flex items-center"
+              title={data.pinned ? "Unpin rider" : "Pin rider"}>
+              {loadingId === data.userId ? (
+                <Loader2 className="animate-spin w-5 h-5 !text-gray-400" />
+              ) : (
+                <Pin
+                  className={`w-5 h-5 cursor-pointer ${
+                    data.pinned
+                      ? "!text-yellow-500 !fill-yellow-500"
+                      : "!text-gray-400"
+                  }`}
+                />
+              )}
+            </button>
             <div className="flex flex-col">
               <span className="text-sm font-semibold">
                 {data.first_name} {data.last_name}
@@ -105,11 +192,12 @@ const FeesSidebar = () => {
                 <div className="py-4 text-center text-sm">Loading...</div>
               ) : (
                 <div className="flex flex-col !h-[400px] overflow-y-scroll gap-3">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-xs">Agent Name</Label>
-                    <span className="text-[10px] text-[#8C8C8C]">
-                      {data.first_name} {data.last_name}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">
+                        {data.first_name} {data.last_name}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Render delivery data in a table */}

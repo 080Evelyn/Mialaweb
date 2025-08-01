@@ -17,8 +17,11 @@ import SuccessModal from "../common/SuccessModal";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
+import RestrictionModal from "../common/RestrictionModal";
+import { setRestricted } from "@/redux/restrictionSlice";
 
 const AgentSidebar = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,18 +34,29 @@ const AgentSidebar = () => {
   const loading = useSelector((state) => state.pendingRiders.loading);
   const error = useSelector((state) => state.pendingRiders.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
+  const restricted = useSelector((state) => state.restriction.restricted);
 
   useEffect(() => {
     dispatch(fetchPendingRiders({ token, userRole }));
   }, []);
-
   const handleApproveRider = async (id) => {
+    if (userRole === "Accountant" || userRole === "CustomerCare") {
+      dispatch(setRestricted(true));
+
+      return;
+    }
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
     try {
       const response = await axios.patch(
-        `${BASE_URL}api/v1/subadmin/approve-rider-signup/${id}`,
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/approve-rider-signup/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/approve-rider-signup/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/approve-rider-signup/${id}`
+          : `${BASE_URL}api/v1/accountant/approve-rider-signup/${id}`,
         {},
 
         {
@@ -103,23 +117,32 @@ const AgentSidebar = () => {
               </div>
             </div>
 
-            <Dialog>
-              <DialogTrigger asChild>
-                <div className="flex flex-col gap-1">
-                  {/* <Button
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              {/* <DialogTrigger asChild> */}
+              <div className="flex flex-col gap-1">
+                {/* <Button
                   className="h-6 px-3 text-xs text-[#8C8C8C] hover:bg-gray-100 border-[#8C8C8C] border-[1px] rounded-[4px]"
                   variant="ghost">
                   View
                 </Button> */}
-                  <Button
-                    onClick={() => {
-                      setErrorMessage(""), setSuccessMessage("");
-                    }}
-                    className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]">
-                    Approve
-                  </Button>
-                </div>
-              </DialogTrigger>
+                <Button
+                  onClick={() => {
+                    if (
+                      userRole === "Accountant" ||
+                      userRole === "CustomerCare"
+                    ) {
+                      dispatch(setRestricted(true));
+
+                      return;
+                    } else {
+                      setDialogOpen(true);
+                    }
+                  }}
+                  className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]">
+                  Approve
+                </Button>
+              </div>
+              {/* </DialogTrigger> */}
               <DialogContent className="sm:max-w-[362px] ">
                 <DialogHeader>
                   <DialogTitle className="text-[#B10303] text-left">
@@ -199,6 +222,13 @@ const AgentSidebar = () => {
           </div>
         ))
       )}
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
+      />
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}

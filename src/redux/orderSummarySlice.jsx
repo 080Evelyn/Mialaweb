@@ -1,10 +1,11 @@
 import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-export const fetchDelivery = createAsyncThunk(
-  "delivery/fetchDelivery",
+// Async thunks to fetch transactions
+export const fetchOrderSummary = createAsyncThunk(
+  "payment/fetchOrderSummary",
   async (
-    { token, userRole, page = 0, size = 40 },
+    { token, userRole, page = 0, size = 20 },
     { rejectWithValue, getState }
   ) => {
     try {
@@ -22,26 +23,26 @@ export const fetchDelivery = createAsyncThunk(
         endDate: filters.endDate || "",
       });
 
-      const url =
+      const response = await fetch(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/deliveriy/all?${params}`
+          ? ` ${BASE_URL}api/v1/admin/sale-per-product-list?${params}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/deliveriy/all?${params}`
+          ? `${BASE_URL}api/v1/customercare/sale-per-product-list?${params}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/deliveriy/all?${params}`
-          : `${BASE_URL}api/v1/accountant/deliveriy/all?${params}`;
+          ? `${BASE_URL}api/v1/manager/sale-per-product-list?${params}`
+          : `${BASE_URL}api/v1/accountant/sale-per-product-list?${params}`,
 
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (!response.ok) throw new Error("Failed to fetch deliveries");
-
+      if (!response.ok) throw new Error("Failed to fetch order summary");
       const data = await response.json();
       return data.data;
     } catch (error) {
@@ -50,22 +51,21 @@ export const fetchDelivery = createAsyncThunk(
   }
 );
 
-const deliverySlice = createSlice({
-  name: "delivery",
+const orderSummarySlice = createSlice({
+  name: "orderSummary",
   initialState: {
-    delivery: [],
+    summary: [],
+    loading: false,
     totalPages: 0,
     totalElements: 0,
     currentPage: 0,
-    loading: false,
     error: null,
     success: false,
     multiCall: false,
   },
   reducers: {
-    resetDelivery(state) {
-      state.delivery = [];
-      state.multiCall = false;
+    resetSummary(state) {
+      state.summary = [];
       state.success = false;
     },
     setMultiCall(state) {
@@ -74,24 +74,23 @@ const deliverySlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchDelivery.pending, (state) => {
+      .addCase(fetchOrderSummary.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchDelivery.fulfilled, (state, action) => {
+      .addCase(fetchOrderSummary.fulfilled, (state, action) => {
         state.loading = false;
-        state.delivery = action.payload.content;
+        state.summary = action.payload.content;
+        state.success = true;
         state.totalPages = action.payload.totalPages;
         state.totalElements = action.payload.totalElements;
         state.currentPage = action.payload.number;
-        state.success = true;
       })
-
-      .addCase(fetchDelivery.rejected, (state, action) => {
+      .addCase(fetchOrderSummary.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.success = false;
       });
   },
 });
-export const { resetDelivery, setMultiCall } = deliverySlice.actions;
-export default deliverySlice.reducer;
+export const { resetPayment, setMultiCall } = orderSummarySlice.actions;
+export default orderSummarySlice.reducer;

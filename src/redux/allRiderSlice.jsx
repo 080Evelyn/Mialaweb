@@ -9,7 +9,12 @@ export const fetchAllRiders = createAsyncThunk(
       const response = await fetch(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/list-riders`
-          : `${BASE_URL}api/v1/subadmin/list-riders`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/list-riders`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/list-riders`
+          : `${BASE_URL}api/v1/accountant/list-riders`,
+
         {
           method: "GET",
           headers: {

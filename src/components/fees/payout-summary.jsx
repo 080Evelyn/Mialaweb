@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +31,7 @@ const PayoutSummaryTable = () => {
   const loading = useSelector((state) => state.transaction.loading);
   const query = useSelector((state) => state.search.query);
   const dispatch = useDispatch();
-  console.log(error);
+  // console.log(error);
   const filtered = transaction?.filter((trans) => {
     return (
       trans?.reference?.toLowerCase().includes(query.toLowerCase()) ||
@@ -42,47 +42,31 @@ const PayoutSummaryTable = () => {
     dispatch(fetchTransaction({ token, userRole }));
   }, []);
 
-  function formatDateArray(dateArray) {
-    if (!Array?.isArray(dateArray) || dateArray.length < 3) {
-      throw new Error("Invalid date array.");
-    }
-
-    const [year, month, day] = dateArray;
-
-    const date = new Date(year, month - 1, day);
-
-    return date.toLocaleDateString("en-NG", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Payout summary</h2>
         <div className="flex gap-2.5 text-sm">
-          <Button
+          {/* <Button
             className={`cursor-pointer rounded-[4px] ${
               location.pathname === "/fees"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
             } `}>
             <Link to="/fees">Total Fee Collected </Link>
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             className={`cursor-pointer rounded-[4px] ${
               location.pathname === "/payout-summary"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
             }`}>
             <Link to="/payout-summary">Payout Summary</Link>
-          </Button>
+          </Button> */}
         </div>
       </div>
       {loading ? (
-        <p className="text-sm text-center">Loading...</p>
+        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
       ) : !loading && error !== "No valid transfer transactions found." ? (
         <p className="text-sm text-red-500 text-center">
           Something went wrong.

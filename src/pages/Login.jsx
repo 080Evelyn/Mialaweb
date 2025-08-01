@@ -36,7 +36,12 @@ const Login = () => {
         const { jwt, userRole, userId, first_name, last_name } =
           response.data.data;
         dispatch(login({ jwt, userRole, userId, first_name, last_name }));
-        if (userRole === "Admin" || userRole === "Subadmin") {
+        if (
+          userRole === "Admin" ||
+          userRole === "Manager" ||
+          userRole === "Accountant" ||
+          userRole === "CustomerCare"
+        ) {
           navigate("/overview");
         } else {
           navigate("/");

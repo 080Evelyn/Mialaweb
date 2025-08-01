@@ -28,7 +28,15 @@ function AdminHeader({ setOpen, rightSidebar }) {
   // console.log(riders);
   const location = useLocation();
   const path = location.pathname;
-  const showFilter = path === "/delivery" || path === "/proposedFee";
+  const showFilter =
+    path === "/delivery" ||
+    path === "/proposedFee" ||
+    path === "/products" ||
+    path === "/fees";
+  const approved = riders?.filter((rider) => {
+    return rider?.approvalStatus === "APPROVED";
+  });
+  const sorted = riders && [...approved].sort((a, b) => b.pinned - a.pinned);
 
   const breadcrumbMap = {
     "/": "Home",
@@ -40,7 +48,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
     "/settings": "Settings",
     "/admin/agents": "Agents & Admins",
     "/admin/sub-admins": "Agents & Admins",
-    "/payout-summary": "Fees",
+    "/payout-summary": "Payout-Summary",
   };
 
   const breadcrumbLabel = breadcrumbMap[path] || "Page";
@@ -113,34 +121,97 @@ function AdminHeader({ setOpen, rightSidebar }) {
           {/* Filter Controls */}
           {showFilter && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
+              {path !== "/products" && (
+                <>
+                  {path !== "/fees" && (
+                    <select
+                      value={filters.status || ""}
+                      onChange={(e) =>
+                        handleFilterChange("status", e.target.value)
+                      }
+                      className="px-2 py-1 border rounded text-sm">
+                      <option value="">Status</option>
+                      {/* <option value="CUSTOMER_PAID">CUSTOMER_PAID</option>
+    <option value="CUSTOMER_NOT_PAID">CUSTOMER_NOT_PAID</option> */}
+                      <option value="PENDING">PENDING</option>
+                      <option value="PACKAGE_DELIVERED">
+                        PACKAGE_DELIVERED
+                      </option>
+                      <option value="CANCELLED">CANCELLED</option>
+                      <option value="PROCESSING">PROCESSING</option>
+                      <option value="FEE_PROPOSED">FEE_PROPOSED</option>
+                      <option value="FEE_REJECTED">FEE_REJECTED</option>
+                    </select>
+                  )}
+                  <select
+                    value={filters.agent || ""}
+                    onChange={(e) =>
+                      handleFilterChange("agent", e.target.value)
+                    }
+                    className="px-2 py-1 border rounded text-sm">
+                    <option value="">Agent</option>
+                    {sorted?.map((rider) => (
+                      <option
+                        key={rider.riderId}
+                        value={`${rider.first_name} ${rider.last_name}`}>
+                        {`${rider.first_name} ${rider.last_name}`}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
               <select
-                value={filters.status || ""}
-                onChange={(e) => handleFilterChange("status", e.target.value)}
+                onChange={(e) => {
+                  const today = new Date();
+                  let startDate = "";
+                  let endDate = today.toISOString().split("T")[0]; // default end date = today
+
+                  switch (e.target.value) {
+                    case "yesterday":
+                      const yesterday = new Date(today);
+                      yesterday.setDate(today.getDate() - 1);
+                      startDate = yesterday.toISOString().split("T")[0];
+                      endDate = yesterday.toISOString().split("T")[0];
+                      break;
+                    case "last7":
+                      const last7 = new Date(today);
+                      last7.setDate(today.getDate() - 7);
+                      startDate = last7.toISOString().split("T")[0];
+                      break;
+                    case "last30":
+                      const last30 = new Date(today);
+                      last30.setDate(today.getDate() - 30);
+                      startDate = last30.toISOString().split("T")[0];
+                      break;
+                    case "thisWeek":
+                      const firstDayOfWeek = new Date(today);
+                      firstDayOfWeek.setDate(today.getDate() - today.getDay());
+                      startDate = firstDayOfWeek.toISOString().split("T")[0];
+                      break;
+                    case "thisMonth":
+                      const firstDayOfMonth = new Date(
+                        today.getFullYear(),
+                        today.getMonth(),
+                        1
+                      );
+                      startDate = firstDayOfMonth.toISOString().split("T")[0];
+                      break;
+                    default:
+                      startDate = "";
+                      endDate = "";
+                  }
+
+                  dispatch(setFilters({ startDate, endDate }));
+                }}
                 className="px-2 py-1 border rounded text-sm">
-                <option value="">Status</option>
-                {/* <option value="CUSTOMER_PAID">CUSTOMER_PAID</option>
-                <option value="CUSTOMER_NOT_PAID">CUSTOMER_NOT_PAID</option> */}
-                <option value="PENDING">PENDING</option>
-                <option value="PACKAGE_DELIVERED">PACKAGE_DELIVERED</option>
-                <option value="CANCELLED">CANCELLED</option>
-                <option value="PROCESSING">PROCESSING</option>
-                <option value="FEE_PROPOSED">FEE_PROPOSED</option>
-                <option value="FEE_REJECTED">FEE_REJECTED</option>
+                <option value="">Quick Filter</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="last7">Last 7 Days</option>
+                <option value="last30">Last 30 Days</option>
+                <option value="thisWeek">This Week</option>
+                <option value="thisMonth">This Month</option>
               </select>
 
-              <select
-                value={filters.agent || ""}
-                onChange={(e) => handleFilterChange("agent", e.target.value)}
-                className="px-2 py-1 border rounded text-sm">
-                <option value="">Agent</option>
-                {riders?.map((rider) => (
-                  <option
-                    key={rider.riderId}
-                    value={`${rider.first_name} ${rider.last_name}`}>
-                    {`${rider.first_name} ${rider.last_name}`}
-                  </option>
-                ))}
-              </select>
               <>
                 <label className="text-sm"> start date</label>
                 <input

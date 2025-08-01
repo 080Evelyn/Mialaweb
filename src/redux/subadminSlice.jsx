@@ -9,7 +9,7 @@ export const fetchSubadmin = createAsyncThunk(
       return;
     }
     try {
-      const response = await fetch(`${BASE_URL}api/v1/admin/subadmins`, {
+      const response = await fetch(`${BASE_URL}api/v1/admin/staffs`, {
         method: "GET",
         headers: {
           accept: "application/json",

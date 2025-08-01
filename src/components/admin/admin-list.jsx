@@ -31,27 +31,41 @@ import axios from "axios";
 import { fetchSubadmin } from "@/redux/subadminSlice";
 import SuccessModal from "../common/SuccessModal";
 
+import { NIGERIAN_STATES } from "@/config/stateData";
+import { setRestricted } from "@/redux/restrictionSlice";
+import RestrictionModal from "../common/RestrictionModal";
+
 const initialFormState = {
   first_name: "",
   last_name: "",
   email: "",
   password: "",
   phone: "",
+  userRole: "",
+  state: "",
 };
 
 const AdminList = () => {
+  const userRoles = [
+    { id: 0, role: "Subadmin" },
+    { id: 1, role: "Accountant" },
+    { id: 2, role: "Manager" },
+    { id: 3, role: "CustomerCare" },
+  ];
   const [formData, setFormData] = useState(initialFormState);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
+  const loading = useSelector((state) => state.subadmin.loading);
   const success = useSelector((state) => state.subadmin.success);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const restricted = useSelector((state) => state.restriction.restricted);
   const location = useLocation();
   const dispatch = useDispatch();
-
   useEffect(() => {
     if (success) {
       return;
@@ -66,7 +80,8 @@ const AdminList = () => {
       formData.last_name === "" ||
       formData.email === "" ||
       formData.password === "" ||
-      formData.phone === ""
+      formData.phone === "" ||
+      formData.userRole === ""
     ) {
       setErrorMessage("All Input Field must be filled!!");
       return;
@@ -76,7 +91,7 @@ const AdminList = () => {
     setSuccessMessage("");
     try {
       const response = await axios.post(
-        `${BASE_URL}api/v1/admin/create-subadmin`,
+        `${BASE_URL}api/v1/admin/create-admin-user`,
 
         formData,
 
@@ -89,11 +104,12 @@ const AdminList = () => {
       );
       if (response.status === 201) {
         dispatch(fetchSubadmin({ token }));
-        setSuccessMessage("Sub-Admin Created Successfully!");
+        setSuccessMessage("Admin-user Created Successfully!");
         setFormData(initialFormState);
+        setSuccessModalOpen(true);
       }
     } catch (error) {
-      setErrorMessage(`An error occured while creating subadmin.`);
+      setErrorMessage(`An error occured while creating admin user.`);
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -147,18 +163,27 @@ const AdminList = () => {
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
             }`}>
-            <Link to="/admin/sub-admins">SubAdmins</Link>
+            <Link to="/admin/sub-admins">Staffs</Link>
           </Button>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className=" bg-[#B10303] border-[1px] border-[#B10303] cursor-pointer hover:bg-[#B10303]/80 text-[#fff] px-2 rounded-[4px]">
-                Add Subadmin
-              </button>
-            </DialogTrigger>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            {/* <DialogTrigger asChild> */}
+            <button
+              onClick={() => {
+                if (userRole === "Accountant" || userRole === "CustomerCare") {
+                  dispatch(setRestricted(true));
+                  return;
+                }
+                setFormData(initialFormState);
+                setDialogOpen(true);
+              }}
+              className=" bg-[#B10303] border-[1px] border-[#B10303] cursor-pointer hover:bg-[#B10303]/80 text-[#fff] px-2 rounded-[4px]">
+              Add Staff
+            </button>
+            {/* </DialogTrigger> */}
             <DialogContent className="sm:max-w-[362px]">
               <DialogHeader>
                 <DialogTitle className="text-[#B10303] text-left">
-                  Create Sub-Admin
+                  Create Admin staff
                 </DialogTitle>
               </DialogHeader>
               <form className="flex flex-col gap-2 py-3">
@@ -240,10 +265,58 @@ const AdminList = () => {
                   />
                 </div>
 
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs" htmlFor="user-role">
+                    User Role
+                  </label>
+                  <select
+                    id="user-role"
+                    value={formData.userRole}
+                    onChange={(e) =>
+                      setFormData({ ...formData, userRole: e.target.value })
+                    }
+                    className="w-full rounded bg-[#8C8C8C33] p-2">
+                    <option value="" disabled>
+                      Select Role
+                    </option>
+                    {userRoles.map(({ id, role }) => (
+                      <option className="bg-white" key={id} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs" htmlFor="state-select">
+                    State
+                  </label>
+                  <select
+                    id="state-select"
+                    value={formData.state}
+                    onChange={(e) =>
+                      setFormData({ ...formData, state: e.target.value })
+                    }
+                    className="w-full rounded bg-[#8C8C8C33] p-2">
+                    <option value="" disabled>
+                      Select State
+                    </option>
+                    {NIGERIAN_STATES.map((state) => (
+                      <option className="bg-white" key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errorMessage && (
+                  <p className="text-red-500 text-sm text-center">
+                    {errorMessage}
+                  </p>
+                )}
                 <div className="flex justify-end gap-2 mt-4">
                   <DialogClose
                     onClick={() => {
                       setErrorMessage(""), setSuccessMessage("");
+                      setFormData(initialFormState);
                     }}
                     className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
                     Cancel
@@ -260,94 +333,107 @@ const AdminList = () => {
           </Dialog>
         </div>
       </div>
-      <Table className={"overflow-x-scroll w-full"}>
-        <TableHeader>
-          <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
-            <TableHead className="rounded-l-sm">Sub-admin Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone Number </TableHead>
-            <TableHead>
-              <span className="sr-only">Action</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="text-[12px] font-[Raleway] ">
-          {subAdmins?.map((data, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={Avatar}
-                    alt="avatar"
-                    className="h-6 w-6 rounded-full"
-                  />
-                  <span>{`${data?.first_name} ${
-                    data.last_name ? data.last_name : ""
-                  }`}</span>
-                </div>
-              </TableCell>
-              <TableCell>{data.email}</TableCell>
-              <TableCell>{data.phone}</TableCell>
-              <TableCell>
-                {/* Delete Dialog */}
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
-                      <img src={Delete} className="h-6 w-6 text-white" />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
-                        <img
-                          src={AlertCircle}
-                          alt="Alert Icon"
-                          className="w-20 h-20 mx-auto"
-                        />
-                        <span>Delete</span>
-                      </DialogTitle>
-                      <DialogDescription className="text-center text-foreground font-semibold text-xs">
-                        Are you sure you want to delete this Sub-admin?
-                      </DialogDescription>
-                    </DialogHeader>
-                    {successMessage && (
-                      <p className="text-green-500 text-sm text-center">
-                        {successMessage}
-                      </p>
-                    )}
-                    {errorMessage && (
-                      <p className="text-red-500 text-sm text-center">
-                        {errorMessage}
-                      </p>
-                    )}
-                    <div className="flex justify-center gap-2">
-                      <DialogClose
-                        onClick={() => {
-                          setErrorMessage(""), setSuccessMessage("");
-                        }}
-                        className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                        Cancel
-                      </DialogClose>
-                      <Button
-                        onClick={() => {
-                          handleDelete(data.id);
-                        }}
-                        type="submit"
-                        className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                        {isLoading ? "Deleting..." : "Delete"}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </TableCell>
+      {loading ? (
+        <p className="text-center">Loading...</p>
+      ) : (
+        <Table className={"overflow-x-scroll w-full"}>
+          <TableHeader>
+            <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
+              <TableHead className="rounded-l-sm">Name</TableHead>
+              <TableHead className="rounded-l-sm">Role</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone Number </TableHead>
+              <TableHead>
+                <span className="sr-only">Action</span>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody className="text-[12px] font-[Raleway] ">
+            {subAdmins?.map((data, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={Avatar}
+                      alt="avatar"
+                      className="h-6 w-6 rounded-full"
+                    />
+                    <span>{`${data?.first_name} ${
+                      data.last_name ? data.last_name : ""
+                    }`}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{data.userRole}</TableCell>
+                <TableCell>{data.email}</TableCell>
+                <TableCell>{data.phone}</TableCell>
+                <TableCell>
+                  {/* Delete Dialog */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
+                        <img src={Delete} className="h-6 w-6 text-white" />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
+                          <img
+                            src={AlertCircle}
+                            alt="Alert Icon"
+                            className="w-20 h-20 mx-auto"
+                          />
+                          <span>Delete</span>
+                        </DialogTitle>
+                        <DialogDescription className="text-center text-foreground font-semibold text-xs">
+                          Are you sure you want to delete this staff?
+                        </DialogDescription>
+                      </DialogHeader>
+                      {successMessage && (
+                        <p className="text-green-500 text-sm text-center">
+                          {successMessage}
+                        </p>
+                      )}
+                      {errorMessage && (
+                        <p className="text-red-500 text-sm text-center">
+                          {errorMessage}
+                        </p>
+                      )}
+                      <div className="flex justify-center gap-2">
+                        <DialogClose
+                          onClick={() => {
+                            setErrorMessage(""), setSuccessMessage("");
+                          }}
+                          className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                          Cancel
+                        </DialogClose>
+                        <Button
+                          onClick={() => {
+                            handleDelete(data.id);
+                          }}
+                          type="submit"
+                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
+                          {isLoading ? "Deleting..." : "Delete"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
-        message={`Subadmin Deleted Successfully.`}
+        message={`${successMessage}`}
+      />
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
       />
     </div>
   );

@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,8 @@ import axios from "axios";
 import SuccessModal from "../common/SuccessModal";
 import { BASE_URL } from "@/lib/Api";
 import DeliveryList from "../delivery/deliveryList";
+import RestrictionModal from "../common/RestrictionModal";
+import { setRestricted } from "@/redux/restrictionSlice";
 const initialFormState = {
   productName: "",
   unitPrice: "",
@@ -37,6 +39,7 @@ const initialFormState = {
 
 const ProductList = () => {
   const [value, setValue] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
@@ -46,10 +49,12 @@ const ProductList = () => {
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
   const query = useSelector((state) => state.search.query);
+  const filters = useSelector((state) => state.search.filters);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const { products, loading, error, multiCallProducts } = useSelector(
     (state) => state.product
   );
+  const restricted = useSelector((state) => state.restriction.restricted);
   // console.log(products);
   useEffect(() => {
     if (token && userRole) {
@@ -73,7 +78,11 @@ const ProductList = () => {
       const response = await axios.post(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/products`
-          : `${BASE_URL}api/v1/subadmin/products`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/products`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/products`
+          : `${BASE_URL}api/v1/accountant/products`,
 
         formData,
 
@@ -103,62 +112,39 @@ const ProductList = () => {
     }
   };
 
-  const filtered = products?.filter((product) =>
-    product?.productName.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = products?.filter((product) => {
+    const productNames = product?.productName
+      .toLowerCase()
+      .includes(query.toLowerCase());
+
+    const dateMatch = (() => {
+      const { startDate, endDate } = filters;
+
+      if (!startDate || !endDate) return true; // No filtering if not both provided
+
+      const uploadDate = new Date(product.createdAt);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // Include the whole end day
+
+      if (isNaN(uploadDate) || isNaN(start) || isNaN(end)) return false;
+
+      return uploadDate >= start && uploadDate <= end;
+    })();
+
+    return productNames && dateMatch;
+  });
+
+  const sortedProducts = [...filtered].reverse();
 
   useEffect(() => {
     dispatch(fetchProducts({ token, page, userRole }));
   }, []);
 
-  function formatDateArray(dateArray) {
-    // If the value is null, undefined, or not a proper array
-    if (!Array.isArray(dateArray) || dateArray.length < 3) {
-      return ""; // or return "-" or any fallback value
-    }
-
-    const [
-      year,
-      month,
-      day,
-      hour = 0,
-      minute = 0,
-      second = 0,
-      nanoseconds = 0,
-    ] = dateArray;
-
-    // Check for any invalid number like undefined or NaN
-    if (
-      typeof year !== "number" ||
-      typeof month !== "number" ||
-      typeof day !== "number"
-    ) {
-      return "";
-    }
-
-    const milliseconds = Math.floor(nanoseconds / 1_000_000);
-
-    const date = new Date(
-      year,
-      month - 1, // JS months are 0-indexed
-      day,
-      hour,
-      minute,
-      second,
-      milliseconds
-    );
-
-    // Optional: check for invalid date object
-    if (isNaN(date.getTime())) {
-      return "";
-    }
-
-    return date.toLocaleDateString("en-NG", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "";
+    return new Date(timestamp).toISOString().split("T")[0];
+  };
 
   const formatCurrency = (amount) => {
     const number = parseFloat(amount.replace(/[^0-9]/g, ""));
@@ -180,7 +166,7 @@ const ProductList = () => {
   if (loading && !multiCallProducts) {
     return (
       <div>
-        <h2 className="text-center font-semibold">Loading...</h2>
+        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
       </div>
     );
   }
@@ -199,16 +185,21 @@ const ProductList = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Product List</h2>
         {/* Add Dialog */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => {
-                setFormData(initialFormState);
-              }}
-              className="bg-[#B10303] rounded-[4px] hover:bg-[#B10303]/80 cursor-pointer">
-              Add New Product
-            </Button>
-          </DialogTrigger>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          {/* <DialogTrigger asChild> */}
+          <Button
+            onClick={() => {
+              if (userRole === "Accountant") {
+                dispatch(setRestricted(true));
+                return;
+              }
+              setFormData(initialFormState);
+              setDialogOpen(true);
+            }}
+            className="bg-[#B10303] rounded-[4px] hover:bg-[#B10303]/80 cursor-pointer">
+            Add New Product
+          </Button>
+          {/* </DialogTrigger> */}
           <DialogContent className="sm:max-w-[362px] ">
             <DialogHeader>
               <DialogTitle className="text-[#B10303] text-left">
@@ -290,13 +281,13 @@ const ProductList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500]">
-          {filtered?.map((data, index) => (
+          {sortedProducts?.map((data, index) => (
             <TableRow key={index}>
               <TableCell>{data.id}</TableCell>
               <TableCell>{data.productName}</TableCell>
               <TableCell>{data.unitPrice}</TableCell>
               <TableCell>{data.quantity}</TableCell>
-              <TableCell>{formatDateArray(data.createdAt)}</TableCell>
+              <TableCell>{formatDate(data.createdAt)}</TableCell>
               <TableCell>
                 <div className="flex gap-3 justify-center">
                   {/* Edit Dialog */}
@@ -491,6 +482,13 @@ const ProductList = () => {
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
         message={`Product Added Successfully!.`}
+      />
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
       />
     </div>
   );
