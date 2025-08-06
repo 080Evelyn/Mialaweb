@@ -5,18 +5,22 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const fetchSubadmin = createAsyncThunk(
   "subadmin/fetchSubadmin",
   async ({ token, userRole }, { rejectWithValue }) => {
-    if (userRole !== "Admin") {
-      return;
-    }
     try {
-      const response = await fetch(`${BASE_URL}api/v1/admin/staffs`, {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/staffs`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/staffs`
+          : "",
+        {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to fetch subadmins");
       const data = await response.json();

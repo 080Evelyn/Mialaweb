@@ -123,18 +123,20 @@ const AdminAgentList = () => {
             } `}>
             <Link to="/admin/agents">Agents </Link>
           </Button>
-          <Button
-            className={`cursor-pointer rounded-[4px] ${
-              location.pathname === "/admin/sub-admins"
-                ? "bg-[#B10303] hover:bg-[#B10303]/80"
-                : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
-            }`}>
-            <Link to="/admin/sub-admins">Staffs</Link>
-          </Button>
+          {(userRole === "Admin" || userRole === "Manager") && (
+            <Button
+              className={`cursor-pointer rounded-[4px] ${
+                location.pathname === "/admin/sub-admins"
+                  ? "bg-[#B10303] hover:bg-[#B10303]/80"
+                  : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
+              }`}>
+              <Link to="/admin/sub-admins">Staffs</Link>
+            </Button>
+          )}
         </div>
       </div>
       {loader ? (
-        <p className="text-xs text-center">Loading...</p>
+        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
       ) : (
         <Table>
           <TableHeader>

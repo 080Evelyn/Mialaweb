@@ -23,13 +23,16 @@ export const fetchDelivery = createAsyncThunk(
       });
 
       const url =
-        userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/deliveriy/all?${params}`
+        userRole === "Admin" ||
+        userRole === "Manager" ||
+        userRole === "accountant"
+          ? `${BASE_URL}api/v1/admin/view-all/deliveries?${params}`
           : userRole === "CustomerCare"
           ? `${BASE_URL}api/v1/customercare/deliveriy/all?${params}`
-          : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/deliveriy/all?${params}`
-          : `${BASE_URL}api/v1/accountant/deliveriy/all?${params}`;
+          : "";
+      // : userRole === "Manager"
+      // ? `${BASE_URL}api/v1/manager/deliveriy/all?${params}`
+      // : `${BASE_URL}api/v1/accountant/deliveriy/all?${params}`;
 
       const response = await fetch(url, {
         method: "GET",

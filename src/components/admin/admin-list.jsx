@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -122,7 +122,13 @@ const AdminList = () => {
     setSuccessMessage("");
     try {
       const response = await axios.delete(
-        `${BASE_URL}api/v1/admin/delete-subadmin/${id}`,
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/delete-admin-staffs/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/delete-admin-staffs/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/delete-admin-staffs/${id}`
+          : `${BASE_URL}api/v1/accountant/delete-admin-staffs/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -134,6 +140,10 @@ const AdminList = () => {
         dispatch(fetchSubadmin({ token, userRole }));
         setSuccessMessage(response.data.data);
         setSuccessModalOpen(true);
+        setTimeout(() => {
+          setSuccessMessage("");
+          setSuccessModalOpen(false);
+        }, 10000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -334,7 +344,7 @@ const AdminList = () => {
         </div>
       </div>
       {loading ? (
-        <p className="text-center">Loading...</p>
+        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
       ) : (
         <Table className={"overflow-x-scroll w-full"}>
           <TableHeader>

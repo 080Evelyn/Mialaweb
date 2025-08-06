@@ -79,7 +79,7 @@ const SummaryOrder = () => {
         <Table className={"overflow-x-scroll md:w-[1100px]"}>
           <TableHeader>
             <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
-              <TableHead>Total sales count</TableHead>
+              <TableHead>Total Assigned count</TableHead>
               <TableHead>Total Revenue</TableHead>
               <TableHead>Unit Price </TableHead>
               <TableHead>Product Name </TableHead>
@@ -164,8 +164,12 @@ const SummaryOrder = () => {
                                       ).toLocaleString()}
                                     </p>
                                     <p>
-                                      <strong>Total Sold:</strong>{" "}
-                                      {details.totalSoldCount}
+                                      <strong>Total Count Assigned:</strong>
+                                      {details.totalAmountOfTimesAssigned}
+                                    </p>
+                                    <p>
+                                      <strong>Total Sold:</strong>
+                                      {details.totalAmountOfProductSold}
                                     </p>
                                   </div>
 
@@ -182,10 +186,13 @@ const SummaryOrder = () => {
                                             Delivery Code
                                           </th>
                                           <th className="p-1 border">
-                                            Total Product Value (₦)
+                                            Total After Discount (₦)
                                           </th>
                                           <th className="p-1 border">
                                             Receiver Name
+                                          </th>
+                                          <th className="p-1 border">
+                                            Quantity
                                           </th>
                                         </tr>
                                       </thead>
@@ -200,12 +207,15 @@ const SummaryOrder = () => {
                                             </td>
                                             <td className="p-1 border">
                                               {Number(
-                                                item.totalProductValue
+                                                item.totalAfterDiscount
                                               ).toLocaleString()}
                                             </td>
 
                                             <td className="p-1 border">
                                               {item?.receiverName}
+                                            </td>
+                                            <td className="p-1 border">
+                                              {item?.quantity}
                                             </td>
                                           </tr>
                                         ))}
