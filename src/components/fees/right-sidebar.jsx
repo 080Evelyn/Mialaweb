@@ -118,8 +118,7 @@ const FeesSidebar = () => {
     return rider.approvalStatus === "APPROVED";
   });
   const sorted = [...approved].sort((a, b) => b.pinned - a.pinned);
-  console.log(sorted);
-
+  // console.log(details);
   return (
     <div className="flex flex-col gap-4 mt-2">
       <div className="text-sm font-medium text-gray-700">Active Agents</div>
@@ -177,7 +176,7 @@ const FeesSidebar = () => {
             <DialogTrigger asChild>
               <Button
                 className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]"
-                onClick={() => handleOpen(index, data.riderId)}>
+                onClick={() => handleOpen(index, data.userId)}>
                 View Deliveries
               </Button>
             </DialogTrigger>
@@ -252,7 +251,7 @@ const FeesSidebar = () => {
                             </td>
                             <td className="p-1 border">{item.deliveryFee}</td>
                             <td className="p-1 border">
-                              {Number(item.totalFee).toLocaleString()}
+                              {Number(item.totalProductValue).toLocaleString()}
                             </td>
                           </tr>
                         ))}

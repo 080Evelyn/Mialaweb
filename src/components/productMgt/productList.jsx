@@ -77,12 +77,12 @@ const ProductList = () => {
     try {
       const response = await axios.post(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/products`
+          ? `${BASE_URL}api/v1/admin/products-upload`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/products`
+          ? `${BASE_URL}api/v1/customercare/products-upload`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/products`
-          : `${BASE_URL}api/v1/accountant/products`,
+          ? `${BASE_URL}api/v1/manager/products-upload`
+          : `${BASE_URL}api/v1/accountant/products-upload`,
 
         formData,
 
@@ -100,6 +100,11 @@ const ProductList = () => {
         setFormData(initialFormState);
         setValue("");
         dispatch(setMultiCallProducts());
+
+        setTimeout(() => {
+          setSuccessMessage("");
+          setSuccessModalOpen(false);
+        }, 10000);
       }
       // else if (response.data.responseCode === "55") {
       //   setErrorMessage(response.data.responseDesc);

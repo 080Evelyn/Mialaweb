@@ -179,6 +179,7 @@ const DeliveryList = () => {
   };
 
   const handleOpenEdit = (data) => {
+    // console.log(data);
     if (userRole === "Accountant") {
       dispatch(setRestricted(true));
 
@@ -309,7 +310,7 @@ const DeliveryList = () => {
                       alt="avatar"
                       className="h-6 w-6 rounded-full"
                     />
-                    <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
+                    <span>{`${data.riderFirstName}  ${data.riderLastName} `}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -335,7 +336,9 @@ const DeliveryList = () => {
                 <TableCell>
                   {Number(data.deliveryFee).toLocaleString()}
                 </TableCell>
-                <TableCell>{Number(data.totalFee).toLocaleString()}</TableCell>
+                <TableCell>
+                  {Number(data.totalProductValue).toLocaleString()}
+                </TableCell>
                 <TableCell>
                   <div className="flex gap-3 items-center">
                     {data.custPaymentStatus}

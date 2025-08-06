@@ -48,6 +48,7 @@ const DeliveryFormDialog = ({
   const [agents, setAgents] = useState([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
   const { products } = useSelector((state) => state.product);
+  const sortedProducts = [...products].reverse();
   const restricted = useSelector((state) => state.restriction.restricted);
 
   useEffect(() => {
@@ -85,7 +86,11 @@ const DeliveryFormDialog = ({
       const response = await axios.get(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/riders-by-state?state=${stateName}`
-          : `${BASE_URL}api/v1/customercare/riders-by-state?state=${stateName}`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/riders-by-state?state=${stateName}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/riders-by-state?state=${stateName}`
+          : `${BASE_URL}api/v1/accountant/riders-by-state?state=${stateName}`,
 
         {
           headers: {
@@ -371,10 +376,9 @@ const DeliveryFormDialog = ({
                       // }
                       onChange={(e) => {
                         const selectedName = e.target.value;
-                        const selectedProduct = products.find(
+                        const selectedProduct = sortedProducts.find(
                           (p) => p.productName === selectedName
                         );
-
                         handleProductChange(index, "productName", selectedName);
 
                         // Set both editable and original price
@@ -523,6 +527,7 @@ const DeliveryFormDialog = ({
                   Receiver Phone
                 </Label>
                 <Input
+                  type={"number"}
                   className="rounded-xs bg-[#8C8C8C33]"
                   id="receiverPhone"
                   value={formData.receiverPhone}
