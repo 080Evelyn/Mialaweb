@@ -1,7 +1,10 @@
 import { useSelector } from "react-redux";
 
 const SuperAdminOverview = () => {
-  const riders = useSelector((state) => state.riders.riders);
+  const riders = useSelector((state) => state.allRiders.allRiders);
+  const approved = riders?.filter((rider) => {
+    return rider.approvalStatus === "APPROVED";
+  });
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
   const pendingRiders = useSelector(
     (state) => state.pendingRiders.pendingRiders
@@ -15,7 +18,7 @@ const SuperAdminOverview = () => {
         <div className="flex flex-col w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
           <p className="text-sm font-medium text-slate-500">Total Agent</p>
           <p className="text-xl font-bold text-slate-900">
-            {/* {riders ? riders?.length : "..."} */}
+            {approved ? approved?.length : "..."}
           </p>
         </div>
 

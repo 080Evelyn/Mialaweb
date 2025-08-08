@@ -54,7 +54,7 @@ const DeliveryList = () => {
   const deliveryList = useSelector((state) => state.delivery.delivery);
   const selectedRider = useSelector((state) => state.riderById.riderById);
   const restricted = useSelector((state) => state.restriction.restricted);
-
+  // console.log(deliveryList);
   const [page, setPage] = useState(0);
   const { totalPages, currentPage, loading } = useSelector(
     (state) => state.delivery
@@ -185,7 +185,6 @@ const DeliveryList = () => {
 
       return;
     }
-    // console.log(data);
     setFormMode("edit");
     setDeliveryId(data.id);
     setFormData({

@@ -79,10 +79,10 @@ const SummaryOrder = () => {
         <Table className={"overflow-x-scroll md:w-[1100px]"}>
           <TableHeader>
             <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
+              <TableHead>Product Name </TableHead>
+              <TableHead>Unit Price </TableHead>
               <TableHead>Total Assigned count</TableHead>
               <TableHead>Total Revenue</TableHead>
-              <TableHead>Unit Price </TableHead>
-              <TableHead>Product Name </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-[12px] font-[Raleway] font-[500] ">
@@ -94,14 +94,15 @@ const SummaryOrder = () => {
                   <TableRow
                     key={index}
                     onDoubleClick={() => handleOpen(index, data.productId)}>
+                    <TableCell>{data?.productName}</TableCell>
+                    <TableCell>
+                      ₦{Number(data.unitPrice).toLocaleString()}
+                    </TableCell>
                     <TableCell>{data.totalSalesCount}</TableCell>
                     <TableCell>
                       ₦{Number(data.totalRevenue).toLocaleString()}
                     </TableCell>
-                    <TableCell>
-                      ₦{Number(data.unitPrice).toLocaleString()}
-                    </TableCell>
-                    <TableCell>{data?.productName}</TableCell>
+
                     {/* <TableCell> */}
                     {/* <div className="flex gap-3 items-center">
         {data.riderPaymentStatus}

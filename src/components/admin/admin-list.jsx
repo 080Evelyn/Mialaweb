@@ -30,8 +30,6 @@ import { BASE_URL } from "@/lib/Api";
 import axios from "axios";
 import { fetchSubadmin } from "@/redux/subadminSlice";
 import SuccessModal from "../common/SuccessModal";
-
-import { NIGERIAN_STATES } from "@/config/stateData";
 import { setRestricted } from "@/redux/restrictionSlice";
 import RestrictionModal from "../common/RestrictionModal";
 
@@ -66,6 +64,8 @@ const AdminList = () => {
   const restricted = useSelector((state) => state.restriction.restricted);
   const location = useLocation();
   const dispatch = useDispatch();
+
+  const sortedAdmin = [...subAdmins].reverse();
   useEffect(() => {
     if (success) {
       return;
@@ -103,7 +103,7 @@ const AdminList = () => {
         }
       );
       if (response.status === 201) {
-        dispatch(fetchSubadmin({ token }));
+        dispatch(fetchSubadmin({ token, userRole }));
         setSuccessMessage("Admin-user Created Successfully!");
         setFormData(initialFormState);
         setSuccessModalOpen(true);
@@ -296,27 +296,7 @@ const AdminList = () => {
                     ))}
                   </select>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs" htmlFor="state-select">
-                    State
-                  </label>
-                  <select
-                    id="state-select"
-                    value={formData.state}
-                    onChange={(e) =>
-                      setFormData({ ...formData, state: e.target.value })
-                    }
-                    className="w-full rounded bg-[#8C8C8C33] p-2">
-                    <option value="" disabled>
-                      Select State
-                    </option>
-                    {NIGERIAN_STATES.map((state) => (
-                      <option className="bg-white" key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+
                 {errorMessage && (
                   <p className="text-red-500 text-sm text-center">
                     {errorMessage}
@@ -359,7 +339,7 @@ const AdminList = () => {
             </TableRow>
           </TableHeader>
           <TableBody className="text-[12px] font-[Raleway] ">
-            {subAdmins?.map((data, index) => (
+            {sortedAdmin?.map((data, index) => (
               <TableRow key={index}>
                 <TableCell>
                   <div className="flex items-center gap-2">
