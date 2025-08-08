@@ -250,8 +250,10 @@ const DeliveryFormDialog = ({
       return;
     }
 
-    let payload = { ...formData };
-
+    let payload = {
+      ...formData,
+      products: formData.products.map(({ originalPrice, ...rest }) => rest),
+    };
     // If customerPaymentStatus is "not_paid", remove paymentType
     if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
       delete payload.paymentType;
@@ -264,7 +266,6 @@ const DeliveryFormDialog = ({
       // }));
     }
 
-    // console.log(payload);
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
