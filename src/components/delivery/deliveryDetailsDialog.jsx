@@ -54,6 +54,19 @@ const DeliveryDetailsDialog = ({ data }) => {
             </span>
           </div>
           <div className="flex justify-between items-center">
+            <Label className="text-xs">Discount Price</Label>
+            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+              {data?.products?.map((product, index) => (
+                <div key={index}>
+                  ₦
+                  {Number(
+                    product?.totalAfterDiscount / product?.qty
+                  ).toLocaleString()}
+                </div>
+              ))}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
             <Label className="text-xs">Quantity</Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
               {data?.products?.map((product, index) => (
@@ -71,7 +84,7 @@ const DeliveryDetailsDialog = ({ data }) => {
           <div className="flex justify-between items-center">
             <Label className="text-xs">Total Amount </Label>
             <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦{Number(data?.totalFee).toLocaleString()}
+              ₦{Number(data?.totalProductValue).toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between items-center">
@@ -138,12 +151,14 @@ const DeliveryDetailsDialog = ({ data }) => {
               ₦{Number(data?.amountPaid).toLocaleString()}
             </span>
           </div>
-          <div className="flex justify-between items-center">
-            <Label className="text-xs">Balance</Label>
-            <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-              ₦{Number(data?.balance).toLocaleString()}
-            </span>
-          </div>
+          {(data?.balance || data?.balance === 0) && (
+            <div className="flex justify-between items-center">
+              <Label className="text-xs">Balance</Label>
+              <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+                ₦{Number(data?.balance).toLocaleString()}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <Label className="text-xs">Rider Payment Status</Label>
             <span

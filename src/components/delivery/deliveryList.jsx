@@ -289,6 +289,7 @@ const DeliveryList = () => {
             <TableHead>Delivery Code</TableHead>
             <TableHead>Date </TableHead>
             <TableHead>Product Price(₦) </TableHead>
+            <TableHead>Discount Price(₦) </TableHead>
             <TableHead>Quantity </TableHead>
             <TableHead>Delivery Fee(₦) </TableHead>
             <TableHead>Total(₦) </TableHead>
@@ -303,13 +304,16 @@ const DeliveryList = () => {
             filtered?.map((data, index) => (
               <TableRow key={index}>
                 <TableCell>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mr-4">
                     <img
                       src={Avatar}
                       alt="avatar"
                       className="h-6 w-6 rounded-full"
                     />
-                    <span>{`${data.riderFirstName}  ${data.riderLastName} `}</span>
+                    <div className="flex flex-col">
+                      <span>{`${data.riderFirstName}`}</span>
+                      <span>{` ${data.riderLastName}`}</span>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -329,9 +333,19 @@ const DeliveryList = () => {
                 </TableCell>
                 <TableCell>
                   {data?.products?.map((product, index) => (
+                    <div key={index}>
+                      {Number(
+                        product?.totalAfterDiscount / product?.qty
+                      ).toLocaleString()}
+                    </div>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {data?.products?.map((product, index) => (
                     <div key={index}>{parseFloat(product.qty)}</div>
                   ))}
                 </TableCell>
+
                 <TableCell>
                   {Number(data.deliveryFee).toLocaleString()}
                 </TableCell>
@@ -346,9 +360,11 @@ const DeliveryList = () => {
                 <TableCell>
                   <div className="flex gap-3 items-center">
                     {data.riderPaymentStatus}
-                    <button onClick={() => handleOpenEdit(data)}>
-                      <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
-                    </button>
+                    {data.deliveryStatus !== "PACKAGE_DELIVERED" && (
+                      <button onClick={() => handleOpenEdit(data)}>
+                        <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+                      </button>
+                    )}
                     <DeliveryDetailsDialog data={data} />
                     {/* {data.paymentApproval && (
                     <button
