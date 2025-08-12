@@ -695,43 +695,8 @@ const DeliveryFormDialog = ({
                   <SelectContent>
                     <SelectItem
                       className="hover:bg-gray-200 cursor-pointer"
-                      value="PICKEDUP">
-                      PICKEDUP
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="PACKAGE_DELIVERED">
-                      PACKAGE_DELIVERED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
                       value="PENDING">
                       PENDING
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="CANCELLED">
-                      CANCELLED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="PROCESSING">
-                      PROCESSING
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_PROPOSED">
-                      FEE_PROPOSED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_REJECTED">
-                      FEE_REJECTED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_COUNTERED">
-                      FEE_COUNTERED
                     </SelectItem>
                   </SelectContent>
                 </Select>

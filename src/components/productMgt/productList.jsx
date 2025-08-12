@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 // import PencilEdit from "../../assets/icons/pencil-edit.svg";
-// import Delete from "../../assets/icons/delete.svg";
+import Delete from "../../assets/icons/delete.svg";
 import AlertCircle from "../../assets/icons/alert-circle.svg";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,6 +31,7 @@ import { BASE_URL } from "@/lib/Api";
 import DeliveryList from "../delivery/deliveryList";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
+import { fetchProposedOrders } from "@/redux/proposedFeeSlice";
 const initialFormState = {
   productName: "",
   unitPrice: "",
@@ -116,7 +117,44 @@ const ProductList = () => {
       setIsLoading(false);
     }
   };
-
+  const handleDeleteProduct = async (id) => {
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await axios.delete(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/delete-product/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/delete-product/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/delete-product/${id}`
+          : `${BASE_URL}api/v1/accountant/delete-product/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 204) {
+        dispatch(fetchProducts({ token, userRole }));
+        setSuccessMessage("Product Deleted Successfully.");
+        setSuccessModalOpen(true);
+        setTimeout(() => {
+          setSuccessMessage("");
+          setSuccessModalOpen(false);
+        }, 10000);
+      } else if (response.data.responseCode === "55") {
+        setErrorMessage(response.data.responseDesc);
+      }
+    } catch (error) {
+      setErrorMessage(`An error occured.`);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const filtered = products?.filter((product) => {
     const productNames = product?.productName
       .toLowerCase()
@@ -282,7 +320,7 @@ const ProductList = () => {
             <TableHead>Price (₦)</TableHead>
             <TableHead>Quantity</TableHead>
             <TableHead>Date Added</TableHead>
-            {/* <TableHead className="rounded-r-sm text-center">Activity</TableHead> */}
+            <TableHead className="rounded-r-sm text-center">Activity</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500]">
@@ -366,9 +404,9 @@ const ProductList = () => {
                   {/* Delete Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      {/* <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
+                      <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
                         <img src={Delete} className="h-6 w-6 text-white" />
-                      </button> */}
+                      </button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
@@ -389,9 +427,11 @@ const ProductList = () => {
                           Cancel
                         </DialogClose>
                         <Button
+                          onClick={() => handleDeleteProduct(data.id)}
+                          disable={isLoading}
                           type="submit"
                           className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                          Done
+                          {isLoading ? "deleting..." : "Done"}
                         </Button>
                       </div>
                     </DialogContent>
@@ -486,7 +526,7 @@ const ProductList = () => {
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
-        message={`Product Added Successfully!.`}
+        message={successMessage}
       />
 
       <RestrictionModal

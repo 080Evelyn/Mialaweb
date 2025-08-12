@@ -58,10 +58,10 @@ const TotalFeesTable = () => {
       if (!startDate || !endDate) return true; // No filtering if not both provided
 
       const uploadDate = new Date(trans.paidAt);
+
       const start = new Date(startDate);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999); // Include the whole end day
-
       if (isNaN(uploadDate) || isNaN(start) || isNaN(end)) return false;
 
       return uploadDate >= start && uploadDate <= end;
@@ -69,7 +69,6 @@ const TotalFeesTable = () => {
 
     return search && dateMatch;
   });
-
   const sortedTransactions = filtered.sort((a, b) => {
     return new Date(b.paidAt) - new Date(a.paidAt);
   });
@@ -202,8 +201,7 @@ const TotalFeesTable = () => {
               <TableCell>
                 <Dialog>
                   <DialogTrigger asChild>
-                    {
-                      // data.usedForDelivery === 0 &&
+                    {!data.usedForDelivery && (
                       <button
                         className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center"
                         onClick={() =>
@@ -214,7 +212,7 @@ const TotalFeesTable = () => {
                         }>
                         <EllipsisVertical className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                       </button>
-                    }
+                    )}
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[362px]">
                     <DialogHeader>
