@@ -42,18 +42,64 @@ export const fetchProposedFee = createAsyncThunk(
   }
 );
 
+export const fetchProposedOrders = createAsyncThunk(
+  "proposedOrders/fetchProposedOrders",
+  async ({ token, userRole }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/fee-proposed`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/fee-proposed`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/fee-proposed`
+          : `${BASE_URL}api/v1/accountant/fee-proposed`,
+
+        {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log(data);
+        // Pass backend message if it exists
+        return rejectWithValue(data.responseDesc || "Something went wrong");
+      }
+
+      return data.data;
+    } catch (error) {
+      console.log(error);
+      // Network error or unexpected exception
+      return rejectWithValue(error.message || "Network error");
+    }
+  }
+);
+
 const proposedFeeSlice = createSlice({
   name: "proposedFee",
   initialState: {
     proposedFee: [],
     loading: false,
     error: false,
+    proposedOrders: [],
+    loadingOrders: false,
+    errorOrders: false,
   },
   reducers: {
     resetProposedFee(state) {
       state.proposedFee = [];
       state.loading = false;
       state.error = false;
+      proposedOrders = [];
+      loadingOrders = false;
+      errorOrders = false;
     },
   },
   extraReducers: (builder) => {
@@ -69,6 +115,18 @@ const proposedFeeSlice = createSlice({
       .addCase(fetchProposedFee.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchProposedOrders.pending, (state) => {
+        state.loadingOrders = true;
+        state.errorOrders = false;
+      })
+      .addCase(fetchProposedOrders.fulfilled, (state, action) => {
+        state.loadingOrders = false;
+        state.proposedOrders = action.payload;
+      })
+      .addCase(fetchProposedOrders.rejected, (state, action) => {
+        state.loadingOrders = false;
+        state.errorOrders = action.payload;
       });
   },
 });

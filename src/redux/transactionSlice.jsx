@@ -9,12 +9,12 @@ export const fetchTransaction = createAsyncThunk(
     try {
       const response = await axios.get(
         userRole === "Admin"
-          ? ` ${BASE_URL}api/v1/admin/all-transactions-to-riders`
+          ? ` ${BASE_URL}api/v1/admin/all-transactions-to-riders-nuban`
           : userRole === "CustomerCare"
-          ? ` ${BASE_URL}api/v1/customercare/all-transactions-to-riders`
+          ? ` ${BASE_URL}api/v1/customercare/all-transactions-to-riders-nuban`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/all-transactions-to-riders`
-          : `${BASE_URL}api/v1/accountant/all-transactions-to-riders`,
+          ? `${BASE_URL}api/v1/manager/all-transactions-to-riders-nuban`
+          : `${BASE_URL}api/v1/accountant/all-transactions-to-riders-nuban`,
 
         {
           headers: {
@@ -24,11 +24,11 @@ export const fetchTransaction = createAsyncThunk(
           },
         }
       );
-      // console.log(response);
-      if (!response.ok) throw new Error("Failed to fetch transactions");
-      const data = await response.json();
+      // console.log(response.data.data);
+      if (response.data.responseMsg !== "Success")
+        throw new Error("Failed to fetch transactions");
 
-      return data.data;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data.responseDesc);
     }

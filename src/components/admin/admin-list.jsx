@@ -64,14 +64,14 @@ const AdminList = () => {
   const restricted = useSelector((state) => state.restriction.restricted);
   const location = useLocation();
   const dispatch = useDispatch();
-
-  const sortedAdmin = [...subAdmins].reverse();
+  // console.log(subAdmins);
   useEffect(() => {
     if (success) {
       return;
     }
     dispatch(fetchSubadmin({ token, userRole }));
   }, []);
+  // const sortedAdmin = [...subAdmins]?.reverse();
 
   const handleAddSubadmin = async (e) => {
     e.preventDefault();
@@ -339,7 +339,7 @@ const AdminList = () => {
             </TableRow>
           </TableHeader>
           <TableBody className="text-[12px] font-[Raleway] ">
-            {sortedAdmin?.map((data, index) => (
+            {subAdmins?.map((data, index) => (
               <TableRow key={index}>
                 <TableCell>
                   <div className="flex items-center gap-2">

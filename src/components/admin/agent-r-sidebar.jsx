@@ -25,6 +25,7 @@ const AdminAgentSidebar = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loader, setLoader] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
@@ -59,7 +60,6 @@ const AdminAgentSidebar = () => {
           : userRole === "Manager"
           ? `${BASE_URL}api/v1/manager/approve-rider-signup/${id}`
           : `${BASE_URL}api/v1/accountant/approve-rider-signup/${id}`,
-        {},
 
         {
           headers: {
@@ -78,6 +78,44 @@ const AdminAgentSidebar = () => {
       console.log(error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleBlockRider = async (id) => {
+    if (userRole === "Accountant" || userRole === "CustomerCare") {
+      dispatch(setRestricted(true));
+      return;
+    }
+    console.log(token);
+    setLoader(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      const response = await axios.delete(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/decline-signup/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/decline-signup/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/decline-signup/${id}`
+          : `${BASE_URL}api/v1/accountant/decline-signup/${id}`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      dispatch(fetchPendingRiders({ token, userRole }));
+      setSuccessModalOpen(true);
+      setSuccessMessage("Agent Declined!");
+    } catch (error) {
+      setErrorMessage("An error occurred.");
+      console.log(error);
+    } finally {
+      setLoader(false);
     }
   };
 
@@ -206,16 +244,20 @@ const AdminAgentSidebar = () => {
                   </p>
                 )}
                 <div className="flex justify-end gap-2">
-                  <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                    Block
-                  </DialogClose>
+                  <Button
+                    onClick={() => {
+                      handleBlockRider(data.userId);
+                    }}
+                    className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                    {loader ? "processing.." : "Block"}
+                  </Button>
                   <Button
                     onClick={() => {
                       handleApproveRider(data.userId);
                     }}
                     type="submit"
                     className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                    {isLoading ? "loading.." : "Approve"}
+                    {isLoading ? "processing.." : "Approve"}
                   </Button>
                 </div>
               </DialogContent>
@@ -233,7 +275,7 @@ const AdminAgentSidebar = () => {
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
-        message={`Agent Approved Successfully.`}
+        message={successMessage}
       />
     </div>
   );

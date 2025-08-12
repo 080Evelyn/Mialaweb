@@ -16,6 +16,7 @@ import { fetchDelivery } from "@/redux/deliverySlice";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 import ProposedFeeDialog from "./ProposedFeeDialog";
 import ReassignDeliveryDialog from "./ReassignDeliveryDialog";
+import { fetchProposedOrders } from "@/redux/proposedFeeSlice";
 
 const ProposedFee = () => {
   // Track open modal state
@@ -32,8 +33,8 @@ const ProposedFee = () => {
     setSelectedFee(id);
   };
   const [page, setPage] = useState(0);
-  const { delivery, totalPages, currentPage, loading } = useSelector(
-    (state) => state.delivery
+  const { proposedOrders, errorOrders, loadingOrders } = useSelector(
+    (state) => state.proposedFee
   );
   const multiCall = useSelector((state) => state.delivery.multiCall);
   const error = useSelector((state) => state.delivery.error);
@@ -48,10 +49,8 @@ const ProposedFee = () => {
   const handleOpenAssignModal = (index) => {
     setDialogOpen(index);
   };
-  const delivered = deliveryList?.filter((rider) => {
-    return rider.deliveryStatus === "DELIVERED";
-  });
-  const filtered = deliveryList?.filter((item) => {
+
+  const filtered = proposedOrders?.filter((item) => {
     const productNames =
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
 
@@ -93,10 +92,10 @@ const ProposedFee = () => {
     // if (success) {
     //   return;
     // }
-    dispatch(fetchDelivery({ token, userRole, page }));
+    dispatch(fetchProposedOrders({ token, userRole }));
   }, [dispatch, token, userRole, page]);
 
-  if (loading && !multiCall) {
+  if (loadingOrders) {
     return (
       <div>
         <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
@@ -104,7 +103,7 @@ const ProposedFee = () => {
     );
   }
 
-  if (!loading && error) {
+  if (!loadingOrders && errorOrders) {
     return (
       <div>
         <p className="text-center font-semibold text-sm text-red-600">
@@ -181,7 +180,7 @@ const ProposedFee = () => {
                   id={selectedFee}
                 />
                 {action && selectedFee === data.id && (
-                  <div className="shadow-2xl absolute right-10 flex flex-col bg-white h-[80px] w-[200px]">
+                  <div className="shadow-2xl absolute right-10 flex flex-col bg-white h-[40px] w-[200px]">
                     <button
                       onClick={() => {
                         handleViewProposedFee(index);
@@ -189,13 +188,13 @@ const ProposedFee = () => {
                       className="text-[12px] font-bold text-black hover:bg-[#D6D6D6] hover:shadow-2xl px-3 py-2 cursor-pointer ">
                       View proposed fee
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => {
                         handleOpenAssignModal(index);
                       }}
                       className="text-[12px] hover:bg-[#D6D6D6] hover:shadow-2xl  font-bold text-black px-3 py-2 cursor-pointer">
                       Reassign delivery
-                    </button>
+                    </button> */}
                   </div>
                 )}
               </TableCell>
@@ -203,7 +202,7 @@ const ProposedFee = () => {
           ))}
         </TableBody>
       </Table>
-      <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
+      {/* <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
         <button
           className={`${
             page === 0
@@ -227,7 +226,7 @@ const ProposedFee = () => {
           onClick={() => setPage(page + 1)}>
           Next
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

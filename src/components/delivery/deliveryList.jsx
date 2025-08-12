@@ -253,6 +253,11 @@ const DeliveryList = () => {
       </div>
     );
   }
+  const filteredDeliveries = filtered.map((delivery) => ({
+    ...delivery,
+    products: delivery.products.filter((p) => p.deleted === false),
+  }));
+  // console.log(filtered);
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <button
@@ -301,7 +306,7 @@ const DeliveryList = () => {
           {filtered.length === 0 ? (
             <p className="!text-center py-4">No orders at the momemnt.</p>
           ) : (
-            filtered?.map((data, index) => (
+            filteredDeliveries?.map((data, index) => (
               <TableRow key={index}>
                 <TableCell>
                   <div className="flex items-center gap-2 mr-4">
@@ -344,6 +349,15 @@ const DeliveryList = () => {
                   {data?.products?.map((product, index) => (
                     <div key={index}>{parseFloat(product.qty)}</div>
                   ))}
+                  {/* {data?.products
+                    ?.filter(
+                      (product) =>
+                        product.isDeleted === false ||
+                        product.isDeleted === null
+                    )
+                    .map((product) => (
+                      <div key={product.id}>{parseFloat(product.qty)}</div>
+                    ))} */}
                 </TableCell>
 
                 <TableCell>

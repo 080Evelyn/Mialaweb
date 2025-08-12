@@ -30,18 +30,36 @@ const PayoutSummaryTable = () => {
   const error = useSelector((state) => state.transaction.error);
   const loading = useSelector((state) => state.transaction.loading);
   const query = useSelector((state) => state.search.query);
+  const filters = useSelector((state) => state.search.filters);
   const dispatch = useDispatch();
-  // console.log(error);
   const filtered = transaction?.filter((trans) => {
-    return (
-      trans?.reference?.toLowerCase().includes(query.toLowerCase()) ||
-      trans?.email?.toLowerCase().includes(query.toLowerCase())
-    );
+    const search =
+      trans?.transactionReference.toLowerCase().includes(query.toLowerCase()) ||
+      trans?.riderName.toLowerCase().includes(query.toLowerCase()) ||
+      trans?.deliveryCode?.toLowerCase().includes(query.toLowerCase());
+    const dateMatch = (() => {
+      const { startDate, endDate } = filters;
+
+      if (!startDate || !endDate) return true; // No filtering if not both provided
+      const uploadDate = new Date(trans.transactionDate);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // Include the whole end day
+
+      if (isNaN(uploadDate) || isNaN(start) || isNaN(end)) return false;
+
+      return uploadDate >= start && uploadDate <= end;
+    })();
+
+    return search && dateMatch;
   });
   useEffect(() => {
     dispatch(fetchTransaction({ token, userRole }));
   }, []);
-
+  // const selectedBank = bankList.filter((bnk) => {
+  //   return bnk.code === data?.bank_code;
+  // });
+  // console.log(selectedBank);
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
@@ -67,40 +85,56 @@ const PayoutSummaryTable = () => {
       </div>
       {loading ? (
         <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
-      ) : !loading && error !== "No valid transfer transactions found." ? (
+      ) : !loading && error ? (
         <p className="text-sm text-red-500 text-center">
           Something went wrong.
         </p>
-      ) : !loading && error === "No valid transfer transactions found." ? (
-        <p className="text-sm text-center">{error}</p>
       ) : (
+        // : !loading && error === "No valid transfer transactions found." ? (
+        //   <p className="text-sm text-center">{error}</p>
+        // )
         <Table>
           <TableHeader>
             <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
+              <TableHead>Agent</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Account Number</TableHead>
-              <TableHead>Bank Name </TableHead>
-              {/* <TableHead>
-              <span className="sr-only">Action</span>
-            </TableHead> */}
+              <TableHead>Transaction Reference</TableHead>
+              <TableHead>Delivery Code</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>
+                <span className="sr-only">Action</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-sm font-[Raleway] ">
-            {filtered?.length === 0 ? (
+            {transaction?.length === 0 ? (
               <p className="text-center">No transactions at the moment.</p>
             ) : (
               filtered?.map((data, index) => (
                 <TableRow key={index}>
+                  <TableCell>{data?.riderName}</TableCell>
                   <TableCell>₦{data?.amount?.toLocaleString()}</TableCell>
                   <TableCell>{data?.accountNumber}</TableCell>
-                  <TableCell>{data?.bankName}</TableCell>
+                  <TableCell>{data?.transactionReference}</TableCell>
+                  <TableCell>{data?.deliveryCode}</TableCell>
+                  <TableCell>{data?.transactionDate.split("T")[0]}</TableCell>
+                  <TableCell
+                    className={` text-right text-[10px] font-[Raleway] ${
+                      data.transactionStatus === "Pending"
+                        ? "text-[#FBBC02]"
+                        : "text-[#0FA301]"
+                    }`}>
+                    {data?.transactionStatus}
+                  </TableCell>
                   <TableCell>
                     <Dialog>
-                      {/* <DialogTrigger asChild>
-                      <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
-                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                      <DialogTrigger asChild>
+                        <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                          <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                         </button>
-                    </DialogTrigger> */}
+                      </DialogTrigger>
                       <DialogContent className="sm:max-w-[362px] ">
                         <DialogHeader>
                           <DialogTitle className="text-[#B10303] text-left">
@@ -109,52 +143,50 @@ const PayoutSummaryTable = () => {
                         </DialogHeader>
                         <div className="flex flex-col gap-3 py-0.5">
                           <div className="flex justify-between items-center">
-                            <Label className="text-xs">Agent Email</Label>
+                            <Label className="text-xs">Agent Name</Label>
                             <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.email}
+                              {data.riderName}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <Label className="text-xs">Reference</Label>
                             <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.reference}
+                              {data.transactionReference}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <Label className="text-xs">Status</Label>
                             <span
                               className={` text-right text-[10px] font-[Raleway] ${
-                                data.status === "Pending"
+                                data.transactionStatus === "Pending"
                                   ? "text-[#FBBC02]"
                                   : "text-[#0FA301]"
                               }`}>
-                              {data.status}
+                              {data.transactionStatus}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Label className="text-xs">Customer Code</Label>
+                            <Label className="text-xs">Transfer Code</Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.customerCode}
+                              {data.transferCode}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Label className="text-xs">Channel </Label>
+                            <Label className="text-xs">Date </Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.channel}
+                              {data.transactionDate.split("T")[0]}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Label className="text-xs">Currency </Label>
+                            <Label className="text-xs">Delivery Code </Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.currency}
+                              {data.deliveryCode}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Label className="text-xs">
-                              Paystack TransactionId{" "}
-                            </Label>
+                            <Label className="text-xs">Account Number</Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.paystackTransactionId}
+                              {data.accountNumber}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
