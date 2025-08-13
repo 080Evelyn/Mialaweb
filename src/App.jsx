@@ -20,6 +20,7 @@ import InstallPWA from "./components/ui/InstallPWA";
 import ProposedFeeReview from "./pages/ProposedFeeReview";
 import OrderSummary from "./pages/OrderSummary";
 import PerformanceMenu from "./pages/PerformanceMenu";
+import ProductStats from "./pages/ProductStats";
 
 function App() {
   return (
@@ -104,6 +105,14 @@ function App() {
             element={
               <Layout>
                 <ProductManagement />
+              </Layout>
+            }
+          />
+          <Route
+            path="productStat"
+            element={
+              <Layout>
+                <ProductStats />
               </Layout>
             }
           />

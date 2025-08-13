@@ -45,7 +45,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
     "/": "Home",
     "/overview": "Home",
     "/agents": "Agents",
-    "/fees": "Fees",
+    "/fees": "Revenue",
     "/delivery": "Delivery",
     "/products": "Products",
     "/settings": "Settings",
