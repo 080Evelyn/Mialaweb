@@ -91,7 +91,9 @@ const AdminList = () => {
     setSuccessMessage("");
     try {
       const response = await axios.post(
-        `${BASE_URL}api/v1/admin/create-admin-user`,
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/create-admin-user`
+          : `${BASE_URL}api/v1/manager/create-admin-user`,
 
         formData,
 
@@ -117,6 +119,12 @@ const AdminList = () => {
   };
 
   const handleDelete = async (id) => {
+    if (userRole === "Manager") {
+      dispatch(setRestricted(true));
+
+      return;
+    }
+
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");

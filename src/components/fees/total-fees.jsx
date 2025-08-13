@@ -140,7 +140,7 @@ const TotalFeesTable = () => {
         <div className="flex gap-2.5 text-sm">
           <Button
             className={`cursor-pointer rounded-[4px] ${
-              location.pathname === "/fees"
+              location.pathname === "/Fees"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
             }`}>

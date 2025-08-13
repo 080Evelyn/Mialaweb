@@ -17,6 +17,8 @@ import { fetchAllRiders } from "@/redux/allRiderSlice";
 import ProposedFeeDialog from "./ProposedFeeDialog";
 import ReassignDeliveryDialog from "./ReassignDeliveryDialog";
 import { fetchProposedOrders } from "@/redux/proposedFeeSlice";
+import { setRestricted } from "@/redux/restrictionSlice";
+import RestrictionModal from "../common/RestrictionModal";
 
 const ProposedFee = () => {
   // Track open modal state
@@ -36,6 +38,7 @@ const ProposedFee = () => {
   const { proposedOrders, errorOrders, loadingOrders } = useSelector(
     (state) => state.proposedFee
   );
+  const restricted = useSelector((state) => state.restriction.restricted);
   const multiCall = useSelector((state) => state.delivery.multiCall);
   const error = useSelector((state) => state.delivery.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
@@ -44,6 +47,11 @@ const ProposedFee = () => {
   const filters = useSelector((state) => state.search.filters);
 
   const handleViewProposedFee = (index) => {
+    if (userRole === "Accountant") {
+      dispatch(setRestricted(true));
+
+      return;
+    }
     setOpenDialog(index);
   };
   const handleOpenAssignModal = (index) => {
@@ -202,6 +210,13 @@ const ProposedFee = () => {
           ))}
         </TableBody>
       </Table>
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
+      />
       {/* <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
         <button
           className={`${

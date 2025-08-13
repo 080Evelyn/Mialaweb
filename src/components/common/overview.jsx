@@ -52,7 +52,7 @@ const AdminOverview = () => {
             <span className="text-sm font-medium text-slate-500">
               Transfers:₦
             </span>
-            {loading ? "..." : revenue.totalTransfers}
+            {loading ? "..." : revenue.totalTransfers * 100}
           </p>
         </div>
 

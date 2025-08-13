@@ -18,6 +18,7 @@ import { resetNotifications } from "@/redux/notificationSlice";
 import { resetPayment } from "@/redux/allCustomerPaymentSlice";
 import { resetApproveReject } from "@/redux/approveRejectProposalFeeSlice";
 import { BarChart3, FileText, LogOut, TrendingUp } from "lucide-react";
+import { resetStats } from "@/redux/statSlice";
 
 function MenuItems({ setOpen }) {
   const navigate = useNavigate();
@@ -45,6 +46,13 @@ function MenuItems({ setOpen }) {
         />
       ),
     },
+
+    {
+      id: "product-stats",
+      label: "Product Stats",
+      path: "/productStat",
+      icon: <TrendingUp className="w-5 h-5" />,
+    },
     {
       id: "delivery",
       label: "Orders",
@@ -57,6 +65,7 @@ function MenuItems({ setOpen }) {
       path: "/orderSummary",
       icon: <FileText className="w-5 h-5" />,
     },
+
     {
       id: "proposedFee",
       label: "Proposed Fees",
@@ -64,9 +73,9 @@ function MenuItems({ setOpen }) {
       icon: <img src={Fees} alt="proposedFee box" className="w-5 h-5" />,
     },
     {
-      id: "fees",
-      label: "Fees",
-      path: "/fees",
+      id: "Revenue",
+      label: "Revenue",
+      path: "/Fees",
       icon: <img src={Fees} alt="Fees-logo" className="w-5 h-5" />,
     },
 
@@ -99,10 +108,11 @@ function MenuItems({ setOpen }) {
     dispatch(resetriders());
     dispatch(resetNotifications());
     dispatch(resetPayment());
+    dispatch(resetStats());
     navigate("/");
   };
   return (
-    <nav className="mt-0 flex flex-col gap-1 pl-3 ">
+    <nav className="mt-0 flex flex-col gap-1 h-screen  pl-3 ">
       {SidebarMenuItems.map((menuItem) => {
         const isActive =
           location.pathname === menuItem.path ||
@@ -133,7 +143,7 @@ function MenuItems({ setOpen }) {
         <LogOut className="w-5 h-5" />
         <span>Sign Out</span>
       </div>
-      <div className="absolute bottom-10 inset-x-0 ps-4 lg:ps-5.5 px-3">
+      <div className="absolute bottom-0 inset-x-0 ps-4 lg:ps-5.5 px-3">
         <div className="flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 hover:bg-[#FFBFBF]">
           <img src={Admin} alt="Admin-logo" className="w-5 h-5" />
           <span>{`${first_name} `}</span>

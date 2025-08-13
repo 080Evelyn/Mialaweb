@@ -31,6 +31,7 @@ import proposedFeeReducer from "./proposedFeeSlice";
 import approveRejectReducer from "./approveRejectProposalFeeSlice";
 import restrictionReducer from "./restrictionSlice";
 import orderSummaryReducer from "./orderSummarySlice";
+import statReducer from "./statSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -52,6 +53,7 @@ const rootReducer = combineReducers({
   approveReject: approveRejectReducer,
   restriction: restrictionReducer,
   orderSummary: orderSummaryReducer,
+  stats: statReducer,
 });
 
 const persistConfig = {
