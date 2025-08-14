@@ -8,12 +8,12 @@ export const fetchAllPayment = createAsyncThunk(
     try {
       const response = await fetch(
         userRole === "Admin"
-          ? ` ${BASE_URL}api/v1/admin/get-all-customer-payments`
+          ? ` ${BASE_URL}api/v1/admin/deposits-with-customers`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/get-all-customer-payments`
+          ? `${BASE_URL}api/v1/customercare/deposits-with-customers`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/get-all-customer-payments`
-          : `${BASE_URL}api/v1/accountant/get-all-customer-payments`,
+          ? `${BASE_URL}api/v1/manager/deposits-with-customers`
+          : `${BASE_URL}api/v1/accountant/deposits-with-customers`,
         {
           method: "GET",
           headers: {
@@ -26,8 +26,9 @@ export const fetchAllPayment = createAsyncThunk(
 
       if (!response.ok) throw new Error("Failed to fetch payments");
       const data = await response.json();
+      // console.log(data);
 
-      return data;
+      return data.data;
     } catch (error) {
       return rejectWithValue(error.message);
     }

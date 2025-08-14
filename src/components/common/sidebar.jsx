@@ -74,7 +74,7 @@ function MenuItems({ setOpen }) {
     },
     {
       id: "Revenue",
-      label: "Revenue",
+      label: "payin-summary",
       path: "/Fees",
       icon: <img src={Fees} alt="Fees-logo" className="w-5 h-5" />,
     },

@@ -32,7 +32,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
     path === "/delivery" ||
     path === "/proposedFee" ||
     path === "/products" ||
-    path === "/fees" ||
+    path === "/Fees" ||
     path === "/performance" ||
     path === "/payout-summary";
 
@@ -124,64 +124,59 @@ function AdminHeader({ setOpen, rightSidebar }) {
           {/* Filter Controls */}
           {showFilter && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
-              {path !== "/products" &&
-                path !== "/fees" &&
-                path !== "/payout-summary" && (
-                  <>
-                    {path === "/performance" ? (
-                      <select
-                        value={filters.states || ""}
-                        id="state-select"
-                        onChange={(e) =>
-                          handleFilterChange("states", e.target.value)
-                        }
-                        className="w-[200px] py-1 text-sm border rounded px-2 bg-white">
-                        <option value="">Select State</option>
-                        {NIGERIAN_STATES.map((state) => (
-                          <option
-                            className="bg-white"
-                            key={state}
-                            value={state}>
-                            {state}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <select
-                        value={filters.status || ""}
-                        onChange={(e) =>
-                          handleFilterChange("status", e.target.value)
-                        }
-                        className="px-2 py-1 border rounded text-sm">
-                        <option value="">Status</option>
-                        <option value="PENDING">PENDING</option>
-                        {/* <option value="PACKAGE_DELIVERED">
-                          PACKAGE_DELIVERED
-                        </option> */}
-                        <option value="CANCELLED">CANCELLED</option>
-                        <option value="PROCESSING">PICKEDUP</option>
-                        <option value="FEE_PROPOSED">NOT_REACHABLE</option>
-                        <option value="FEE_REJECTED">NOT_PICKING</option>
-                        <option value="FEE_REJECTED">DELIVERED</option>
-                      </select>
-                    )}
+              {path !== "/products" && path !== "/payout-summary" && (
+                <>
+                  {path === "/performance" || path === "/Fees" ? (
                     <select
-                      value={filters.agent || ""}
+                      value={filters.states || ""}
+                      id="state-select"
                       onChange={(e) =>
-                        handleFilterChange("agent", e.target.value)
+                        handleFilterChange("states", e.target.value)
                       }
-                      className="px-2 py-1 border rounded text-sm">
-                      <option value="">Agent</option>
-                      {sorted?.map((rider) => (
-                        <option
-                          key={rider.riderId}
-                          value={`${rider.first_name} ${rider.last_name}`}>
-                          {`${rider.first_name} ${rider.last_name}`}
+                      className="w-[200px] py-1 text-sm border rounded px-2 bg-white">
+                      <option value="">Select State</option>
+                      {NIGERIAN_STATES.map((state) => (
+                        <option className="bg-white" key={state} value={state}>
+                          {state}
                         </option>
                       ))}
                     </select>
-                  </>
-                )}
+                  ) : (
+                    <select
+                      value={filters.status || ""}
+                      onChange={(e) =>
+                        handleFilterChange("status", e.target.value)
+                      }
+                      className="px-2 py-1 border rounded text-sm">
+                      <option value="">Status</option>
+                      <option value="PENDING">PENDING</option>
+                      {/* <option value="PACKAGE_DELIVERED">
+                          PACKAGE_DELIVERED
+                        </option> */}
+                      <option value="CANCELLED">CANCELLED</option>
+                      <option value="PROCESSING">PICKEDUP</option>
+                      <option value="FEE_PROPOSED">NOT_REACHABLE</option>
+                      <option value="FEE_REJECTED">NOT_PICKING</option>
+                      <option value="FEE_REJECTED">DELIVERED</option>
+                    </select>
+                  )}
+                  <select
+                    value={filters.agent || ""}
+                    onChange={(e) =>
+                      handleFilterChange("agent", e.target.value)
+                    }
+                    className="px-2 py-1 border rounded text-sm">
+                    <option value="">Agent</option>
+                    {sorted?.map((rider) => (
+                      <option
+                        key={rider.riderId}
+                        value={`${rider.first_name} ${rider.last_name}`}>
+                        {`${rider.first_name} ${rider.last_name}`}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
               {path !== "/performance" && (
                 <>
                   <select

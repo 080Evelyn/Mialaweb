@@ -39,11 +39,13 @@ const statSlice = createSlice({
     stats: [],
     loading: false,
     error: null,
+    success: false,
   },
   reducers: {
     resetStats(state) {
       state.stats = [];
       state.error = null;
+      state.success = false;
     },
   },
   extraReducers: (builder) => {
@@ -55,10 +57,12 @@ const statSlice = createSlice({
       .addCase(fetchStats.fulfilled, (state, action) => {
         state.loading = false;
         state.stats = action.payload.data;
+        state.success = true;
       })
       .addCase(fetchStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.success = false;
       });
   },
 });
