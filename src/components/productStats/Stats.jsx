@@ -12,7 +12,9 @@ import {
 import { Loader2 } from "lucide-react";
 
 const Stats = () => {
-  const { stats, loading, error } = useSelector((state) => state.stats);
+  const { stats, loading, error, success } = useSelector(
+    (state) => state.stats
+  );
   const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.auth.user.userRole);
@@ -21,6 +23,9 @@ const Stats = () => {
     return item.productName?.toLowerCase().includes(query.toLowerCase());
   });
   useEffect(() => {
+    if (success) {
+      return;
+    }
     if (token && userRole) {
       dispatch(fetchStats({ token, userRole }));
     }

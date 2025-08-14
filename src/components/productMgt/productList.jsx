@@ -52,12 +52,15 @@ const ProductList = () => {
   const query = useSelector((state) => state.search.query);
   const filters = useSelector((state) => state.search.filters);
   const userRole = useSelector((state) => state.auth.user.userRole);
-  const { products, loading, error, multiCallProducts } = useSelector(
+  const { products, loading, error, multiCallProducts, success } = useSelector(
     (state) => state.product
   );
   const restricted = useSelector((state) => state.restriction.restricted);
-  // console.log(products);
+  // console.log(success);
   useEffect(() => {
+    if (success) {
+      return;
+    }
     if (token && userRole) {
       dispatch(fetchProducts({ token, userRole }));
     }

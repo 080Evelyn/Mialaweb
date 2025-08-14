@@ -117,7 +117,7 @@ const FeesSidebar = () => {
   const approved = riders?.filter((rider) => {
     return rider.approvalStatus === "APPROVED";
   });
-  const sorted = [...approved].sort((a, b) => b.pinned - a.pinned);
+  const sorted = approved && [...approved].sort((a, b) => b.pinned - a.pinned);
   // console.log(details);
   return (
     <div className="flex flex-col gap-4 mt-2">
@@ -206,9 +206,14 @@ const FeesSidebar = () => {
                         <tr className="bg-gray-100 text-left">
                           <th className="p-1 border">Product Name</th>
                           <th className="p-1 border">Delivery Code</th>
-                          <th className="p-1 border"> Price(₦)</th>
                           <th className="p-1 border">Delivery Fee (₦)</th>
+                          <th className="p-1 border"> Price(₦)</th>
+                          <th className="p-1 border">Price after dicount(₦)</th>
+                          <th className="p-1 border">Quantity</th>
                           <th className="p-1 border">Total Price(₦)</th>
+                          <th className="p-1 border">Delivery status</th>
+                          <th className="p-1 border">Customer name </th>
+                          <th className="p-1 border">Customer address </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -240,6 +245,7 @@ const FeesSidebar = () => {
                                 )}
                               </div>
                             </td>
+                            <td className="p-1 border">{item.deliveryFee}</td>
                             <td className="p-1 border">
                               {item?.products?.map((product, index) => (
                                 <div key={index}>
@@ -249,9 +255,41 @@ const FeesSidebar = () => {
                                 </div>
                               ))}
                             </td>
-                            <td className="p-1 border">{item.deliveryFee}</td>
+
+                            <td className="p-1 border">
+                              {item?.products?.map((product, index) => (
+                                <div key={index}>
+                                  {Number(
+                                    product?.totalAfterDiscount / product?.qty
+                                  ).toLocaleString()}
+                                </div>
+                              ))}
+                            </td>
+                            <td className="p-1 border">
+                              {item?.products?.map((product, index) => (
+                                <div key={index}>
+                                  {Number(product?.qty).toLocaleString()}
+                                </div>
+                              ))}
+                            </td>
                             <td className="p-1 border">
                               {Number(item.totalProductValue).toLocaleString()}
+                            </td>
+                            <td
+                              className={`p-1 border ${
+                                item.deliveryStatus === "DELIVERED" ||
+                                item.deliveryStatus === "PACKAGE_DELIVERED"
+                                  ? "text-green-500"
+                                  : item.deliveryStatus === "CANCELLED" ||
+                                    item.deliveryStatus === "NOT_REACHABLE"
+                                  ? "text-red-500"
+                                  : "text-yellow-400"
+                              }`}>
+                              {item.deliveryStatus}
+                            </td>
+                            <td className="p-1 border">{item.receiverName}</td>
+                            <td className="p-1 border">
+                              {item.receiverAddress}
                             </td>
                           </tr>
                         ))}

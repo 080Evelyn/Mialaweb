@@ -40,11 +40,13 @@ const productSlice = createSlice({
     loading: false,
     error: null,
     multiCallProducts: false,
+    success: false,
   },
   reducers: {
     resetProducts(state) {
       state.products = [];
       state.error = null;
+      state.success = false;
     },
     setMultiCallProducts(state) {
       state.multiCallProducts = true;
@@ -59,10 +61,12 @@ const productSlice = createSlice({
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload.data;
+        state.success = true;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.success = false;
       });
   },
 });

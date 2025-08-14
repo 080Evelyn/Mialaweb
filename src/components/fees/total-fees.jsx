@@ -47,17 +47,19 @@ const TotalFeesTable = () => {
   const filters = useSelector((state) => state.search.filters);
   const dispatch = useDispatch();
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const filtered = totalPayments.filter((trans) => {
+  const filtered = totalPayments?.filter((trans) => {
     const search =
       trans?.reference.toLowerCase().includes(query.toLowerCase()) ||
-      trans?.email.toLowerCase().includes(query.toLowerCase()) ||
-      trans?.linkedDeliveryCode?.toLowerCase().includes(query.toLowerCase());
+      (trans?.customerName &&
+        trans?.customerName.toLowerCase().includes(query.toLowerCase())) ||
+      trans?.deliveryCode?.toLowerCase().includes(query.toLowerCase()) ||
+      trans?.riderState?.toLowerCase().includes(query.toLowerCase());
     const dateMatch = (() => {
       const { startDate, endDate } = filters;
 
       if (!startDate || !endDate) return true; // No filtering if not both provided
 
-      const uploadDate = new Date(trans.paidAt);
+      const uploadDate = new Date(trans.depositDate);
 
       const start = new Date(startDate);
       const end = new Date(endDate);
@@ -67,10 +69,15 @@ const TotalFeesTable = () => {
       return uploadDate >= start && uploadDate <= end;
     })();
 
-    return search && dateMatch;
+    
+    const state = filters.states
+      ? (trans?.riderState ?? "").toLowerCase() === filters.states.toLowerCase()
+      : true;
+
+    return search && dateMatch && state;
   });
   const sortedTransactions = filtered.sort((a, b) => {
-    return new Date(b.paidAt) - new Date(a.paidAt);
+    return new Date(b.depositDate) - new Date(a.depositDate);
   });
   const handleAssignPayment = async (e) => {
     e.preventDefault();
@@ -159,11 +166,11 @@ const TotalFeesTable = () => {
       <Table>
         <TableHeader>
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
-            <TableHead className="rounded-l-sm">Email</TableHead>
-            <TableHead>Payment Assigned</TableHead>
+            <TableHead className="rounded-l-sm">Customer Name</TableHead>
+            <TableHead>Customer Contact</TableHead>
             <TableHead>Amount </TableHead>
-            <TableHead>link Delivery Code </TableHead>
-            <TableHead>Status </TableHead>
+            <TableHead>Delivery Code </TableHead>
+            <TableHead>State </TableHead>
             <TableHead>Date </TableHead>
             <TableHead>
               <span className="sr-only">Action</span>
@@ -183,36 +190,27 @@ const TotalFeesTable = () => {
                     alt="avatar"
                     className="h-6 w-6 rounded-full"
                   />
-                  <span>{data.email}</span>
+                  <span>{data.customerName}</span>
                 </div>
               </TableCell>
-              <TableCell>{data.usedForDelivery ? "True" : "False"}</TableCell>
+              <TableCell>{data.customerPhone}</TableCell>
               <TableCell>₦{data.amount}</TableCell>
-              <TableCell>{data.linkedDeliveryCode}</TableCell>
-              <TableCell>
-                <Badge
-                  className={`text-sm rounded-xs font-[Raleway] ${
-                    data.status === "Pending" ? "bg-[#FBBC02]" : "bg-[#0FA301]"
-                  }`}>
-                  {data.status}
-                </Badge>
-              </TableCell>
-              <TableCell>{data.paidAt.split("T")[0]}</TableCell>
+              <TableCell>{data.deliveryCode}</TableCell>
+              <TableCell>{data.riderState}</TableCell>
+              <TableCell>{data.depositDate.split("T")[0]}</TableCell>
               <TableCell>
                 <Dialog>
                   <DialogTrigger asChild>
-                    {!data.usedForDelivery && (
-                      <button
-                        className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center"
-                        onClick={() =>
-                          setFormData({
-                            depositReference: data.reference || "",
-                            deliveryCode: data.linkedDeliveryCode || "",
-                          })
-                        }>
-                        <EllipsisVertical className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
-                      </button>
-                    )}
+                    {/* <button
+                      className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center"
+                      onClick={() =>
+                        setFormData({
+                          depositReference: data.reference || "",
+                          deliveryCode: data.linkedDeliveryCode || "",
+                        })
+                      }>
+                      <EllipsisVertical className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                    </button> */}
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[362px]">
                     <DialogHeader>
@@ -302,9 +300,9 @@ const TotalFeesTable = () => {
                     </DialogHeader>
                     <div className="flex flex-col gap-3 py-0.5">
                       <div className="flex justify-between items-center">
-                        <Label className="text-xs">Agent Email</Label>
+                        <Label className="text-xs">Agent </Label>
                         <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.email}
+                          {data.riderAccountName}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -314,26 +312,28 @@ const TotalFeesTable = () => {
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <Label className="text-xs">Status</Label>
+                        <Label className="text-xs">Rider Account Number</Label>
                         <span
-                          className={` text-right text-[10px] font-[Raleway] ${
-                            data.status === "Pending"
-                              ? "text-[#FBBC02]"
-                              : "text-[#0FA301]"
-                          }`}>
-                          {data.status}
+                          className={` text-right text-[10px] text-[#8C8C8C] font-[Raleway] `}>
+                          {data.riderAccountNumber}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <Label className="text-xs">Customer Code</Label>
+                        <Label className="text-xs">Agent Phone</Label>
                         <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.customerCode}
+                          {data.riderPhone}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <Label className="text-xs">Channel </Label>
+                        <Label className="text-xs"> State </Label>
                         <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.channel}
+                          {data.riderState}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Delivery Code </Label>
+                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.deliveryCode}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -343,11 +343,15 @@ const TotalFeesTable = () => {
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <Label className="text-xs">
-                          Paystack TransactionId
-                        </Label>
+                        <Label className="text-xs">Customer Name</Label>
                         <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.paystackTransactionId}
+                          {data.customerName}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs">Customer Contact</Label>
+                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                          {data.customerPhone}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
