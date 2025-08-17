@@ -67,6 +67,7 @@ const deliverySlice = createSlice({
       state.delivery = [];
       state.multiCall = false;
       state.success = false;
+      stae.error = null;
     },
     setMultiCall(state) {
       state.multiCall = true;
