@@ -114,7 +114,7 @@ const ProductList = () => {
       //   setErrorMessage(response.data.responseDesc);
       // }
     } catch (error) {
-      setErrorMessage(`An error occured while creating delivery.`);
+      setErrorMessage(`Failed to upload product`);
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -183,9 +183,9 @@ const ProductList = () => {
 
   const sortedProducts = [...filtered].reverse();
 
-  useEffect(() => {
-    dispatch(fetchProducts({ token, page, userRole }));
-  }, []);
+  // useEffect(() => {
+  //   dispatch(fetchProducts({ token, page, userRole }));
+  // }, []);
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
