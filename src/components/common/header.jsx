@@ -23,8 +23,6 @@ function AdminHeader({ setOpen, rightSidebar }) {
   const filters = useSelector((state) => state.search.filters);
   const token = useSelector((state) => state.auth.token);
   const riders = useSelector((state) => state.riders.riders);
-  const loading = useSelector((state) => state.riders.loading);
-  const error = useSelector((state) => state.riders.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const location = useLocation();
   const path = location.pathname;

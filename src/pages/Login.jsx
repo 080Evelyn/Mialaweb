@@ -11,6 +11,7 @@ import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 import { useDispatch } from "react-redux";
 import { login } from "@/redux/authSlice";
+import { setStep } from "@/redux/forgotPasswordSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -135,8 +136,11 @@ const Login = () => {
                     Remember me
                   </Label>
                 </div> */}
-
-                {/* <span>Forgotten Password?</span> */}
+                <Link
+                  onClick={() => dispatch(setStep(0))}
+                  to={"forgot-password"}>
+                  <span>Forgotten Password?</span>
+                </Link>
               </div>
               <Button
                 onClick={handleLogin}

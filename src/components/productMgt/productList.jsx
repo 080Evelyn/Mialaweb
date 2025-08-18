@@ -331,7 +331,7 @@ const ProductList = () => {
             <TableRow key={index}>
               <TableCell>{data.id}</TableCell>
               <TableCell>{data.productName}</TableCell>
-              <TableCell>{data.unitPrice}</TableCell>
+              <TableCell>{data.unitPrice.toLocaleString()}</TableCell>
               <TableCell>{data.quantity}</TableCell>
               <TableCell>{formatDate(data.createdAt)}</TableCell>
               <TableCell>

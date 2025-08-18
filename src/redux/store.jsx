@@ -32,6 +32,7 @@ import approveRejectReducer from "./approveRejectProposalFeeSlice";
 import restrictionReducer from "./restrictionSlice";
 import orderSummaryReducer from "./orderSummarySlice";
 import statReducer from "./statSlice";
+import forgotPasswordReducer from "./forgotPasswordSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -54,12 +55,17 @@ const rootReducer = combineReducers({
   restriction: restrictionReducer,
   orderSummary: orderSummaryReducer,
   stats: statReducer,
+  forgotPassword: forgotPasswordReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "bankList"], // only persist auth reducer
+  whitelist: [
+    "auth",
+    "bankList",
+    // "forgotPassword"
+  ], // only persist auth reducer
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
