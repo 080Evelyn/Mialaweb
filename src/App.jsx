@@ -14,13 +14,14 @@ import SubAdmin from "./pages/super-admin/SubAdmin";
 import TotalFees from "./pages/fees/TotalFees";
 import PayoutSummary from "./pages/fees/PayoutSummary";
 import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
+import SignUp from "./pages/ForgotPassword";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import InstallPWA from "./components/ui/InstallPWA";
 import ProposedFeeReview from "./pages/ProposedFeeReview";
 import OrderSummary from "./pages/OrderSummary";
 import PerformanceMenu from "./pages/PerformanceMenu";
 import ProductStats from "./pages/ProductStats";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -30,7 +31,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="sign-up" element={<SignUp />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
 
         {/* Protected routes wrapper */}
         <Route element={<ProtectedRoute />}>

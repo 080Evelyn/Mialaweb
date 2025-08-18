@@ -45,7 +45,6 @@ const initialFormState = {
 
 const AdminList = () => {
   const userRoles = [
-    { id: 0, role: "Subadmin" },
     { id: 1, role: "Accountant" },
     { id: 2, role: "Manager" },
     { id: 3, role: "CustomerCare" },

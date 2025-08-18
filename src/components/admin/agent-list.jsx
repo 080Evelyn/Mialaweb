@@ -228,7 +228,7 @@ const AdminAgentList = () => {
 
                             <div className="flex justify-between items-center">
                               <Label className="text-xs">
-                                Total Deliveries Made
+                                Total Assigned Deliveries
                               </Label>
                               <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
                                 {data.totalDeliveries}
