@@ -19,6 +19,7 @@ import { resetPayment } from "@/redux/allCustomerPaymentSlice";
 import { resetApproveReject } from "@/redux/approveRejectProposalFeeSlice";
 import { BarChart3, FileText, LogOut, TrendingUp } from "lucide-react";
 import { resetStats } from "@/redux/statSlice";
+import { resetSummary } from "@/redux/orderSummarySlice";
 
 function MenuItems({ setOpen }) {
   const navigate = useNavigate();
@@ -109,6 +110,7 @@ function MenuItems({ setOpen }) {
     dispatch(resetNotifications());
     dispatch(resetPayment());
     dispatch(resetStats());
+    dispatch(resetSummary());
     navigate("/");
   };
   return (

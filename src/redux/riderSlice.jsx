@@ -53,6 +53,7 @@ const riderSlice = createSlice({
   reducers: {
     resetriders(state) {
       state.riders = null;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
