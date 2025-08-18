@@ -47,6 +47,7 @@ const productSlice = createSlice({
       state.products = [];
       state.error = null;
       state.success = false;
+      state.multiCallProducts = false;
     },
     setMultiCallProducts(state) {
       state.multiCallProducts = true;

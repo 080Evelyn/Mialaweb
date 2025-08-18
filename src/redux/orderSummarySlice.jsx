@@ -67,6 +67,7 @@ const orderSummarySlice = createSlice({
     resetSummary(state) {
       state.summary = [];
       state.success = false;
+      state.error = false;
     },
     setMultiCall(state) {
       state.multiCall = true;
@@ -92,5 +93,5 @@ const orderSummarySlice = createSlice({
       });
   },
 });
-export const { resetPayment, setMultiCall } = orderSummarySlice.actions;
+export const { resetSummary, setMultiCall } = orderSummarySlice.actions;
 export default orderSummarySlice.reducer;
