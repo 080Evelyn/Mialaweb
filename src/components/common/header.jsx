@@ -148,14 +148,13 @@ function AdminHeader({ setOpen, rightSidebar }) {
                       className="px-2 py-1 border rounded text-sm">
                       <option value="">Status</option>
                       <option value="PENDING">PENDING</option>
-                      {/* <option value="PACKAGE_DELIVERED">
-                          PACKAGE_DELIVERED
-                        </option> */}
+                      <option value="PACKAGE_DELIVERED">
+                        PACKAGE_DELIVERED
+                      </option>
                       <option value="CANCELLED">CANCELLED</option>
                       <option value="PROCESSING">PICKEDUP</option>
                       <option value="FEE_PROPOSED">NOT_REACHABLE</option>
                       <option value="FEE_REJECTED">NOT_PICKING</option>
-                      <option value="FEE_REJECTED">DELIVERED</option>
                     </select>
                   )}
                   <select

@@ -23,13 +23,20 @@ export const fetchDelivery = createAsyncThunk(
       });
 
       const url =
+        // userRole === "Admin"
+        //   ? `${BASE_URL}api/v1/admin/view-all/deliveries?${params}`
+        //   : userRole === "CustomerCare"
+        //   ? `${BASE_URL}api/v1/customercare/view-all/deliveries?${params}`
+        //   : userRole === "Manager"
+        //   ? `${BASE_URL}api/v1/manager/view-all/deliveries?${params}`
+        //   : `${BASE_URL}api/v1/accountant/view-all/deliveries?${params}`;
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/view-all/deliveries?${params}`
+          ? `${BASE_URL}api/v1/admin/delivery-view-summaries?${params}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/view-all/deliveries?${params}`
+          ? `${BASE_URL}api/v1/customercare/delivery-view-summaries?${params}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/view-all/deliveries?${params}`
-          : `${BASE_URL}api/v1/accountant/view-all/deliveries?${params}`;
+          ? `${BASE_URL}api/v1/manager/delivery-view-summaries?${params}`
+          : `${BASE_URL}api/v1/accountant/delivery-view-summaries?${params}`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -50,14 +57,46 @@ export const fetchDelivery = createAsyncThunk(
   }
 );
 
+export const fetchDeliveryById = createAsyncThunk(
+  "deliveryById/fetchDeliveryById",
+  async ({ token, userRole, id }, { rejectWithValue }) => {
+    try {
+      const url =
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/delivery/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/delivery/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/delivery/${id}`
+          : `${BASE_URL}api/v1/accountant/delivery/${id}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 const deliverySlice = createSlice({
   name: "delivery",
   initialState: {
+    details: [],
     delivery: [],
     totalPages: 0,
     totalElements: 0,
     currentPage: 0,
     loading: false,
+    idLoading: false,
+    idError: null,
     error: null,
     success: false,
     multiCall: false,
@@ -68,9 +107,15 @@ const deliverySlice = createSlice({
       state.multiCall = false;
       state.success = false;
       state.error = null;
+      state.idError = null;
+      state.idLoading = false;
+      state.details = [];
     },
     setMultiCall(state) {
       state.multiCall = true;
+    },
+    setMultiCallFalse(state) {
+      state.multiCall = false;
     },
   },
   extraReducers: (builder) => {
@@ -91,8 +136,21 @@ const deliverySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.success = false;
+      })
+      .addCase(fetchDeliveryById.pending, (state) => {
+        state.idLoading = true;
+      })
+      .addCase(fetchDeliveryById.fulfilled, (state, action) => {
+        state.idLoading = false;
+        state.details = action.payload;
+      })
+
+      .addCase(fetchDeliveryById.rejected, (state, action) => {
+        state.idLoading = false;
+        state.idError = action.payload;
       });
   },
 });
-export const { resetDelivery, setMultiCall } = deliverySlice.actions;
+export const { resetDelivery, setMultiCall, setMultiCallFalse } =
+  deliverySlice.actions;
 export default deliverySlice.reducer;
