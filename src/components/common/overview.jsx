@@ -6,12 +6,11 @@ const AdminOverview = () => {
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const dispatch = useDispatch();
-  const deliveryList = useSelector((state) => state.delivery.delivery);
+  // const deliveryList = useSelector((state) => state.delivery.delivery);
   const { products } = useSelector((state) => state.product);
   const revenue = useSelector((state) => state.revenue.revenue);
   const loading = useSelector((state) => state.revenue.loading);
   const success = useSelector((state) => state.revenue.success);
-  const sold = deliveryList?.filter((product) => product.paymentApproval);
   const riders = useSelector((state) => state.allRiders.allRiders);
   const approved = riders?.filter((rider) => {
     return rider.approvalStatus === "APPROVED";

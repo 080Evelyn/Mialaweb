@@ -24,6 +24,7 @@ import { fetchDelivery, setMultiCall } from "@/redux/deliverySlice";
 import SuccessModal from "../common/SuccessModal";
 import { NIGERIAN_STATES } from "@/config/stateData";
 import { fetchProducts } from "@/redux/productSlice";
+import { Loader2 } from "lucide-react";
 
 const DeliveryFormDialog = ({
   dialogOpen,
@@ -44,12 +45,14 @@ const DeliveryFormDialog = ({
   const userRole = useSelector((state) => state.auth.user.userRole);
   const token = useSelector((state) => state.auth.token);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+
   const [selectedState, setSelectedState] = useState("");
   const [agents, setAgents] = useState([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
   const { products } = useSelector((state) => state.product);
   const sortedProducts = [...products].reverse();
-  const restricted = useSelector((state) => state.restriction.restricted);
+  const loading = useSelector((state) => state.delivery.idLoading);
+  const error = useSelector((state) => state.delivery.idError);
 
   useEffect(() => {
     if (token && userRole) {
@@ -216,6 +219,7 @@ const DeliveryFormDialog = ({
           },
         }
       );
+
       if (response.data.responseCode === "00") {
         dispatch(fetchDelivery({ token, userRole }));
         setSuccessMessage("Delivery Assigned Successfully!");
@@ -249,7 +253,6 @@ const DeliveryFormDialog = ({
       setErrorMessage("All Fields Must be Filled!!");
       return;
     }
-
     let payload = {
       ...formData,
       products: formData.products.map(({ originalPrice, ...rest }) => rest),
@@ -265,7 +268,6 @@ const DeliveryFormDialog = ({
       //   paymentType: "",
       // }));
     }
-
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
@@ -305,12 +307,7 @@ const DeliveryFormDialog = ({
       setIsLoading(false);
     }
   };
-  const approved = riders?.filter((rider) => {
-    return rider.approvalStatus === "APPROVED";
-  });
 
-  // const currentRiderId = formData?.riderId;
-  // console.log(currentRiderId);
   return (
     <>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -328,413 +325,433 @@ const DeliveryFormDialog = ({
               {formMode === "add" ? "Assign New Delivery" : "Edit Delivery"}
             </DialogTitle>
           </DialogHeader>
+          {loading ? (
+            <div className="">
+              <p className="!text-center">Loading...</p>
+              <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+            </div>
+          ) : error ? (
+            <p className="text-red-500 text-center">
+              Failed to load delivery details
+            </p>
+          ) : (
+            <form className="flex flex-col gap-2 h-[650px]">
+              {formData?.products?.map((product, index) => {
+                const originalUnitPrice =
+                  products.find((p) => p.productName === product.productName)
+                    ?.unitPrice || 0;
 
-          <form className="flex flex-col gap-2 h-[650px]">
-            {formData?.products?.map((product, index) => {
-              const originalUnitPrice =
-                products.find((p) => p.productName === product.productName)
-                  ?.unitPrice || 0;
+                const unitPrice = Number(product.productPrice || 0);
+                const quantity = Number(product.quantity || 0);
+                const priceBeforeDiscount = unitPrice * quantity;
 
-              const unitPrice = Number(product.productPrice || 0);
-              const quantity = Number(product.quantity || 0);
-              const priceBeforeDiscount = unitPrice * quantity;
+                const discountPercent =
+                  originalUnitPrice && originalUnitPrice > unitPrice
+                    ? ((originalUnitPrice - unitPrice) / originalUnitPrice) *
+                      100
+                    : 0;
+                formData.products[index].discountPercent = parseFloat(
+                  discountPercent.toFixed(2)
+                );
+                // const discountAmount =
+                //   (originalUnitPrice * quantity * discountPercent) / 100;
+                const finalPrice = priceBeforeDiscount;
 
-              const discountPercent =
-                originalUnitPrice && originalUnitPrice > unitPrice
-                  ? ((originalUnitPrice - unitPrice) / originalUnitPrice) * 100
-                  : 0;
-              formData.products[index].discountPercent = parseFloat(
-                discountPercent.toFixed(2)
-              );
-              // const discountAmount =
-              //   (originalUnitPrice * quantity * discountPercent) / 100;
-              const finalPrice = priceBeforeDiscount;
+                return (
+                  <div
+                    key={index}
+                    className="mb-6 p-4 border grid md:grid-cols-2 gap-2 rounded-xl space-y-3 relative">
+                    {/* Product Selection */}
+                    <div className="flex flex-col gap-1">
+                      <Label
+                        className="text-xs"
+                        htmlFor={`productName-${index}`}>
+                        Product Name
+                      </Label>
+                      <select
+                        id={`productName-${index}`}
+                        value={product.productName}
+                        //   onChange={(e) => {
+                        //     const selectedName = e.target.value;
+                        //     const selectedProduct = products.find(
+                        //       (p) => p.productName === selectedName
+                        //     );
+                        //     handleProductChange(index, "productName", selectedName);
+                        //     handleProductChange(
+                        //       index,
+                        //       "productPrice",
+                        //       selectedProduct ? selectedProduct.unitPrice : ""
+                        //     );
+                        //   }
+                        // }
+                        onChange={(e) => {
+                          const selectedName = e.target.value;
+                          const selectedProduct = sortedProducts.find(
+                            (p) => p.productName === selectedName
+                          );
+                          handleProductChange(
+                            index,
+                            "productName",
+                            selectedName
+                          );
 
-              return (
-                <div
-                  key={index}
-                  className="mb-6 p-4 border grid md:grid-cols-2 gap-2 rounded-xl space-y-3 relative">
-                  {/* Product Selection */}
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-xs" htmlFor={`productName-${index}`}>
-                      Product Name
-                    </Label>
-                    <select
-                      id={`productName-${index}`}
-                      value={product.productName}
-                      //   onChange={(e) => {
-                      //     const selectedName = e.target.value;
-                      //     const selectedProduct = products.find(
-                      //       (p) => p.productName === selectedName
-                      //     );
-                      //     handleProductChange(index, "productName", selectedName);
-                      //     handleProductChange(
-                      //       index,
-                      //       "productPrice",
-                      //       selectedProduct ? selectedProduct.unitPrice : ""
-                      //     );
-                      //   }
-                      // }
-                      onChange={(e) => {
-                        const selectedName = e.target.value;
-                        const selectedProduct = sortedProducts.find(
-                          (p) => p.productName === selectedName
-                        );
-                        handleProductChange(index, "productName", selectedName);
-
-                        // Set both editable and original price
-                        handleProductChange(
-                          index,
-                          "productPrice",
-                          selectedProduct ? selectedProduct.unitPrice : ""
-                        );
-                        handleProductChange(
-                          index,
-                          "originalPrice",
-                          selectedProduct ? selectedProduct.unitPrice : 0
-                        );
-                      }}
-                      className="rounded-xs bg-[#8C8C8C33] px-2 py-2">
-                      <option value="">Select a product</option>
-                      {products.map((item) => (
-                        <option key={item.id} value={item.productName}>
-                          {item.productName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Quantity */}
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-xs" htmlFor={`quantity-${index}`}>
-                      Product Quantity
-                    </Label>
-                    <Input
-                      id={`quantity-${index}`}
-                      type="number"
-                      placeholder="Quantity"
-                      min="0"
-                      value={product.quantity}
-                      onChange={(e) =>
-                        handleProductChange(index, "quantity", e.target.value)
-                      }
-                      className="rounded-xs bg-[#8C8C8C33]"
-                    />
-                  </div>
-
-                  {/* Editable Unit Price */}
-                  <div className="flex flex-col gap-1">
-                    <Label
-                      className="text-xs"
-                      htmlFor={`productPrice-${index}`}>
-                      Unit Price (₦)
-                    </Label>
-                    <Input
-                      id={`productPrice-${index}`}
-                      type="number"
-                      placeholder="Unit Price"
-                      value={product.productPrice}
-                      onChange={(e) => {
-                        handleProductChange(
-                          index,
-                          "productPrice",
-                          e.target.value
-                        );
-                      }}
-                      className="rounded-xs bg-[#8C8C8C33]"
-                    />
-                  </div>
-
-                  {/* Discount Percentage */}
-                  <div className="flex flex-col gap-1">
-                    <Label
-                      className="text-xs"
-                      htmlFor={`productDiscount-${index}`}>
-                      Discount (%)
-                    </Label>
-
-                    <Input
-                      id={`productDiscount-${index}`}
-                      type="text"
-                      readOnly
-                      value={`${discountPercent.toFixed(2)}%`}
-                      className="rounded-xs bg-[#8C8C8C33] text-gray-600"
-                      style={{ cursor: "not-allowed" }}
-                    />
-                  </div>
-
-                  {/* Final Total After Discount */}
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-xs text-green-700 font-semibold">
-                      Final Price (₦)
-                    </Label>
-                    <div className="bg-green-100 px-3 py-2 rounded text-sm font-medium text-green-900">
-                      ₦{finalPrice.toLocaleString()}
+                          // Set both editable and original price
+                          handleProductChange(
+                            index,
+                            "productPrice",
+                            selectedProduct ? selectedProduct.unitPrice : ""
+                          );
+                          handleProductChange(
+                            index,
+                            "originalPrice",
+                            selectedProduct ? selectedProduct.unitPrice : 0
+                          );
+                        }}
+                        className="rounded-xs bg-[#8C8C8C33] px-2 py-2">
+                        <option value="">Select a product</option>
+                        {products.map((item) => (
+                          <option key={item.id} value={item.productName}>
+                            {item.productName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  </div>
 
-                  {/* Remove Button */}
-                  {formData.products.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveProduct(index)}
-                      className="absolute top-2 right-2 text-red-500 text-xs hover:underline">
-                      Remove
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+                    {/* Quantity */}
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-xs" htmlFor={`quantity-${index}`}>
+                        Product Quantity
+                      </Label>
+                      <Input
+                        id={`quantity-${index}`}
+                        type="number"
+                        placeholder="Quantity"
+                        min="0"
+                        value={product.quantity}
+                        onChange={(e) =>
+                          handleProductChange(index, "quantity", e.target.value)
+                        }
+                        className="rounded-xs bg-[#8C8C8C33]"
+                      />
+                    </div>
 
-            {/* Add Product Button */}
-            <button
-              type="button"
-              onClick={handleAddProduct}
-              className="mt-4 px-4 py-2 bg-[#006181] hover:bg-[#004e65] text-white rounded-md text-sm shadow-sm transition">
-              + Add Another Product
-            </button>
-            <div className="grid md:grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs" htmlFor="receiverAddress">
-                  Receiver Address
-                </Label>
-                <Input
-                  className="rounded-xs bg-[#8C8C8C33]"
-                  id="receiverAddress"
-                  value={formData.receiverAddress}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      receiverAddress: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs" htmlFor="receiverName">
-                  Receiver Name
-                </Label>
-                <Input
-                  className="rounded-xs bg-[#8C8C8C33]"
-                  id="receiverName"
-                  value={formData.receiverName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, receiverName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs" htmlFor="receiverPhone">
-                  Receiver Phone
-                </Label>
-                <Input
-                  type={"number"}
-                  className="rounded-xs bg-[#8C8C8C33]"
-                  id="receiverPhone"
-                  value={formData.receiverPhone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, receiverPhone: e.target.value })
-                  }
-                />
-              </div>
+                    {/* Editable Unit Price */}
+                    <div className="flex flex-col gap-1">
+                      <Label
+                        className="text-xs"
+                        htmlFor={`productPrice-${index}`}>
+                        Unit Price (₦)
+                      </Label>
+                      <Input
+                        id={`productPrice-${index}`}
+                        type="number"
+                        placeholder="Unit Price"
+                        value={product.productPrice}
+                        onChange={(e) => {
+                          handleProductChange(
+                            index,
+                            "productPrice",
+                            e.target.value
+                          );
+                        }}
+                        className="rounded-xs bg-[#8C8C8C33]"
+                      />
+                    </div>
 
-              {/* <div className="flex flex-col gap-1">
-            <Label className="text-xs">Location</Label>
-            <Select
-              value={formData.location}
-              onValueChange={(value) =>
-                setFormData({ ...formData, location: value })
-              }>
-              <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                <SelectValue placeholder="Select Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem
-                  className="hover:bg-gray-200 cursor-pointer"
-                  value="lagos">
-                  Lagos
-                </SelectItem>
-                <SelectItem
-                  className="hover:bg-gray-200 cursor-pointer"
-                  value="abuja">
-                  Abuja
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
-              {/* <div className="flex flex-col gap-1">
-              <Label className="text-xs" htmlFor="deliveryFee">
-                Delivery Fee
-              </Label>
-              <Input
-                className="rounded-xs bg-[#8C8C8C33]"
-                type={"number"}
-                id="deliveryFee"
-                value={formData.deliveryFee}
-                onChange={(e) =>
-                  setFormData({ ...formData, deliveryFee: e.target.value })
-                }
-              />
-            </div> */}
-              {/* <div className="flex flex-col gap-1">
-              <Label className="text-xs" htmlFor="uploadDate">
-                Upload Date
-              </Label>
-              <Input
-                className="rounded-xs bg-[#8C8C8C33]"
-                id="uploadDate"
-                type="date"
-                value={formData.uploadDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, uploadDate: e.target.value })
-                }
-              />
-            </div> */}
-              {/* <div className="flex flex-col gap-1">
-              <Label className="text-xs">Agent</Label>
-              <Select
-                value={formData.riderId}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, riderId: value })
-                }>
-                <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                  <SelectValue placeholder="Select Agent" />
-                </SelectTrigger>
-                <SelectContent>
-                  {approved?.map((rider) => {
-                    return (
-                      <SelectItem
-                        className="hover:bg-gray-200 cursor-pointer"
-                        value={`${rider.riderId}`}
-                        key={rider.riderId}>
-                        {`${rider.first_name} ${rider.last_name}`}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div> */}
+                    {/* Discount Percentage */}
+                    <div className="flex flex-col gap-1">
+                      <Label
+                        className="text-xs"
+                        htmlFor={`productDiscount-${index}`}>
+                        Discount (%)
+                      </Label>
 
-              {/* State Dropdown */}
+                      <Input
+                        id={`productDiscount-${index}`}
+                        type="text"
+                        readOnly
+                        value={`${discountPercent.toFixed(2)}%`}
+                        className="rounded-xs bg-[#8C8C8C33] text-gray-600"
+                        style={{ cursor: "not-allowed" }}
+                      />
+                    </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs" htmlFor="state-select">
-                  State
-                </label>
-                <select
-                  id="state-select"
-                  onChange={(e) => handleStateChange(e.target.value)}
-                  className="w-full rounded bg-[#8C8C8C33] p-2">
-                  <option value="">Select State</option>
-                  {NIGERIAN_STATES.map((state) => (
-                    <option className="bg-white" key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Agent Dropdown */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs">Agent</Label>
-                <Select
-                  value={formData.riderId}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, riderId: value })
-                  }
-                  disabled={!selectedState || loadingAgents}>
-                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                    <SelectValue
-                      placeholder={
-                        loadingAgents ? "Loading..." : "Select Agent"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {agents.length === 0 ? (
-                      <div className="p-2 text-sm text-gray-500">
-                        No agents found
+                    {/* Final Total After Discount */}
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-xs text-green-700 font-semibold">
+                        Final Price (₦)
+                      </Label>
+                      <div className="bg-green-100 px-3 py-2 rounded text-sm font-medium text-green-900">
+                        ₦{finalPrice.toLocaleString()}
                       </div>
-                    ) : (
-                      agents?.map((rider) => (
-                        <SelectItem
-                          key={rider.riderId}
-                          className="hover:bg-gray-200 cursor-pointer"
-                          value={rider.riderId.toString()}>
-                          {`${rider.first_name} ${rider.last_name}`}
-                        </SelectItem>
-                      ))
+                    </div>
+
+                    {/* Remove Button */}
+                    {formData.products.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveProduct(index)}
+                        className="absolute top-2 right-2 text-red-500 text-xs hover:underline">
+                        Remove
+                      </button>
                     )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs" htmlFor="dueDate">
-                  Due Date
-                </Label>
-                <Input
-                  className="rounded-xs bg-[#8C8C8C33]"
-                  id="dueDate"
-                  type="date"
-                  value={formData.dueDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dueDate: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs">Delivery Status</Label>
-                <Select
-                  value={formData.deliveryStatus}
-                  onValueChange={(value) => {
-                    setFormData({ ...formData, deliveryStatus: value });
-                  }}>
-                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="PENDING">
-                      PENDING
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs">Customer Payment Status</Label>
-                <Select
-                  value={formData.customerPaymentStatus}
-                  onValueChange={(value) => {
-                    setFormData({ ...formData, customerPaymentStatus: value });
-                    if (value === "CUSTOMER_NOT_PAID") {
+                  </div>
+                );
+              })}
+
+              {/* Add Product Button */}
+              <button
+                type="button"
+                onClick={handleAddProduct}
+                className="mt-4 px-4 py-2 bg-[#006181] hover:bg-[#004e65] text-white rounded-md text-sm shadow-sm transition">
+                + Add Another Product
+              </button>
+              <div className="grid md:grid-cols-2 gap-2">
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor="receiverAddress">
+                    Receiver Address
+                  </Label>
+                  <Input
+                    className="rounded-xs bg-[#8C8C8C33]"
+                    id="receiverAddress"
+                    value={formData.receiverAddress}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        receiverAddress: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor="receiverName">
+                    Receiver Name
+                  </Label>
+                  <Input
+                    className="rounded-xs bg-[#8C8C8C33]"
+                    id="receiverName"
+                    value={formData.receiverName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, receiverName: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor="receiverPhone">
+                    Receiver Phone
+                  </Label>
+                  <Input
+                    type={"number"}
+                    className="rounded-xs bg-[#8C8C8C33]"
+                    id="receiverPhone"
+                    value={formData.receiverPhone}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        receiverPhone: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* State Dropdown */}
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs" htmlFor="state-select">
+                    State
+                  </label>
+                  <select
+                    id="state-select"
+                    onChange={(e) => handleStateChange(e.target.value)}
+                    className="w-full rounded bg-[#8C8C8C33] p-2">
+                    <option value="">Select State</option>
+                    {NIGERIAN_STATES.map((state) => (
+                      <option className="bg-white" key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Agent Dropdown */}
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs">Agent</label>
+                  <select
+                    value={formData.riderId}
+                    onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        amountPaid: "",
-                        balance: "",
-                        paymentType: "",
-                      }));
+                        riderId: e.target.value,
+                      }))
                     }
-                  }}>
-                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="CUSTOMER_NOT_PAID">
-                      Not Paid
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="CUSTOMER_PAID">
-                      Paid
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                    disabled={!selectedState || loadingAgents}
+                    className="w-full rounded-xs bg-[#8C8C8C33] p-2 cursor-pointer">
+                    <option value="">
+                      {loadingAgents ? "Loading..." : "Select Agent"}
+                    </option>
+                    {agents.length === 0 && !loadingAgents ? (
+                      <option value="" disabled>
+                        No agents found
+                      </option>
+                    ) : (
+                      agents?.map((rider) => (
+                        <option
+                          key={rider.riderId}
+                          value={rider.riderId.toString()}>
+                          {`${rider.first_name} ${rider.last_name}`}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
 
-              {/* <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
+                  <Label className="text-xs">Agent</Label>
+                  <Select
+                    value={formData.riderId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, riderId: value })
+                    }
+                    disabled={!selectedState || loadingAgents}>
+                    <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
+                      <SelectValue
+                        placeholder={
+                          loadingAgents ? "Loading..." : "Select Agent"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {agents.length === 0 ? (
+                        <div className="p-2 text-sm text-gray-500">
+                          No agents found
+                        </div>
+                      ) : (
+                        agents?.map((rider) => (
+                          <SelectItem
+                            key={rider.riderId}
+                            className="hover:bg-gray-200 cursor-pointer"
+                            value={rider.riderId.toString()}>
+                            {`${rider.first_name} ${rider.last_name}`}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div> */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor="dueDate">
+                    Due Date
+                  </Label>
+                  <Input
+                    className="rounded-xs bg-[#8C8C8C33]"
+                    id="dueDate"
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dueDate: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs">Delivery Status</label>
+                  <select
+                    value={formData.deliveryStatus}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryStatus: e.target.value,
+                      }))
+                    }
+                    className="w-full rounded-xs bg-[#8C8C8C33] p-2 cursor-pointer">
+                    <option value="">Select Status</option>
+                    <option value="PENDING">PENDING</option>
+                    {/* {formMode === "add" && ( */}
+                    <>
+                      <option>PACKAGE_DELIVERED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                      <option value="PROCESSING">PICKEDUP</option>
+                      <option value="FEE_PROPOSED">NOT_REACHABLE</option>
+                      <option value="FEE_REJECTED">NOT_PICKING</option>
+                    </>
+                    {/* )} */}
+                  </select>
+                  {/* <Label className="text-xs">Delivery Status</Label>
+                  <Select
+                    value={formData.deliveryStatus}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, deliveryStatus: value });
+                    }}>
+                    <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem
+                        className="hover:bg-gray-200 cursor-pointer"
+                        value="PENDING">
+                        PENDING
+                      </SelectItem>
+                    </SelectContent>
+                  </Select> */}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs">Customer Payment Status</label>
+                  <select
+                    value={formData.customerPaymentStatus}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerPaymentStatus: value,
+                        ...(value === "CUSTOMER_NOT_PAID" && {
+                          amountPaid: "",
+                          balance: "",
+                          paymentType: "",
+                        }),
+                      }));
+                    }}
+                    className="w-full rounded-xs bg-[#8C8C8C33] p-2">
+                    <option value="">Select Status</option>
+                    <option value="CUSTOMER_NOT_PAID">Not Paid</option>
+                    <option value="CUSTOMER_PAID">Paid</option>
+                  </select>
+
+                  {/* <Select
+                    value={formData.customerPaymentStatus}
+                    onValueChange={(value) => {
+                      setFormData({
+                        ...formData,
+                        customerPaymentStatus: value,
+                      });
+                      if (value === "CUSTOMER_NOT_PAID") {
+                        setFormData((prev) => ({
+                          ...prev,
+                          amountPaid: "",
+                          balance: "",
+                          paymentType: "",
+                        }));
+                      }
+                    }}
+                      >
+                    <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem
+                        className="hover:bg-gray-200 cursor-pointer"
+                        value="CUSTOMER_NOT_PAID">
+                        Not Paid
+                      </SelectItem>
+                      <SelectItem
+                        className="hover:bg-gray-200 cursor-pointer"
+                        value="CUSTOMER_PAID">
+                        Paid
+                      </SelectItem>
+                    </SelectContent>
+                  </Select> */}
+                </div>
+
+                {/* <div className="flex flex-col gap-1">
                 <Label className="text-xs">Rider Payment Status</Label>
                 <Select
                   value={formData.riderPaymentStatus}
@@ -759,7 +776,7 @@ const DeliveryFormDialog = ({
                 </Select>
               </div> */}
 
-              {/* <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                 <Label className="text-xs">Agreement Status</Label>
                 <Select
                   value={formData.agreementStatus}
@@ -794,7 +811,7 @@ const DeliveryFormDialog = ({
                 </Select>
               </div> */}
 
-              {/* <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                 <Label className="text-xs">Negotiation Status</Label>
                 <Select
                   value={formData.negotiationStatus}
@@ -844,61 +861,61 @@ const DeliveryFormDialog = ({
                 </Select>
               </div> */}
 
-              {formData.customerPaymentStatus === "CUSTOMER_PAID" && (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-xs">Payment Type</Label>
-                    <Select
-                      value={formData.paymentType}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, paymentType: value })
-                      }>
-                      <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                        <SelectValue placeholder="Select Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          className="hover:bg-gray-200 cursor-pointer"
-                          value="FULL_PAYMENT">
-                          Full Payment
-                        </SelectItem>
-                        <SelectItem
-                          className="hover:bg-gray-200 cursor-pointer"
-                          value="PART_PAYMENT">
-                          Part Payment
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-xs" htmlFor="amountPaid">
-                      Amount Payed
-                    </Label>
-                    <Input
-                      className="rounded-xs bg-[#8C8C8C33]"
-                      id="amountPaid"
-                      value={formatToNaira(formData?.amountPaid)}
-                      onChange={(e) => handleCurrencyChange(e, "amountPaid")}
-                    />
-                  </div>
-                  {formData.paymentType === "PART_PAYMENT" && (
+                {formData.customerPaymentStatus === "CUSTOMER_PAID" && (
+                  <>
                     <div className="flex flex-col gap-1">
-                      <Label className="text-xs" htmlFor="balance">
-                        Balance
+                      <Label className="text-xs">Payment Type</Label>
+                      <Select
+                        value={formData.paymentType}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, paymentType: value })
+                        }>
+                        <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
+                          <SelectValue placeholder="Select Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem
+                            className="hover:bg-gray-200 cursor-pointer"
+                            value="FULL_PAYMENT">
+                            Full Payment
+                          </SelectItem>
+                          <SelectItem
+                            className="hover:bg-gray-200 cursor-pointer"
+                            value="PART_PAYMENT">
+                            Part Payment
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-xs" htmlFor="amountPaid">
+                        Amount Payed
                       </Label>
                       <Input
                         className="rounded-xs bg-[#8C8C8C33]"
-                        id="balance"
-                        value={formatToNaira(formData.balance)}
-                        onChange={(e) => handleCurrencyChange(e, "balance")}
+                        id="amountPaid"
+                        value={formatToNaira(formData?.amountPaid)}
+                        onChange={(e) => handleCurrencyChange(e, "amountPaid")}
                       />
                     </div>
-                  )}
-                </>
-              )}
+                    {formData.paymentType === "PART_PAYMENT" && (
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-xs" htmlFor="balance">
+                          Balance
+                        </Label>
+                        <Input
+                          className="rounded-xs bg-[#8C8C8C33]"
+                          id="balance"
+                          value={formatToNaira(formData.balance)}
+                          onChange={(e) => handleCurrencyChange(e, "balance")}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
 
-              {/* <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
               <Label className="text-xs">Delivery Status</Label>
               <Select
                 value={formData.deliveryStatus}
@@ -923,32 +940,33 @@ const DeliveryFormDialog = ({
               </Select>
             </div>
             */}
-            </div>
-            {successMessage && (
-              <p className="text-green-500 text-sm">{successMessage}</p>
-            )}
-            {erorMessage && (
-              <p className="text-red-500 text-sm">{erorMessage}</p>
-            )}
-            <div className="flex justify-end gap-2 mt-4">
-              <DialogClose
-                onClick={() => {
-                  setErrorMessage(""), setSuccessMessage("");
-                  setFormData(initialState);
-                  resetProducts();
-                  // setDialogOpen(false);
-                }}
-                className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                Cancel
-              </DialogClose>
-              <Button
-                onClick={formMode === "add" ? handleAdd : handleEdit}
-                type="submit"
-                className="bg-[#B10303] hover:bg-[#B10303]/80 cursor-pointer text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                {isLoading ? "Loading.." : "Done"}
-              </Button>
-            </div>
-          </form>
+              </div>
+              {successMessage && (
+                <p className="text-green-500 text-sm">{successMessage}</p>
+              )}
+              {erorMessage && (
+                <p className="text-red-500 text-sm">{erorMessage}</p>
+              )}
+              <div className="flex justify-end gap-2 mt-4">
+                <DialogClose
+                  onClick={() => {
+                    setErrorMessage(""), setSuccessMessage("");
+                    setFormData(initialState);
+                    resetProducts();
+                    // setDialogOpen(false);
+                  }}
+                  className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                  Cancel
+                </DialogClose>
+                <Button
+                  onClick={formMode === "add" ? handleAdd : handleEdit}
+                  type="submit"
+                  className="bg-[#B10303] hover:bg-[#B10303]/80 cursor-pointer text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                  {isLoading ? "Loading.." : "Done"}
+                </Button>
+              </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
       <SuccessModal
