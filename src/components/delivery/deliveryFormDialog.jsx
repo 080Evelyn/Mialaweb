@@ -155,6 +155,7 @@ const DeliveryFormDialog = ({
 
   const handleAdd = async (e) => {
     e.preventDefault();
+    console.log(formData);
     const payload = {
       ...formData,
       products: formData.products.map((p) => ({
@@ -244,29 +245,29 @@ const DeliveryFormDialog = ({
   };
   const handleEdit = async (e) => {
     e.preventDefault();
-    if (
-      formData.paymentType === "FULL_PAYMENT" &&
-      formData.amountPaid === ""
-      // (formData.paymentType === "PART_PAYMENT" && formData.amountPaid === "") ||
-      // (formData.paymentType === "PART_PAYMENT" && formData.balance === "")
-    ) {
+    if (formData.paymentType === "FULL_PAYMENT" && formData.amountPaid === "") {
       setErrorMessage("All Fields Must be Filled!!");
       return;
     }
-    let payload = {
+    const payload = {
       ...formData,
-      products: formData.products.map(({ originalPrice, ...rest }) => rest),
+      products: formData.products.map((p) => {
+        return {
+          productName: p.productName,
+          quantity: p.quantity,
+          productPrice: p.originalPrice,
+          discountPercent: p.discountPercent,
+        };
+      }),
     };
+
+    // let payload = {
+    //   ...formData,
+    //   products: formData.products.map(({ originalPrice, ...rest }) => rest),
+    // };
     // If customerPaymentStatus is "not_paid", remove paymentType
     if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
       delete payload.paymentType;
-
-      // setFormData((prev) => ({
-      //   ...prev,
-      //   amountPaid: "",
-      //   balance: "",
-      //   paymentType: "",
-      // }));
     }
     setIsLoading(true);
     setErrorMessage("");
