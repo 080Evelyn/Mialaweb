@@ -560,7 +560,6 @@ const DeliveryList = () => {
     setDeliveryId(data.deliveryId);
     setDialogOpen(true);
   };
-
   // --- useEffect to hydrate formData when deliveryDetails updates ---
   useEffect(() => {
     if (formMode === "edit" && deliveryDetails.custPaymentStatus) {
@@ -576,6 +575,7 @@ const DeliveryList = () => {
                   product.totalAfterDiscount != null
                     ? product.totalAfterDiscount / product.qty
                     : "",
+                originalPrice: product.productPrice,
               }))
           : [
               {
