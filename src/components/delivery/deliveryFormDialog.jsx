@@ -25,6 +25,7 @@ import SuccessModal from "../common/SuccessModal";
 import { NIGERIAN_STATES } from "@/config/stateData";
 import { fetchProducts } from "@/redux/productSlice";
 import { Loader2 } from "lucide-react";
+import { fetchStats } from "@/redux/statSlice";
 
 const DeliveryFormDialog = ({
   dialogOpen,
@@ -223,6 +224,7 @@ const DeliveryFormDialog = ({
 
       if (response.data.responseCode === "00") {
         dispatch(fetchDelivery({ token, userRole }));
+        dispatch(fetchStats({ token, userRole }));
         setSuccessMessage("Delivery Assigned Successfully!");
         setSuccessModalOpen(true);
         setFormData(initialState);
@@ -293,6 +295,7 @@ const DeliveryFormDialog = ({
       );
       if (response.data.responseMsg === "Success") {
         dispatch(fetchDelivery({ token, userRole }));
+        dispatch(fetchStats({ token, userRole }));
         dispatch(setMultiCall());
         setSuccessMessage("Delivery Edited Successfully!");
         setSuccessModalOpen(true);
@@ -666,16 +669,18 @@ const DeliveryFormDialog = ({
                     }
                     className="w-full rounded-xs bg-[#8C8C8C33] p-2 cursor-pointer">
                     <option value="">Select Status</option>
-                    <option value="PENDING">PENDING</option>
-                    {/* {formMode === "add" && ( */}
-                    <>
-                      <option>PACKAGE_DELIVERED</option>
-                      <option value="CANCELLED">CANCELLED</option>
-                      <option value="PROCESSING">PICKEDUP</option>
-                      <option value="FEE_PROPOSED">NOT_REACHABLE</option>
-                      <option value="FEE_REJECTED">NOT_PICKING</option>
-                    </>
-                    {/* )} */}
+
+                    {formMode === "add" ? (
+                      <option value="PENDING">PENDING</option>
+                    ) : (
+                      <>
+                        <option value="PENDING">PENDING</option>
+                        <option>PACKAGE_DELIVERED</option>
+                        <option value="CANCELLED">CANCELLED</option>
+                        <option value="FEE_PROPOSED">NOT_REACHABLE</option>
+                        <option value="FEE_REJECTED">NOT_PICKING</option>
+                      </>
+                    )}
                   </select>
                   {/* <Label className="text-xs">Delivery Status</Label>
                   <Select
