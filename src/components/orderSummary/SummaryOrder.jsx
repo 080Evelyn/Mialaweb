@@ -98,7 +98,7 @@ const SummaryOrder = () => {
                     <TableCell>
                       ₦{Number(data.unitPrice).toLocaleString()}
                     </TableCell>
-                    <TableCell>{data.totalSalesCount}</TableCell>
+                    <TableCell>{data.totalAssignedCount}</TableCell>
                     <TableCell>
                       ₦{Number(data.totalRevenue).toLocaleString()}
                     </TableCell>

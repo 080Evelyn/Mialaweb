@@ -87,15 +87,17 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
                     <span>{`${proposals?.riderName} `}</span>
                   </div>
                 </td>
-                <td>
+                <td className="pl-5">
                   {proposals?.products?.map((product, index) => (
                     <div key={index}>{product.productName}</div>
                   ))}
                 </td>
 
-                <td>{proposals?.deliveryCode}</td>
-                <td>{Number(proposals?.proposedFee).toLocaleString()}</td>
-                <td>
+                <td className="pl-5">{proposals?.deliveryCode}</td>
+                <td className="pl-7">
+                  {Number(proposals?.proposedFee).toLocaleString()}
+                </td>
+                <td className="pl-5">
                   {proposals?.products?.map((product, index) => (
                     <div key={index}>{parseFloat(product.quantity)}</div>
                   ))}

@@ -152,7 +152,6 @@ function AdminHeader({ setOpen, rightSidebar }) {
                         PACKAGE_DELIVERED
                       </option>
                       <option value="CANCELLED">CANCELLED</option>
-                      <option value="PROCESSING">PICKEDUP</option>
                       <option value="FEE_PROPOSED">NOT_REACHABLE</option>
                       <option value="FEE_REJECTED">NOT_PICKING</option>
                     </select>

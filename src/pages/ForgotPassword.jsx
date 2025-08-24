@@ -19,7 +19,7 @@ const ForgotPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [open, setOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,12 +46,11 @@ const ForgotPassword = () => {
           },
         }
       );
-      // console.log(response);
       if (response.data.responseMsg === "Success") {
         dispatch(setStep(1));
       }
     } catch (error) {
-      setErrorMessage(`An error occured.`);
+      setErrorMessage(error.response.data.responseDesc || `An error occured.`);
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -87,6 +86,9 @@ const ForgotPassword = () => {
     }
   };
   const handleSubmit = async (e) => {
+    if (success) {
+      return;
+    }
     e.preventDefault();
     const userEmail = localStorage.getItem("email");
     setIsLoading(true);
@@ -105,6 +107,7 @@ const ForgotPassword = () => {
         }
       );
       if (response.data.responseMsg === "Success") {
+        setSuccess(true);
         setSuccessMessage("Password reset successful.");
         localStorage.removeItem("email");
       } else if (response.data.responseCode === 55) {
@@ -155,7 +158,6 @@ const ForgotPassword = () => {
                   />
                 </div>
               )}
-
               {step === 2 && (
                 <div className="space-y-1.5 relative">
                   <Label htmlFor="password" className="text-sm">
@@ -191,18 +193,29 @@ const ForgotPassword = () => {
               {successMessage && (
                 <p className="text-green-500 text-xs">{successMessage}</p>
               )}
-              <Button
-                onClick={
-                  step === 0
-                    ? handleSendOtp
-                    : step === 1
-                    ? handleVerifyOtp
-                    : handleSubmit
-                }
-                type="submit"
-                className="w-full bg-[#B10303] hover:bg-[#B10303]/80">
-                {isLoading ? "submitting..." : "Submit"}
-              </Button>
+              {!success && (
+                <Button
+                  onClick={
+                    step === 0
+                      ? handleSendOtp
+                      : step === 1
+                      ? handleVerifyOtp
+                      : handleSubmit
+                  }
+                  type="submit"
+                  disable={success}
+                  className="w-full bg-[#B10303] hover:bg-[#B10303]/80">
+                  {isLoading ? "submitting..." : "Submit"}
+                </Button>
+              )}
+
+              {success && (
+                <Link to={"/"}>
+                  <Button className="w-full bg-[#B10303] hover:bg-[#B10303]/80">
+                    Login
+                  </Button>
+                </Link>
+              )}
             </form>
           </CardContent>
         </Card>
