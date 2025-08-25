@@ -21,10 +21,9 @@ export const approveProposalFee = createAsyncThunk(
       );
 
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
 
       if (!response.ok) {
-        console.log(data);
         // Pass backend message if it exists
         return rejectWithValue(data.responseDesc || "Something went wrong");
       }
@@ -64,7 +63,6 @@ export const rejectProposalFee = createAsyncThunk(
       const data = await response.json();
       // console.log(data);
       if (!response.ok) {
-        console.log(data);
         // Pass backend message if it exists
         return rejectWithValue(data.responseDesc || "Something went wrong");
       }

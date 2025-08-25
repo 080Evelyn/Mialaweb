@@ -86,7 +86,6 @@ const AdminAgentSidebar = () => {
       dispatch(setRestricted(true));
       return;
     }
-    console.log(token);
     setLoader(true);
     setErrorMessage("");
     setSuccessMessage("");
