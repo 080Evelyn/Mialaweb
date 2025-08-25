@@ -1,4 +1,4 @@
-import { AlignJustify, Search, XCircle } from "lucide-react";
+import { AlignJustify, CircleUser, Search, XCircle } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import {
@@ -16,6 +16,7 @@ import { setSearchQuery, setFilters, clearFilters } from "@/redux/searchSlice";
 import { useEffect } from "react";
 import { fetchRiders } from "@/redux/riderSlice";
 import { NIGERIAN_STATES } from "@/config/stateData";
+import Admin from "../../assets/icons/admin.png";
 
 function AdminHeader({ setOpen, rightSidebar }) {
   const dispatch = useDispatch();
@@ -68,6 +69,10 @@ function AdminHeader({ setOpen, rightSidebar }) {
   return (
     <header className="sticky top-0 z-40 bg-background border-b px-5 py-3">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 hover:bg-[#FFBFBF]">
+          <img src={Admin} alt="Admin-logo" className="w-5 h-5" />
+          <span>{userRole} </span>
+        </div>
         <div className="flex items-center gap-3">
           <Button
             onClick={() => setOpen(true)}

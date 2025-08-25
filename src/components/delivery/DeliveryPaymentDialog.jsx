@@ -103,7 +103,6 @@ const DeliveryPaymentDialog = ({
           },
         }
       );
-      console.log(response);
       if (response.data.responseCode === "00") {
         setSuccessMessage("Payment Initialization Successful");
         setSuccessModalOpen(true);

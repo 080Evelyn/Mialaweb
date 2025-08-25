@@ -41,12 +41,11 @@ const DeliveryFormDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const riders = useSelector((state) => state.allRiders.allRiders);
   const id = useSelector((state) => state.auth.user.userId);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const token = useSelector((state) => state.auth.token);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-
+  const [totalFinalPrice, setTotalFinalPrice] = useState(0);
   const [selectedState, setSelectedState] = useState("");
   const [agents, setAgents] = useState([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
@@ -154,9 +153,24 @@ const DeliveryFormDialog = ({
     }));
   };
 
+  useEffect(() => {
+    if (formData?.products?.length > 0) {
+      const total = formData.products.reduce((acc, product) => {
+        const unitPrice = Number(product.productPrice || 0);
+        const quantity = Number(product.quantity || 0);
+
+        const finalPrice = unitPrice * quantity;
+        return acc + finalPrice;
+      }, 0);
+
+      setTotalFinalPrice(total);
+    } else {
+      setTotalFinalPrice(0);
+    }
+  }, [formData.products]);
+
   const handleAdd = async (e) => {
     e.preventDefault();
-    console.log(formData);
     const payload = {
       ...formData,
       products: formData.products.map((p) => ({
@@ -181,12 +195,34 @@ const DeliveryFormDialog = ({
       formData.negotiationStatus === "" ||
       formData.agreementStatus === "" ||
       formData.riderPaymentStatus === "" ||
-      formData.customerPaymentStatus === "" ||
-      (formData.paymentType && formData.paymentType === "") ||
-      (formData.amountPaid && formData.amountPaid === "") ||
-      (formData.balance && formData.balance === "")
+      formData.customerPaymentStatus === ""
     ) {
       setErrorMessage("All Fields Must be Filled!!");
+      return;
+    }
+    if (
+      formData.paymentType === "FULL_PAYMENT" &&
+      formData.amountPaid !== totalFinalPrice
+    ) {
+      setErrorMessage("Amount entered is not equal to total product amount.");
+      return;
+    }
+    if (
+      formData.paymentType === "PART_PAYMENT" &&
+      formData.amountPaid >= totalFinalPrice
+    ) {
+      setErrorMessage(
+        "Amount entered should be less than total product amount for part payment."
+      );
+      return;
+    }
+    if (
+      formData.paymentType === "PART_PAYMENT" &&
+      formData.amountPaid + formData.balance !== totalFinalPrice
+    ) {
+      setErrorMessage(
+        "Sum of amount and balance entered is not equal to total product amount."
+      );
       return;
     }
     // Check each product entry
@@ -249,6 +285,31 @@ const DeliveryFormDialog = ({
     e.preventDefault();
     if (formData.paymentType === "FULL_PAYMENT" && formData.amountPaid === "") {
       setErrorMessage("All Fields Must be Filled!!");
+      return;
+    }
+    if (
+      formData.paymentType === "FULL_PAYMENT" &&
+      formData.amountPaid !== totalFinalPrice
+    ) {
+      setErrorMessage("Amount entered is not equal to total product amount.");
+      return;
+    }
+    if (
+      formData.paymentType === "PART_PAYMENT" &&
+      formData.amountPaid >= totalFinalPrice
+    ) {
+      setErrorMessage(
+        "Amount entered should be less than total product amount for part payment."
+      );
+      return;
+    }
+    if (
+      formData.paymentType === "PART_PAYMENT" &&
+      formData.amountPaid + formData.balance !== totalFinalPrice
+    ) {
+      setErrorMessage(
+        "Sum of amount and balance entered is not equal to total product amount."
+      );
       return;
     }
     const payload = {
@@ -510,6 +571,13 @@ const DeliveryFormDialog = ({
                 className="mt-4 px-4 py-2 bg-[#006181] hover:bg-[#004e65] text-white rounded-md text-sm shadow-sm transition">
                 + Add Another Product
               </button>
+
+              <div className="bg-green-200 flex justify-between py-1.5">
+                <p className="font-bold px-4">Total</p>
+                <span className="px-4 font-bold">
+                  ₦{totalFinalPrice.toLocaleString()}
+                </span>
+              </div>
               <div className="grid md:grid-cols-2 gap-2">
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs" htmlFor="receiverAddress">
@@ -560,89 +628,60 @@ const DeliveryFormDialog = ({
 
                 {/* State Dropdown */}
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs" htmlFor="state-select">
-                    State
-                  </label>
-                  <select
-                    id="state-select"
-                    onChange={(e) => handleStateChange(e.target.value)}
-                    className="w-full rounded bg-[#8C8C8C33] p-2">
-                    <option value="">Select State</option>
-                    {NIGERIAN_STATES.map((state) => (
-                      <option className="bg-white" key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {formMode === "add" && (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs" htmlFor="state-select">
+                      State
+                    </label>
+                    <select
+                      id="state-select"
+                      onChange={(e) => handleStateChange(e.target.value)}
+                      className="w-full rounded bg-[#8C8C8C33] p-2">
+                      <option value="">Select State</option>
+                      {NIGERIAN_STATES.map((state) => (
+                        <option className="bg-white" key={state} value={state}>
+                          {state}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Agent Dropdown */}
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs">Agent</label>
-                  <select
-                    value={formData.riderId}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        riderId: e.target.value,
-                      }))
-                    }
-                    disabled={!selectedState || loadingAgents}
-                    className="w-full rounded-xs bg-[#8C8C8C33] p-2 cursor-pointer">
-                    <option value="">
-                      {loadingAgents ? "Loading..." : "Select Agent"}
-                    </option>
-                    {agents.length === 0 && !loadingAgents ? (
-                      <option value="" disabled>
-                        No agents found
+                {formMode === "add" && (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs">Agent</label>
+                    <select
+                      value={formData.riderId}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          riderId: e.target.value,
+                        }))
+                      }
+                      disabled={!selectedState || loadingAgents}
+                      className="w-full rounded-xs bg-[#8C8C8C33] p-2 cursor-pointer">
+                      <option value="">
+                        {loadingAgents ? "Loading..." : "Select Agent"}
                       </option>
-                    ) : (
-                      agents?.map((rider) => (
-                        <option
-                          key={rider.riderId}
-                          value={rider.riderId.toString()}>
-                          {`${rider.first_name} ${rider.last_name}`}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
-
-                {/* <div className="flex flex-col gap-1">
-                  <Label className="text-xs">Agent</Label>
-                  <Select
-                    value={formData.riderId}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, riderId: value })
-                    }
-                    disabled={!selectedState || loadingAgents}>
-                    <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                      <SelectValue
-                        placeholder={
-                          loadingAgents ? "Loading..." : "Select Agent"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {agents.length === 0 ? (
-                        <div className="p-2 text-sm text-gray-500">
+                      {agents.length === 0 && !loadingAgents ? (
+                        <option value="" disabled>
                           No agents found
-                        </div>
+                        </option>
                       ) : (
                         agents?.map((rider) => (
-                          <SelectItem
+                          <option
                             key={rider.riderId}
-                            className="hover:bg-gray-200 cursor-pointer"
                             value={rider.riderId.toString()}>
                             {`${rider.first_name} ${rider.last_name}`}
-                          </SelectItem>
+                          </option>
                         ))
                       )}
-                    </SelectContent>
-                  </Select>
-                </div> */}
+                    </select>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs" htmlFor="dueDate">
                     Due Date
@@ -682,23 +721,6 @@ const DeliveryFormDialog = ({
                       </>
                     )}
                   </select>
-                  {/* <Label className="text-xs">Delivery Status</Label>
-                  <Select
-                    value={formData.deliveryStatus}
-                    onValueChange={(value) => {
-                      setFormData({ ...formData, deliveryStatus: value });
-                    }}>
-                    <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        className="hover:bg-gray-200 cursor-pointer"
-                        value="PENDING">
-                        PENDING
-                      </SelectItem>
-                    </SelectContent>
-                  </Select> */}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs">Customer Payment Status</label>
@@ -757,116 +779,6 @@ const DeliveryFormDialog = ({
                   </Select> */}
                 </div>
 
-                {/* <div className="flex flex-col gap-1">
-                <Label className="text-xs">Rider Payment Status</Label>
-                <Select
-                  value={formData.riderPaymentStatus}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, riderPaymentStatus: value })
-                  }>
-                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="RIDER_CREDITED">
-                      RIDER_CREDITED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="RIDER_NOT_CREDITED">
-                      RIDER_NOT_CREDITED
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
-
-                {/* <div className="flex flex-col gap-1">
-                <Label className="text-xs">Agreement Status</Label>
-                <Select
-                  value={formData.agreementStatus}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, agreementStatus: value })
-                  }>
-                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="AGREED">
-                      AGREED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="PROCESSING">
-                      PROCESSING
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="DISAGREED">
-                      DISAGREED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="NEGOTIATING">
-                      NEGOTIATING
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
-
-                {/* <div className="flex flex-col gap-1">
-                <Label className="text-xs">Negotiation Status</Label>
-                <Select
-                  value={formData.negotiationStatus}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, negotiationStatus: value })
-                  }>
-                  <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_PROPOSED">
-                      FEE_PROPOSED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_COUNTERED">
-                      FEE_COUNTERED
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_ACCEPTED_BY_RIDER">
-                      FEE_ACCEPTED_BY_RIDER
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_REJECTED_BY_ADMIN">
-                      FEE_REJECTED_BY_ADMIN
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="FEE_APPROVED_BY_ADMIN">
-                      FEE_APPROVED_BY_ADMIN
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="NO_NEGOTIATION_YET">
-                      NO_NEGOTIATION_YET
-                    </SelectItem>
-                    <SelectItem
-                      className="hover:bg-gray-200 cursor-pointer"
-                      value="NEGOTIATION_FAILED">
-                      NEGOTIATION_FAILED
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
-
                 {formData.customerPaymentStatus === "CUSTOMER_PAID" && (
                   <>
                     <div className="flex flex-col gap-1">
@@ -920,32 +832,6 @@ const DeliveryFormDialog = ({
                     )}
                   </>
                 )}
-
-                {/* <div className="flex flex-col gap-1">
-              <Label className="text-xs">Delivery Status</Label>
-              <Select
-                value={formData.deliveryStatus}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, deliveryStatus: value })
-                }>
-                <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                  <SelectValue placeholder="Select Delivery Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem
-                  className="hover:bg-gray-200 cursor-pointer"
-                  value="DELIVERED">
-                  Delivered
-                </SelectItem>
-                  <SelectItem
-                    className="hover:bg-gray-200 cursor-pointer"
-                    value="PENDING">
-                    Not Delivered
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            */}
               </div>
               {successMessage && (
                 <p className="text-green-500 text-sm">{successMessage}</p>

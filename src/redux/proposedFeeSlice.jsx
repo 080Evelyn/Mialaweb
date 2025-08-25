@@ -28,7 +28,6 @@ export const fetchProposedFee = createAsyncThunk(
       const data = await response.json();
 
       if (!response.ok) {
-        console.log(data);
         // Pass backend message if it exists
         return rejectWithValue(data.responseDesc || "Something went wrong");
       }
@@ -68,7 +67,6 @@ export const fetchProposedOrders = createAsyncThunk(
       const data = await response.json();
 
       if (!response.ok) {
-        console.log(data);
         // Pass backend message if it exists
         return rejectWithValue(data.responseDesc || "Something went wrong");
       }
