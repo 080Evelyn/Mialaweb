@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EllipsisVertical, Loader2, PenBox } from "lucide-react";
+import { Copy, EllipsisVertical, Loader2, PenBox } from "lucide-react";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
 // import DeliveryDetailsDialog from "./deliveryDetailsDialog";
@@ -25,6 +25,7 @@ const ProposedFee = () => {
   const [dialogOpen, setDialogOpen] = useState("");
   const [openDialog, setOpenDialog] = useState("");
   const [action, setAction] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(null);
   const [selectedFee, setSelectedFee] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const deliveryList = useSelector((state) => state.delivery.delivery);
@@ -164,7 +165,24 @@ const ProposedFee = () => {
                   <div key={index}>{product.productName}</div>
                 ))}
               </TableCell>
-              <TableCell>{data.deliveryCode}</TableCell>
+              <TableCell>
+                {data.deliveryCode}
+                <div className="flex items-center gap-2">
+                  <span>{data.deliveryCode}</span>
+                  <Copy
+                    size={16}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(data.deliveryCode);
+                      setCopiedCode(data.deliveryCode);
+                      setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
+                    }}
+                  />
+                  {copiedCode === data.deliveryCode && (
+                    <span className="text-green-600 text-xs">Copied!</span>
+                  )}
+                </div>
+              </TableCell>
               <TableCell>{data.uploadDate}</TableCell>
               <TableCell>
                 <div className="flex gap-3 items-center">

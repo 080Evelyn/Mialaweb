@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowRightCircle, Loader2 } from "lucide-react";
+import { ArrowRightCircle, Copy, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +19,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Link, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { fetchTransaction } from "@/redux/transactionSlice";
 
 const PayoutSummaryTable = () => {
   const location = useLocation();
+  const [copiedCode, setCopiedCode] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const transaction = useSelector((state) => state.transaction.transactions);
@@ -118,7 +119,24 @@ const PayoutSummaryTable = () => {
                   <TableCell>₦{data?.amount?.toLocaleString()}</TableCell>
                   <TableCell>{data?.accountNumber}</TableCell>
                   <TableCell>{data?.transactionReference}</TableCell>
-                  <TableCell>{data?.deliveryCode}</TableCell>
+                  <TableCell>
+                    {/* {data?.deliveryCode} */}
+                    <div className="flex items-center gap-2">
+                      <span>{data.deliveryCode}</span>
+                      <Copy
+                        size={16}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          navigator.clipboard.writeText(data.deliveryCode);
+                          setCopiedCode(data.deliveryCode);
+                          setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
+                        }}
+                      />
+                      {copiedCode === data.deliveryCode && (
+                        <span className="text-green-600 text-xs">Copied!</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>{data?.transactionDate.split("T")[0]}</TableCell>
                   <TableCell
                     className={` text-right text-[10px] font-[Raleway] ${

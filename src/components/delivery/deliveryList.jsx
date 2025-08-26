@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, PenBox, ArrowRightCircle } from "lucide-react";
+import { Loader2, PenBox, ArrowRightCircle, Copy } from "lucide-react";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
 import DeliveryFormDialog from "./deliveryFormDialog";
@@ -58,7 +58,7 @@ const DeliveryList = () => {
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.search.filters);
   const query = useSelector((state) => state.search.query);
-
+  const [copiedCode, setCopiedCode] = useState(null);
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
     return new Date(timestamp).toISOString().split("T")[0];
@@ -280,7 +280,24 @@ const DeliveryList = () => {
                   </div>
                 </TableCell>
 
-                <TableCell>{data.deliveryCode}</TableCell>
+                <TableCell>
+                  {/* {data.deliveryCode} */}
+                  <div className="flex items-center gap-2">
+                    <span>{data.deliveryCode}</span>
+                    <Copy
+                      size={16}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        navigator.clipboard.writeText(data.deliveryCode);
+                        setCopiedCode(data.deliveryCode);
+                        setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
+                      }}
+                    />
+                    {copiedCode === data.deliveryCode && (
+                      <span className="text-green-600 text-xs">Copied!</span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>{formatDate(data.creationDate)}</TableCell>
                 <TableCell>
                   {Number(data.deliveryFee).toLocaleString()}
