@@ -340,6 +340,10 @@ const DeliveryFormDialog = ({
       );
       return;
     }
+    console.log(
+      formData.customerPaymentStatus === "CUSTOMER_PAID" &&
+        formData.paymentType === "PAYMENT_ON_DELIVERY"
+    );
     // console.log(formData);
     const payload = {
       ...formData,
@@ -353,9 +357,9 @@ const DeliveryFormDialog = ({
       }),
     };
 
-    if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
-      delete payload.paymentType;
-    }
+    // if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
+    //   delete payload.paymentType;
+    // }
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
@@ -739,9 +743,9 @@ const DeliveryFormDialog = ({
                       <>
                         <option value="PENDING">PENDING</option>
                         <option>PACKAGE_DELIVERED</option>
-                        <option value="CANCELLED">CANCELLED</option>
-                        <option value="FEE_PROPOSED">NOT_REACHABLE</option>
-                        <option value="FEE_REJECTED">NOT_PICKING</option>
+                        {/* <option value="CANCELLED">CANCELLED</option> */}
+                        <option value="NOT_REACHABLE">NOT_REACHABLE</option>
+                        <option value="NOT_PICKING">NOT_PICKING</option>
                       </>
                     )}
                   </select>
