@@ -49,7 +49,7 @@ const Stats = () => {
                 <TableHead>Product</TableHead>
                 <TableHead className="rounded-l-sm">Total</TableHead>
                 <TableHead>Product Assigned to delivery</TableHead>
-                <TableHead>Sold </TableHead>
+                <TableHead>Delivered Count </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="text-[12px] font-[Raleway] font-[500] ">

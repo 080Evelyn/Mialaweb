@@ -173,7 +173,7 @@ const SummaryOrder = () => {
                                         {details.totalAmountOfTimesAssigned}
                                       </p>
                                       <p>
-                                        <strong>Total Sold:</strong>
+                                        <strong>Delivered Count:</strong>
                                         {details.totalRevenueCount}
                                       </p>
                                     </div>
