@@ -48,7 +48,6 @@ const DeliveryList = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const multiCall = useSelector((state) => state.delivery.multiCall);
-
   const token = useSelector((state) => state.auth.token);
   const deliveryList = useSelector((state) => state.delivery.delivery);
   const { totalPages, currentPage, loading, error } = useSelector(

@@ -225,6 +225,15 @@ const DeliveryFormDialog = ({
       );
       return;
     }
+    if (
+      formData.customerPaymentStatus === "CUSTOMER_PAID" &&
+      formData.paymentType === "PAYMENT_ON_DELIVERY"
+    ) {
+      setErrorMessage(
+        "Failed to assign delivery. Payment status does not align with payment type."
+      );
+      return;
+    }
     // Check each product entry
     const invalidProduct = formData.products.some(
       (product) =>
@@ -312,6 +321,26 @@ const DeliveryFormDialog = ({
       );
       return;
     }
+
+    if (
+      formData.customerPaymentStatus === "CUSTOMER_NOT_PAID" &&
+      formData.paymentType !== "PAYMENT_ON_DELIVERY"
+    ) {
+      setErrorMessage(
+        "Failed to assign delivery. Payment status does not align with payment type."
+      );
+      return;
+    }
+    if (
+      formData.customerPaymentStatus === "CUSTOMER_PAID" &&
+      formData.paymentType === "PAYMENT_ON_DELIVERY"
+    ) {
+      setErrorMessage(
+        "Failed to assign delivery. Payment status does not align with payment type."
+      );
+      return;
+    }
+    // console.log(formData);
     const payload = {
       ...formData,
       products: formData.products.map((p) => {
@@ -324,11 +353,6 @@ const DeliveryFormDialog = ({
       }),
     };
 
-    // let payload = {
-    //   ...formData,
-    //   products: formData.products.map(({ originalPrice, ...rest }) => rest),
-    // };
-    // If customerPaymentStatus is "not_paid", remove paymentType
     if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
       delete payload.paymentType;
     }
@@ -734,7 +758,7 @@ const DeliveryFormDialog = ({
                         ...(value === "CUSTOMER_NOT_PAID" && {
                           amountPaid: "",
                           balance: "",
-                          paymentType: "",
+                          paymentType: "PAYMENT_ON_DELIVERY",
                         }),
                       }));
                     }}
@@ -783,12 +807,16 @@ const DeliveryFormDialog = ({
                   <>
                     <div className="flex flex-col gap-1">
                       <Label className="text-xs">Payment Type</Label>
-                      <Select
+                      <select
+                        className="w-full rounded-xs bg-[#8C8C8C33] p-2"
                         value={formData.paymentType}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, paymentType: value })
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            paymentType: e.target.value,
+                          })
                         }>
-                        <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
+                        {/* <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
                           <SelectValue placeholder="Select Type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -802,21 +830,37 @@ const DeliveryFormDialog = ({
                             value="PART_PAYMENT">
                             Part Payment
                           </SelectItem>
-                        </SelectContent>
-                      </Select>
+
+                          <SelectItem
+                            className="hover:bg-gray-200 cursor-pointer"
+                            value="PAYMENT_ON_DELIVERY">
+                            Payment on delivery
+                          </SelectItem>
+                        </SelectContent> */}
+                        <option value="">Select Status</option>
+                        <option value="FULL_PAYMENT">Full Payment</option>
+                        <option value="PART_PAYMENT">Part Payment</option>
+                        <option value="PAYMENT_ON_DELIVERY">
+                          Payment on delivery
+                        </option>
+                      </select>
                     </div>
 
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-xs" htmlFor="amountPaid">
-                        Amount Payed
-                      </Label>
-                      <Input
-                        className="rounded-xs bg-[#8C8C8C33]"
-                        id="amountPaid"
-                        value={formatToNaira(formData?.amountPaid)}
-                        onChange={(e) => handleCurrencyChange(e, "amountPaid")}
-                      />
-                    </div>
+                    {formData.paymentType !== "PAYMENT_ON_DELIVERY" && (
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-xs" htmlFor="amountPaid">
+                          Amount Payed
+                        </Label>
+                        <Input
+                          className="rounded-xs bg-[#8C8C8C33]"
+                          id="amountPaid"
+                          value={formatToNaira(formData?.amountPaid)}
+                          onChange={(e) =>
+                            handleCurrencyChange(e, "amountPaid")
+                          }
+                        />
+                      </div>
+                    )}
                     {formData.paymentType === "PART_PAYMENT" && (
                       <div className="flex flex-col gap-1">
                         <Label className="text-xs" htmlFor="balance">
