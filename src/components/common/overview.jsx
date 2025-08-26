@@ -55,6 +55,13 @@ const AdminOverview = () => {
           </p>
         </div>
 
+        {/* <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#E6F1FD]">
+          <p className="text-sm font-medium text-slate-500">Profit</p>
+          <p className="text-xl font-bold text-slate-900">
+            {approved ? approved?.length : "..."}
+          </p>
+        </div> */}
+
         <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#E6F1FD]">
           <p className="text-sm font-medium text-slate-500">Active Users</p>
           <p className="text-xl font-bold text-slate-900">

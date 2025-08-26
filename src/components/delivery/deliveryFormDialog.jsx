@@ -340,10 +340,10 @@ const DeliveryFormDialog = ({
       );
       return;
     }
-    console.log(
-      formData.customerPaymentStatus === "CUSTOMER_PAID" &&
-        formData.paymentType === "PAYMENT_ON_DELIVERY"
-    );
+    // console.log(
+    //   formData.customerPaymentStatus === "CUSTOMER_PAID" &&
+    //     formData.paymentType === "PAYMENT_ON_DELIVERY"
+    // );
     // console.log(formData);
     const payload = {
       ...formData,

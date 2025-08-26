@@ -27,6 +27,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const location = useLocation();
   const path = location.pathname;
+  console.log(path);
   const showFilter =
     path === "/delivery" ||
     path === "/proposedFee" ||
@@ -51,6 +52,11 @@ function AdminHeader({ setOpen, rightSidebar }) {
     "/admin/agents": "Agents & Admins",
     "/admin/sub-admins": "Agents & Admins",
     "/payout-summary": "Payout-Summary",
+    "/productStat": "Product-Stat",
+    "/orderSummary": "Order-Summary",
+    "/proposedFee": "Proposed-Fee",
+    "/Fees": "Payin-Summary",
+    "/performance": "Performance",
   };
 
   const breadcrumbLabel = breadcrumbMap[path] || "Page";
@@ -156,7 +162,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
                       <option value="PACKAGE_DELIVERED">
                         PACKAGE_DELIVERED
                       </option>
-                      <option value="CANCELLED">CANCELLED</option>
+                      {/* <option value="CANCELLED">CANCELLED</option> */}
                       <option value="FEE_PROPOSED">NOT_REACHABLE</option>
                       <option value="FEE_REJECTED">NOT_PICKING</option>
                     </select>

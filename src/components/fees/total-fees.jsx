@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowRightCircle, EllipsisVertical } from "lucide-react";
+import { ArrowRightCircle, Copy, EllipsisVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +30,7 @@ import SuccessModal from "../common/SuccessModal";
 
 const TotalFeesTable = () => {
   const location = useLocation();
+  const [copiedCode, setCopiedCode] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const userId = useSelector((state) => state.auth.user.userId);
@@ -69,7 +70,6 @@ const TotalFeesTable = () => {
       return uploadDate >= start && uploadDate <= end;
     })();
 
-    
     const state = filters.states
       ? (trans?.riderState ?? "").toLowerCase() === filters.states.toLowerCase()
       : true;
@@ -195,7 +195,24 @@ const TotalFeesTable = () => {
               </TableCell>
               <TableCell>{data.customerPhone}</TableCell>
               <TableCell>₦{data.amount}</TableCell>
-              <TableCell>{data.deliveryCode}</TableCell>
+              <TableCell>
+                {/* {data.deliveryCode} */}
+                <div className="flex items-center gap-2">
+                  <span>{data.deliveryCode}</span>
+                  <Copy
+                    size={16}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(data.deliveryCode);
+                      setCopiedCode(data.deliveryCode);
+                      setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
+                    }}
+                  />
+                  {copiedCode === data.deliveryCode && (
+                    <span className="text-green-600 text-xs">Copied!</span>
+                  )}
+                </div>
+              </TableCell>
               <TableCell>{data.riderState}</TableCell>
               <TableCell>{data.depositDate.split("T")[0]}</TableCell>
               <TableCell>
