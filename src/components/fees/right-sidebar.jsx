@@ -278,7 +278,7 @@ const FeesSidebar = () => {
                             <td
                               className={`p-1 border ${
                                 item.deliveryStatus === "DELIVERED" ||
-                                item.deliveryStatus === "PACKAGE_DELIVERED"
+                                item.deliveryStatus === "DELIVERED"
                                   ? "text-green-500"
                                   : item.deliveryStatus === "CANCELLED" ||
                                     item.deliveryStatus === "NOT_REACHABLE"

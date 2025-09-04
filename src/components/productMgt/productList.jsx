@@ -32,6 +32,7 @@ import DeliveryList from "../delivery/deliveryList";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
 import { fetchProposedOrders } from "@/redux/proposedFeeSlice";
+import { clearFilters } from "@/redux/searchSlice";
 const initialFormState = {
   productName: "",
   unitPrice: "",
@@ -64,6 +65,7 @@ const ProductList = () => {
     if (token && userRole) {
       dispatch(fetchProducts({ token, userRole }));
     }
+    dispatch(clearFilters());
   }, [dispatch, token, userRole]);
 
   const handleProductUpload = async (e) => {
@@ -211,9 +213,46 @@ const ProductList = () => {
   };
   if (loading && !multiCallProducts) {
     return (
-      <div>
-        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
-      </div>
+      // <div>
+      //   <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+      // </div>
+      <Table className={" md:w-[1100px]"}>
+        <TableBody>
+          {Array.from({ length: 15 }).map((_, index) => (
+            <TableRow key={index}>
+              {/* Delivery Code */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Date */}
+              <TableCell>
+                <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Delivery Fee */}
+              <TableCell>
+                <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Total */}
+              <TableCell>
+                <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Customer Payment Status */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Rider Payment Status */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     );
   }
 
@@ -321,7 +360,6 @@ const ProductList = () => {
             <TableHead className="rounded-l-sm">Product ID</TableHead>
             <TableHead>Product Name</TableHead>
             <TableHead>Price (₦)</TableHead>
-            <TableHead>Quantity</TableHead>
             <TableHead>Date Added</TableHead>
             <TableHead className="rounded-r-sm text-center">Activity</TableHead>
           </TableRow>
@@ -332,7 +370,6 @@ const ProductList = () => {
               <TableCell>{data.id}</TableCell>
               <TableCell>{data.productName}</TableCell>
               <TableCell>{data.unitPrice.toLocaleString()}</TableCell>
-              <TableCell>{data.quantity}</TableCell>
               <TableCell>{formatDate(data.createdAt)}</TableCell>
               <TableCell>
                 <div className="flex gap-3 justify-center">

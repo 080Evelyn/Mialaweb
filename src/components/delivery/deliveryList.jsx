@@ -21,10 +21,17 @@ import ExcelJS from "exceljs";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
+import { clearFilters } from "@/redux/searchSlice";
 
 const initialFormState = {
   products: [
-    { productName: "", quantity: "", productPrice: "", discountPercent: "" },
+    {
+      productName: "",
+      quantity: "",
+      productPrice: "",
+      discountPercent: "",
+      productId: "",
+    },
   ],
   riderId: "",
   receiverName: "",
@@ -110,7 +117,6 @@ const DeliveryList = () => {
     link.click();
     document.body.removeChild(link);
   };
-
   const filtered = deliveryList?.filter((item) => {
     const productNames =
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
@@ -126,7 +132,8 @@ const DeliveryList = () => {
 
     const statusMatch = filters.status
       ? (item?.deliveryStatus ?? "").toLowerCase() ===
-        filters.status.toLowerCase()
+          filters.status.toLowerCase() ||
+        (item?.paymentType ?? "").toLowerCase() === filters.status.toLowerCase()
       : true;
 
     const { startDate, endDate } = filters;
@@ -149,6 +156,10 @@ const DeliveryList = () => {
     dispatch(fetchAllRiders({ token, userRole }));
     dispatch(fetchDelivery({ token, userRole, page }));
   }, [dispatch, token, userRole, page]);
+
+  useEffect(() => {
+    dispatch(clearFilters());
+  }, []);
 
   const handleOpenAdd = () => {
     if (userRole === "Accountant") {
@@ -176,26 +187,27 @@ const DeliveryList = () => {
   useEffect(() => {
     if (formMode === "edit" && deliveryDetails.custPaymentStatus) {
       setFormData({
-        products: Array.isArray(deliveryDetails.products)
-          ? deliveryDetails.products
-              .filter((product) => product.deleted === false)
-              .map((product) => ({
-                productId: product.id || "",
-                productName: product.productName || "",
-                quantity: product.qty || "",
-                productPrice:
-                  product.totalAfterDiscount != null
-                    ? product.totalAfterDiscount / product.qty
-                    : "",
-                originalPrice: product.productPrice,
-              }))
-          : [
-              {
-                productName: "",
-                quantity: "",
-                productPrice: "",
-              },
-            ],
+        products:
+          Array.isArray(deliveryDetails.products) &&
+          deliveryDetails.products
+            .filter((product) => product.deleted === false)
+            .map((product) => ({
+              productId: product.productId || "",
+              productName: product.productName || "",
+              quantity: product.qty || "",
+              productPrice:
+                product.totalAfterDiscount != null
+                  ? product.totalAfterDiscount / product.qty
+                  : "",
+              originalPrice: product.productPrice,
+            })),
+        // : [
+        //     {
+        //       productName: "",
+        //       quantity: "",
+        //       productPrice: "",
+        //     },
+        //   ],
         receiverAddress: deliveryDetails.receiverAddress || "",
         riderId: deliveryDetails.riderId || "",
         receiverName: deliveryDetails.receiverName || "",
@@ -212,9 +224,57 @@ const DeliveryList = () => {
 
   if (loading && !multiCall) {
     return (
-      <div>
-        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
-      </div>
+      // <div>
+      //   <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+      // </div>
+      <Table className={" md:w-[1100px]"}>
+        <TableBody>
+          {Array.from({ length: 15 }).map((_, index) => (
+            <TableRow key={index}>
+              {/* Agent (with avatar + name) */}
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-full bg-gray-300 animate-pulse"></div>
+                  <div className="flex flex-col gap-1">
+                    <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-2.5 w-12 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </TableCell>
+
+              {/* Delivery Code */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Date */}
+              <TableCell>
+                <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Delivery Fee */}
+              <TableCell>
+                <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Total */}
+              <TableCell>
+                <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Customer Payment Status */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Rider Payment Status */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     );
   }
   if (!loading && error) {
@@ -256,8 +316,9 @@ const DeliveryList = () => {
             <TableHead>Date </TableHead>
             <TableHead>Delivery Fee(₦) </TableHead>
             <TableHead>Total(₦) </TableHead>
-            <TableHead>Customer Payment Status</TableHead>
-            <TableHead>Rider Payment Status</TableHead>
+            <TableHead>Customer Name </TableHead>
+            <TableHead> Payment Type</TableHead>
+            <TableHead> Payment Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500] ">
@@ -305,13 +366,14 @@ const DeliveryList = () => {
                 <TableCell>
                   {Number(data.totalProductValue).toLocaleString()}
                 </TableCell>
-                <TableCell>{data.customerPaymentStatus}</TableCell>
+                <TableCell>{data.receiverName}</TableCell>
+                <TableCell>{data.paymentType}</TableCell>
                 <TableCell>
                   <div className="flex gap-3 items-center">
-                    {data.riderPaymentStatus}
+                    {data.customerPaymentStatus}
 
                     {/* Edit button */}
-                    {data.deliveryStatus !== "PACKAGE_DELIVERED" && (
+                    {data.deliveryStatus !== "DELIVERED" && (
                       <button onClick={() => handleOpenEdit(data)}>
                         <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
                       </button>
@@ -349,7 +411,7 @@ const DeliveryList = () => {
         }}
       />
 
-      <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
+      {/* <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
         <button
           className={`${
             page === 0
@@ -374,6 +436,54 @@ const DeliveryList = () => {
           disabled={page + 1 >= totalPages}
           onClick={() => {
             setPage(page + 1), dispatch(setMultiCallFalse());
+          }}>
+          Next
+        </button>
+      </div> */}
+      <div className="flex gap-2 mt-4 m-auto w-[80%] justify-center flex-wrap">
+        {/* Prev button */}
+        <button
+          className={`${
+            page === 0
+              ? "bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
+          }`}
+          disabled={page === 0}
+          onClick={() => {
+            setPage(page - 1);
+            dispatch(setMultiCallFalse());
+          }}>
+          Prev
+        </button>
+
+        {/* Page numbers */}
+        {[...Array(totalPages)].map((_, i) => (
+          <button
+            key={i}
+            className={`px-3 py-1.5 rounded-sm ${
+              i === page
+                ? "bg-[#B10303] text-white" // active page style
+                : "bg-[#D9D9D9] hover:bg-gray-400"
+            }`}
+            onClick={() => {
+              setPage(i);
+              dispatch(setMultiCallFalse());
+            }}>
+            {i + 1}
+          </button>
+        ))}
+
+        {/* Next button */}
+        <button
+          className={`${
+            page + 1 >= totalPages
+              ? "bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
+          }`}
+          disabled={page + 1 >= totalPages}
+          onClick={() => {
+            setPage(page + 1);
+            dispatch(setMultiCallFalse());
           }}>
           Next
         </button>

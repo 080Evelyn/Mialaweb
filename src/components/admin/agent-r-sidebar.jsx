@@ -60,6 +60,7 @@ const AdminAgentSidebar = () => {
           : userRole === "Manager"
           ? `${BASE_URL}api/v1/manager/approve-rider-signup/${id}`
           : `${BASE_URL}api/v1/accountant/approve-rider-signup/${id}`,
+        {},
 
         {
           headers: {

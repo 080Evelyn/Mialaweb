@@ -43,13 +43,13 @@ const AdminOverview = () => {
           <p className="text-sm font-medium text-slate-500">Total Revenue</p>
           <p className="text-xl font-bold text-slate-900">
             <span className="text-sm font-medium text-slate-500 ">
-              Deposits:₦
+              Receipt:₦
             </span>
             {loading ? "..." : revenue.totalDeposits}
           </p>
           <p className="text-xl font-bold text-slate-900">
             <span className="text-sm font-medium text-slate-500">
-              Transfers:₦
+              Withdraw:₦
             </span>
             {loading ? "..." : revenue.totalTransfers * 100}
           </p>

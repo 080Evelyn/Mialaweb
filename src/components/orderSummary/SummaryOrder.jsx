@@ -72,7 +72,44 @@ const SummaryOrder = () => {
   return (
     <div>
       {loading ? (
-        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        // <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        <Table className={" md:w-[1100px]"}>
+          <TableBody>
+            {Array.from({ length: 20 }).map((_, index) => (
+              <TableRow key={index}>
+                {/* Delivery Code */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Date */}
+                <TableCell>
+                  <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Delivery Fee */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Total */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Customer Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Rider Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       ) : !loading && error ? (
         <p className="text-center">Something went wrong</p>
       ) : (
@@ -252,28 +289,48 @@ const SummaryOrder = () => {
           </Table>
         </>
       )}
-      <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
+      <div className="flex gap-2 mt-4 m-auto w-[80%] justify-center flex-wrap">
+        {/* Prev button */}
         <button
           className={`${
             page === 0
-              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              ? "bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
               : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
-          } `}
+          }`}
           disabled={page === 0}
-          onClick={() => setPage(page - 1)}>
+          onClick={() => {
+            setPage(page - 1);
+          }}>
           Prev
         </button>
-        <span className="items-center px-3 py-1.5">
-          Page {currentPage + 1} of {totalPages}
-        </span>
+
+        {/* Page numbers */}
+        {[...Array(totalPages)].map((_, i) => (
+          <button
+            key={i}
+            className={`px-3 py-1.5 rounded-sm ${
+              i === page
+                ? "bg-[#B10303] text-white" // active page style
+                : "bg-[#D9D9D9] hover:bg-gray-400"
+            }`}
+            onClick={() => {
+              setPage(i);
+            }}>
+            {i + 1}
+          </button>
+        ))}
+
+        {/* Next button */}
         <button
           className={`${
             page + 1 >= totalPages
-              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
+              ? "bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
               : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
-          } `}
+          }`}
           disabled={page + 1 >= totalPages}
-          onClick={() => setPage(page + 1)}>
+          onClick={() => {
+            setPage(page + 1);
+          }}>
           Next
         </button>
       </div>
