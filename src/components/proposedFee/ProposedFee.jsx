@@ -19,6 +19,13 @@ import ReassignDeliveryDialog from "./ReassignDeliveryDialog";
 import { fetchProposedOrders } from "@/redux/proposedFeeSlice";
 import { setRestricted } from "@/redux/restrictionSlice";
 import RestrictionModal from "../common/RestrictionModal";
+import {
+  approveProposalFee,
+  rejectProposalFee,
+  resetApproveRejectState,
+} from "@/redux/approveRejectProposalFeeSlice";
+import { clearFilters } from "@/redux/searchSlice";
+import SuccessModal from "../common/SuccessModal";
 
 const ProposedFee = () => {
   // Track open modal state
@@ -28,35 +35,51 @@ const ProposedFee = () => {
   const [copiedCode, setCopiedCode] = useState(null);
   const [selectedFee, setSelectedFee] = useState(null);
   const token = useSelector((state) => state.auth.token);
-  const deliveryList = useSelector((state) => state.delivery.delivery);
-  const selectedRider = useSelector((state) => state.riderById.riderById);
-  // console.log(deliveryList);
-  const handleAction = (id) => {
-    setAction(!action);
-    setSelectedFee(id);
-  };
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const adminId = useSelector((state) => state.auth.user.userId);
+  const approvalLoading = useSelector(
+    (state) => state.approveReject.approveLoading
+  );
+  const rejectLoading = useSelector(
+    (state) => state.approveReject.rejectLoading
+  );
+  const success = useSelector((state) => state.approveReject.success);
+  const rejectSuccess = useSelector(
+    (state) => state.approveReject.rejectSuccess
+  );
+  const approvalError = useSelector((state) => state.approveReject.error);
+  // console.log(approvalError);
+
   const [page, setPage] = useState(0);
-  const { proposedOrders, errorOrders, loadingOrders } = useSelector(
+  const { proposedOrders, errorOrders, loadingOrders, multiCall } = useSelector(
     (state) => state.proposedFee
   );
   const restricted = useSelector((state) => state.restriction.restricted);
-  const multiCall = useSelector((state) => state.delivery.multiCall);
-  const error = useSelector((state) => state.delivery.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const dispatch = useDispatch();
   const query = useSelector((state) => state.search.query);
   const filters = useSelector((state) => state.search.filters);
 
-  const handleViewProposedFee = (index) => {
+  const handleAction = (id) => {
+    setAction(!action);
+    setSelectedFee(id);
+  };
+  const handleApprove = (id) => {
     if (userRole === "Accountant") {
       dispatch(setRestricted(true));
 
       return;
     }
-    setOpenDialog(index);
+    dispatch(approveProposalFee({ token, userRole, id, adminId }));
   };
-  const handleOpenAssignModal = (index) => {
-    setDialogOpen(index);
+  const handleReject = (id) => {
+    if (userRole === "Accountant") {
+      dispatch(setRestricted(true));
+
+      return;
+    }
+    dispatch(rejectProposalFee({ token, userRole, id, adminId }));
   };
 
   const filtered = proposedOrders?.filter((item) => {
@@ -98,17 +121,75 @@ const ProposedFee = () => {
 
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
-    // if (success) {
-    //   return;
-    // }
-    dispatch(fetchProposedOrders({ token, userRole }));
-  }, [dispatch, token, userRole, page]);
 
-  if (loadingOrders) {
+    dispatch(fetchProposedOrders({ token, userRole }));
+    dispatch(clearFilters());
+  }, [dispatch, token, userRole, page]);
+  useEffect(() => {
+    setTimeout(() => {
+      dispatch(resetApproveRejectState());
+    }, 5000);
+    if (rejectSuccess) {
+      setSuccessModalOpen(true);
+      setSuccessMessage("Fee Rejected Successfully.");
+    }
+    if (success) {
+      setSuccessModalOpen(true);
+      setSuccessMessage("Fee Approved Successfully.");
+    }
+    if (rejectSuccess || success) {
+      dispatch(fetchProposedOrders({ token, userRole }));
+    }
+  }, [rejectSuccess, success, approvalError]);
+  if (loadingOrders && !multiCall) {
     return (
-      <div>
-        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
-      </div>
+      <Table className={" md:w-[1100px]"}>
+        <TableBody>
+          {Array.from({ length: 15 }).map((_, index) => (
+            <TableRow key={index}>
+              {/* Agent (with avatar + name) */}
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-full bg-gray-300 animate-pulse"></div>
+                  <div className="flex flex-col gap-1">
+                    <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-2.5 w-12 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </TableCell>
+              {/* Delivery Code */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Date */}
+              <TableCell>
+                <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Delivery Fee */}
+              <TableCell>
+                <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Total */}
+              <TableCell>
+                <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Customer Payment Status */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+
+              {/* Rider Payment Status */}
+              <TableCell>
+                <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     );
   }
 
@@ -138,15 +219,19 @@ const ProposedFee = () => {
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Agent</TableHead>
             <TableHead>Product</TableHead>
+            <TableHead>Quantity</TableHead>
             <TableHead>Delivery Code</TableHead>
+            <TableHead> Adress</TableHead>
+            <TableHead> Status</TableHead>
+            <TableHead> Proposed Fee(₦)</TableHead>
             <TableHead>Date </TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody
-          onClick={() => {
-            setAction(!action);
-          }}
+          // onClick={() => {
+          //   setAction(!action);
+          // }}
           className="text-[12px] font-[Raleway] font-[500] ">
           {filtered?.map((data, index) => (
             <TableRow key={index}>
@@ -166,7 +251,11 @@ const ProposedFee = () => {
                 ))}
               </TableCell>
               <TableCell>
-                {data.deliveryCode}
+                {data?.products?.map((product, index) => (
+                  <div key={index}>{product.qty}</div>
+                ))}
+              </TableCell>
+              <TableCell>
                 <div className="flex items-center gap-2">
                   <span>{data.deliveryCode}</span>
                   <Copy
@@ -183,6 +272,9 @@ const ProposedFee = () => {
                   )}
                 </div>
               </TableCell>
+              <TableCell>{data.receiverAddress}</TableCell>
+              <TableCell>{data.negotiationStatus}</TableCell>
+              <TableCell>{Number(data.proposedFee).toLocaleString()}</TableCell>
               <TableCell>{data.uploadDate}</TableCell>
               <TableCell>
                 <div className="flex gap-3 items-center">
@@ -206,21 +298,28 @@ const ProposedFee = () => {
                   id={selectedFee}
                 />
                 {action && selectedFee === data.id && (
-                  <div className="shadow-2xl absolute right-10 flex flex-col bg-white h-[40px] w-[200px]">
+                  <div className="shadow-2xl absolute right-10 flex flex-col bg-gradient-to-tr from-white via-pink-300 to-rose-500  py-2 px-3">
                     <button
+                      disabled={approvalLoading || rejectLoading}
                       onClick={() => {
-                        handleViewProposedFee(index);
+                        handleApprove(selectedFee);
                       }}
-                      className="text-[12px] font-bold text-black hover:bg-[#D6D6D6] hover:shadow-2xl px-3 py-2 cursor-pointer ">
-                      View proposed fee
+                      className="text-[12px] font-bold text-black hover:bg-green-500 hover:shadow-2xl px-3 py-2 cursor-pointer ">
+                      {approvalLoading ? "Processing..." : "Approve fee"}
                     </button>
-                    {/* <button
+
+                    <button
+                      disabled={approvalLoading || rejectLoading}
                       onClick={() => {
-                        handleOpenAssignModal(index);
+                        handleReject(selectedFee);
                       }}
-                      className="text-[12px] hover:bg-[#D6D6D6] hover:shadow-2xl  font-bold text-black px-3 py-2 cursor-pointer">
-                      Reassign delivery
-                    </button> */}
+                      className="text-[12px] hover:bg-[#B10303] hover:text-white hover:shadow-2xl  font-bold text-black px-3 py-2 cursor-pointer">
+                      {rejectLoading ? "Processing..." : "Reject fee"}
+                    </button>
+
+                    {approvalError && (
+                      <p className="text-red-500">{approvalError}</p>
+                    )}
                   </div>
                 )}
               </TableCell>
@@ -228,7 +327,11 @@ const ProposedFee = () => {
           ))}
         </TableBody>
       </Table>
-
+      <SuccessModal
+        open={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        message={successMessage}
+      />
       <RestrictionModal
         open={restricted}
         onClose={() => {

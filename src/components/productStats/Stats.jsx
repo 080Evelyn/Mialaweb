@@ -34,9 +34,46 @@ const Stats = () => {
   return (
     <div className="sm:me-5 sm:ms-2.5">
       {loading ? (
-        <div>
-          <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
-        </div>
+        // <div>
+        //   <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        // </div>
+        <Table className={" md:w-[1100px]"}>
+          <TableBody>
+            {Array.from({ length: 15 }).map((_, index) => (
+              <TableRow key={index}>
+                {/* Delivery Code */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Date */}
+                <TableCell>
+                  <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Delivery Fee */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Total */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Customer Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Rider Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       ) : !loading && error ? (
         <p className="text-center font-semibold text-sm text-red-600">
           Something went wrong, check internet connection.

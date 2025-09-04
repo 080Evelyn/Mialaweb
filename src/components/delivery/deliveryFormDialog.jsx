@@ -111,6 +111,7 @@ const DeliveryFormDialog = ({
   };
   const handleProductChange = (index, field, value) => {
     const updated = [...formData.products];
+
     updated[index][field] = value;
     setFormData((prev) => ({
       ...prev,
@@ -128,6 +129,7 @@ const DeliveryFormDialog = ({
           quantity: "",
           productPrice: "",
           discountPercent: "",
+          productId: "",
         },
       ],
     }));
@@ -148,6 +150,7 @@ const DeliveryFormDialog = ({
           quantity: "",
           productPrice: "",
           discountPercent: "",
+          productId: "",
         },
       ],
     }));
@@ -178,6 +181,7 @@ const DeliveryFormDialog = ({
         quantity: p.quantity,
         productPrice: p.originalPrice,
         discountPercent: p.discountPercent,
+        productId: p.productId,
       })),
     };
 
@@ -353,6 +357,7 @@ const DeliveryFormDialog = ({
           quantity: p.quantity,
           productPrice: p.originalPrice,
           discountPercent: p.discountPercent,
+          productId: p.productId,
         };
       }),
     };
@@ -482,10 +487,17 @@ const DeliveryFormDialog = ({
                           const selectedProduct = sortedProducts.find(
                             (p) => p.productName === selectedName
                           );
+                          // console.log(selectedProduct);
                           handleProductChange(
                             index,
                             "productName",
                             selectedName
+                          );
+
+                          handleProductChange(
+                            index,
+                            "productId",
+                            selectedProduct.id
                           );
 
                           // Set both editable and original price
@@ -742,7 +754,7 @@ const DeliveryFormDialog = ({
                     ) : (
                       <>
                         <option value="PENDING">PENDING</option>
-                        <option>PACKAGE_DELIVERED</option>
+                        <option value="DELIVERED">DELIVERED</option>
                         {/* <option value="CANCELLED">CANCELLED</option> */}
                         <option value="NOT_REACHABLE">NOT_REACHABLE</option>
                         <option value="NOT_PICKING">NOT_PICKING</option>
@@ -771,43 +783,76 @@ const DeliveryFormDialog = ({
                     <option value="CUSTOMER_NOT_PAID">Not Paid</option>
                     <option value="CUSTOMER_PAID">Paid</option>
                   </select>
-
-                  {/* <Select
-                    value={formData.customerPaymentStatus}
-                    onValueChange={(value) => {
-                      setFormData({
-                        ...formData,
-                        customerPaymentStatus: value,
-                      });
-                      if (value === "CUSTOMER_NOT_PAID") {
-                        setFormData((prev) => ({
-                          ...prev,
-                          amountPaid: "",
-                          balance: "",
-                          paymentType: "",
-                        }));
-                      }
-                    }}
-                      >
-                    <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        className="hover:bg-gray-200 cursor-pointer"
-                        value="CUSTOMER_NOT_PAID">
-                        Not Paid
-                      </SelectItem>
-                      <SelectItem
-                        className="hover:bg-gray-200 cursor-pointer"
-                        value="CUSTOMER_PAID">
-                        Paid
-                      </SelectItem>
-                    </SelectContent>
-                  </Select> */}
                 </div>
 
                 {formData.customerPaymentStatus === "CUSTOMER_PAID" && (
+                  // <>
+                  //   <div className="flex flex-col gap-1">
+                  //     <Label className="text-xs">Payment Type</Label>
+                  //     <select
+                  //       className="w-full rounded-xs bg-[#8C8C8C33] p-2"
+                  //       value={formData.paymentType}
+                  //       onChange={(e) =>
+                  //         setFormData({
+                  //           ...formData,
+                  //           paymentType: e.target.value,
+                  //         })
+                  //       }>
+                  //       <option value="">Select Status</option>
+                  //       <option value="FULL_PAYMENT">Full Payment</option>
+                  //       <option value="PART_PAYMENT">Part Payment</option>
+                  //       <option value="PAYMENT_ON_DELIVERY">
+                  //         Payment on delivery
+                  //       </option>
+                  //     </select>
+                  //   </div>
+
+                  //   {formData.paymentType !== "PAYMENT_ON_DELIVERY" && (
+                  //     <div className="flex flex-col gap-1">
+                  //       <Label className="text-xs" htmlFor="amountPaid">
+                  //         Amount Payed
+                  //       </Label>
+                  //       <Input
+                  //         className="rounded-xs bg-[#8C8C8C33]"
+                  //         id="amountPaid"
+                  //         value={formatToNaira(formData?.amountPaid)}
+                  //         // onChange={(e) =>
+                  //         //   handleCurrencyChange(e, "amountPaid")
+                  //         // }
+                  //         onChange={(e) => {
+                  //           handleCurrencyChange(e, "amountPaid");
+
+                  //           // auto-calculate balance if it's part payment
+                  //           if (formData.paymentType === "PART_PAYMENT") {
+                  //             const amountPaid =
+                  //               parseFloat(e.target.value.replace(/,/g, "")) ||
+                  //               0;
+                  //             const balance = totalFinalPrice - amountPaid;
+                  //             setFormData((prev) => ({
+                  //               ...prev,
+                  //               amountPaid,
+                  //               balance: balance < 0 ? 0 : balance,
+                  //             }));
+                  //           }
+                  //         }}
+                  //       />
+                  //     </div>
+                  //   )}
+                  //   {formData.paymentType === "PART_PAYMENT" && (
+                  //     <div className="flex flex-col gap-1">
+                  //       <Label className="text-xs" htmlFor="balance">
+                  //         Balance
+                  //       </Label>
+                  //       <Input
+                  //         className="rounded-xs bg-[#8C8C8C33]"
+                  //         id="balance"
+                  //         value={formatToNaira(formData.balance)}
+                  //         onChange={(e) => handleCurrencyChange(e, "balance")}
+                  //       />
+                  //     </div>
+                  //   )}
+                  // </>
+
                   <>
                     <div className="flex flex-col gap-1">
                       <Label className="text-xs">Payment Type</Label>
@@ -818,53 +863,59 @@ const DeliveryFormDialog = ({
                           setFormData({
                             ...formData,
                             paymentType: e.target.value,
+                            // reset balance when payment type changes
+                            balance: 0,
                           })
                         }>
-                        {/* <SelectTrigger className="w-full rounded-xs bg-[#8C8C8C33]">
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem
-                            className="hover:bg-gray-200 cursor-pointer"
-                            value="FULL_PAYMENT">
-                            Full Payment
-                          </SelectItem>
-                          <SelectItem
-                            className="hover:bg-gray-200 cursor-pointer"
-                            value="PART_PAYMENT">
-                            Part Payment
-                          </SelectItem>
-
-                          <SelectItem
-                            className="hover:bg-gray-200 cursor-pointer"
-                            value="PAYMENT_ON_DELIVERY">
-                            Payment on delivery
-                          </SelectItem>
-                        </SelectContent> */}
                         <option value="">Select Status</option>
-                        <option value="FULL_PAYMENT">Full Payment</option>
-                        <option value="PART_PAYMENT">Part Payment</option>
-                        <option value="PAYMENT_ON_DELIVERY">
-                          Payment on delivery
-                        </option>
+                        {formMode === "add" ? (
+                          <>
+                            <option value="FULL_PAYMENT">Full Payment</option>
+                            <option value="PART_PAYMENT">Part Payment</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="FULL_PAYMENT">Full Payment</option>
+                            <option value="PART_PAYMENT">Part Payment</option>
+                            <option value="PAYMENT_ON_DELIVERY">
+                              Payment on delivery
+                            </option>
+                          </>
+                        )}
                       </select>
                     </div>
 
                     {formData.paymentType !== "PAYMENT_ON_DELIVERY" && (
                       <div className="flex flex-col gap-1">
                         <Label className="text-xs" htmlFor="amountPaid">
-                          Amount Payed
+                          Amount Paid
                         </Label>
+
                         <Input
                           className="rounded-xs bg-[#8C8C8C33]"
                           id="amountPaid"
-                          value={formatToNaira(formData?.amountPaid)}
-                          onChange={(e) =>
-                            handleCurrencyChange(e, "amountPaid")
-                          }
+                          value={formatToNaira(formData.amountPaid)}
+                          onChange={(e) => {
+                            handleCurrencyChange(e, "amountPaid");
+
+                            // use the parsed value from state after update
+                            if (formData.paymentType === "PART_PAYMENT") {
+                              const newAmountPaid = parseCurrency(
+                                e.target.value
+                              ); // use your helper
+                              const balance = totalFinalPrice - newAmountPaid;
+
+                              setFormData((prev) => ({
+                                ...prev,
+                                amountPaid: newAmountPaid,
+                                balance: balance < 0 ? 0 : balance,
+                              }));
+                            }
+                          }}
                         />
                       </div>
                     )}
+
                     {formData.paymentType === "PART_PAYMENT" && (
                       <div className="flex flex-col gap-1">
                         <Label className="text-xs" htmlFor="balance">
@@ -874,7 +925,7 @@ const DeliveryFormDialog = ({
                           className="rounded-xs bg-[#8C8C8C33]"
                           id="balance"
                           value={formatToNaira(formData.balance)}
-                          onChange={(e) => handleCurrencyChange(e, "balance")}
+                          readOnly
                         />
                       </div>
                     )}

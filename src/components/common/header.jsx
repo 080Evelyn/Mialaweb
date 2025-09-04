@@ -17,6 +17,8 @@ import { useEffect } from "react";
 import { fetchRiders } from "@/redux/riderSlice";
 import { NIGERIAN_STATES } from "@/config/stateData";
 import Admin from "../../assets/icons/admin.png";
+import { setEndDate, setStartDate } from "@/redux/performanceSlice";
+import { setDefaultHandler } from "workbox-routing";
 
 function AdminHeader({ setOpen, rightSidebar }) {
   const dispatch = useDispatch();
@@ -27,7 +29,6 @@ function AdminHeader({ setOpen, rightSidebar }) {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const location = useLocation();
   const path = location.pathname;
-  console.log(path);
   const showFilter =
     path === "/delivery" ||
     path === "/proposedFee" ||
@@ -54,7 +55,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
     "/payout-summary": "Payout-Summary",
     "/productStat": "Product-Stat",
     "/orderSummary": "Order-Summary",
-    "/proposedFee": "Proposed-Fee",
+    "/proposedFee": "Delivery-Fee",
     "/Fees": "Payin-Summary",
     "/performance": "Performance",
   };
@@ -133,9 +134,11 @@ function AdminHeader({ setOpen, rightSidebar }) {
           {/* Filter Controls */}
           {showFilter && (
             <div className="flex flex-wrap gap-2 mt-2 items-center">
-              {path !== "/products" && path !== "/payout-summary" && (
+              {path !== "/products" && (
                 <>
-                  {path === "/performance" || path === "/Fees" ? (
+                  {path === "/performance" ||
+                  path === "/Fees" ||
+                  path === "/payout-summary" ? (
                     <select
                       value={filters.states || ""}
                       id="state-select"
@@ -159,12 +162,14 @@ function AdminHeader({ setOpen, rightSidebar }) {
                       className="px-2 py-1 border rounded text-sm">
                       <option value="">Status</option>
                       <option value="PENDING">PENDING</option>
-                      <option value="PACKAGE_DELIVERED">
-                        PACKAGE_DELIVERED
-                      </option>
-                      {/* <option value="CANCELLED">CANCELLED</option> */}
+                      <option value="DELIVERED">DELIVERED</option>
                       <option value="FEE_PROPOSED">NOT_REACHABLE</option>
                       <option value="FEE_REJECTED">NOT_PICKING</option>
+                      <option value="PART_PAYMENT">PART_PAYMENT</option>
+                      <option value="PAYMENT_ON_DELIVERY">
+                        PAYMENT_ON_DELIVERY
+                      </option>
+                      <option value="FULL_PAYMENT">FULL_PAYMENT</option>
                     </select>
                   )}
                   <select
@@ -184,31 +189,39 @@ function AdminHeader({ setOpen, rightSidebar }) {
                   </select>
                 </>
               )}
-              {path !== "/performance" && (
+              {
                 <>
                   <select
                     onChange={(e) => {
                       const today = new Date();
                       let startDate = "";
                       let endDate = today.toISOString().split("T")[0]; // default end date = today
-
+                      dispatch(setEndDate(endDate));
                       switch (e.target.value) {
                         case "yesterday":
                           const yesterday = new Date(today);
                           yesterday.setDate(today.getDate() - 1);
                           startDate = yesterday.toISOString().split("T")[0];
                           endDate = yesterday.toISOString().split("T")[0];
+                          dispatch(setStartDate(startDate));
+                          dispatch(setEndDate(endDate));
                           break;
+
                         case "last7":
                           const last7 = new Date(today);
                           last7.setDate(today.getDate() - 7);
                           startDate = last7.toISOString().split("T")[0];
+                          dispatch(setStartDate(startDate));
+
                           break;
+
                         case "last30":
                           const last30 = new Date(today);
                           last30.setDate(today.getDate() - 30);
                           startDate = last30.toISOString().split("T")[0];
+                          dispatch(setStartDate(startDate));
                           break;
+
                         case "thisWeek":
                           const firstDayOfWeek = new Date(today);
                           firstDayOfWeek.setDate(
@@ -217,7 +230,9 @@ function AdminHeader({ setOpen, rightSidebar }) {
                           startDate = firstDayOfWeek
                             .toISOString()
                             .split("T")[0];
+                          dispatch(setStartDate(startDate));
                           break;
+
                         case "thisMonth":
                           const firstDayOfMonth = new Date(
                             today.getFullYear(),
@@ -227,7 +242,70 @@ function AdminHeader({ setOpen, rightSidebar }) {
                           startDate = firstDayOfMonth
                             .toISOString()
                             .split("T")[0];
+                          dispatch(setStartDate(startDate));
                           break;
+
+                        // 👉 New filters
+                        case "lastWeek":
+                          const lastWeekStart = new Date(today);
+                          lastWeekStart.setDate(
+                            today.getDate() - today.getDay() - 7
+                          ); // previous week Sunday
+                          const lastWeekEnd = new Date(lastWeekStart);
+                          lastWeekEnd.setDate(lastWeekStart.getDate() + 6); // next Saturday
+                          startDate = lastWeekStart.toISOString().split("T")[0];
+                          endDate = lastWeekEnd.toISOString().split("T")[0];
+                          dispatch(setStartDate(startDate));
+                          dispatch(setEndDate(endDate));
+                          break;
+
+                        case "lastMonth":
+                          const lastMonthStart = new Date(
+                            today.getFullYear(),
+                            today.getMonth() - 1,
+                            1
+                          );
+                          const lastMonthEnd = new Date(
+                            today.getFullYear(),
+                            today.getMonth(),
+                            0
+                          );
+                          startDate = lastMonthStart
+                            .toISOString()
+                            .split("T")[0];
+                          endDate = lastMonthEnd.toISOString().split("T")[0];
+                          dispatch(setStartDate(startDate));
+                          dispatch(setEndDate(endDate));
+                          break;
+
+                        case "lastYear":
+                          const lastYearStart = new Date(
+                            today.getFullYear() - 1,
+                            0,
+                            1
+                          );
+                          const lastYearEnd = new Date(
+                            today.getFullYear() - 1,
+                            11,
+                            31
+                          );
+                          startDate = lastYearStart.toISOString().split("T")[0];
+                          endDate = lastYearEnd.toISOString().split("T")[0];
+                          dispatch(setStartDate(startDate));
+                          dispatch(setEndDate(endDate));
+                          break;
+
+                        case "thisYear":
+                          const thisYearStart = new Date(
+                            today.getFullYear(),
+                            0,
+                            1
+                          );
+                          startDate = thisYearStart.toISOString().split("T")[0];
+                          dispatch(setStartDate(startDate));
+
+                          break;
+
                         default:
                           startDate = "";
                           endDate = "";
@@ -242,7 +320,12 @@ function AdminHeader({ setOpen, rightSidebar }) {
                     <option value="last30">Last 30 Days</option>
                     <option value="thisWeek">This Week</option>
                     <option value="thisMonth">This Month</option>
+                    <option value="lastWeek">Last Week</option>
+                    <option value="lastMonth">Last Month</option>
+                    <option value="lastYear">Last Year</option>
+                    <option value="thisYear">This Year</option>
                   </select>
+
                   <>
                     <label className="text-sm"> start date</label>
                     <input
@@ -266,7 +349,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
                     />
                   </>
                 </>
-              )}
+              }
 
               <Button
                 variant="ghost"

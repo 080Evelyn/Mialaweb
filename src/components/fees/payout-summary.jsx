@@ -36,8 +36,17 @@ const PayoutSummaryTable = () => {
   const filtered = transaction?.filter((trans) => {
     const search =
       trans?.transactionReference.toLowerCase().includes(query.toLowerCase()) ||
-      trans?.riderName.toLowerCase().includes(query.toLowerCase()) ||
+      trans?.riderFullName.toLowerCase().includes(query.toLowerCase()) ||
       trans?.deliveryCode?.toLowerCase().includes(query.toLowerCase());
+
+    const state = filters.states
+      ? (trans?.riderState ?? "").toLowerCase() === filters.states.toLowerCase()
+      : true;
+
+    const agentMatch = filters.agent
+      ? trans.riderFullName.toLowerCase().includes(filters.agent.toLowerCase())
+      : true;
+
     const dateMatch = (() => {
       const { startDate, endDate } = filters;
 
@@ -52,7 +61,7 @@ const PayoutSummaryTable = () => {
       return uploadDate >= start && uploadDate <= end;
     })();
 
-    return search && dateMatch;
+    return search && dateMatch && state && agentMatch;
   });
   useEffect(() => {
     dispatch(fetchTransaction({ token, userRole }));
@@ -85,7 +94,44 @@ const PayoutSummaryTable = () => {
         </div>
       </div>
       {loading ? (
-        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        // <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        <Table className={" md:w-[1100px]"}>
+          <TableBody>
+            {Array.from({ length: 15 }).map((_, index) => (
+              <TableRow key={index}>
+                {/* Delivery Code */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Date */}
+                <TableCell>
+                  <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Delivery Fee */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Total */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Customer Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Rider Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       ) : !loading && error ? (
         <p className="text-sm text-red-500 text-center">
           Something went wrong.
@@ -103,6 +149,7 @@ const PayoutSummaryTable = () => {
               <TableHead>Transaction Reference</TableHead>
               <TableHead>Delivery Code</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>State</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>
                 <span className="sr-only">Action</span>
@@ -115,7 +162,7 @@ const PayoutSummaryTable = () => {
             ) : (
               filtered?.map((data, index) => (
                 <TableRow key={index}>
-                  <TableCell>{data?.riderName}</TableCell>
+                  <TableCell>{data?.riderFullName}</TableCell>
                   <TableCell>₦{data?.amount?.toLocaleString()}</TableCell>
                   <TableCell>{data?.accountNumber}</TableCell>
                   <TableCell>{data?.transactionReference}</TableCell>
@@ -138,6 +185,7 @@ const PayoutSummaryTable = () => {
                     </div>
                   </TableCell>
                   <TableCell>{data?.transactionDate.split("T")[0]}</TableCell>
+                  <TableCell>{data?.riderState}</TableCell>
                   <TableCell
                     className={` text-right text-[10px] font-[Raleway] ${
                       data.transactionStatus === "Pending"

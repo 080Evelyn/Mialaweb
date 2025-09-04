@@ -33,6 +33,7 @@ import restrictionReducer from "./restrictionSlice";
 import orderSummaryReducer from "./orderSummarySlice";
 import statReducer from "./statSlice";
 import forgotPasswordReducer from "./forgotPasswordSlice";
+import performanceReducer from "./performanceSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -56,6 +57,7 @@ const rootReducer = combineReducers({
   orderSummary: orderSummaryReducer,
   stats: statReducer,
   forgotPassword: forgotPasswordReducer,
+  performance: performanceReducer,
 });
 
 const persistConfig = {

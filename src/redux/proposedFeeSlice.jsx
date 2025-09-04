@@ -89,6 +89,7 @@ const proposedFeeSlice = createSlice({
     proposedOrders: [],
     loadingOrders: false,
     errorOrders: false,
+    multiCall: false,
   },
   reducers: {
     resetProposedFee(state) {
@@ -98,6 +99,12 @@ const proposedFeeSlice = createSlice({
       proposedOrders = [];
       loadingOrders = false;
       errorOrders = false;
+    },
+    setMultiCallPropose(state) {
+      state.multiCall = true;
+    },
+    setMultiCallProposeFalse(state) {
+      state.multiCall = false;
     },
   },
   extraReducers: (builder) => {
@@ -128,5 +135,9 @@ const proposedFeeSlice = createSlice({
       });
   },
 });
-export const { resetProposedFee } = proposedFeeSlice.actions;
+export const {
+  resetProposedFee,
+  setMultiCallProposeFalse,
+  setMultiCallPropose,
+} = proposedFeeSlice.actions;
 export default proposedFeeSlice.reducer;

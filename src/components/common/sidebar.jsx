@@ -62,14 +62,14 @@ function MenuItems({ setOpen }) {
     },
     {
       id: "order-summary",
-      label: "Order Summary",
+      label: "Delivery Summary",
       path: "/orderSummary",
       icon: <FileText className="w-5 h-5" />,
     },
 
     {
       id: "proposedFee",
-      label: "Proposed Fees",
+      label: "Delivery Fees",
       path: "/proposedFee",
       icon: <img src={Fees} alt="proposedFee box" className="w-5 h-5" />,
     },
@@ -94,8 +94,14 @@ function MenuItems({ setOpen }) {
     },
     {
       id: "agent",
-      label: userRole === "Subadmin" ? "Agents" : "Agents/Admins",
-      path: userRole === "Subadmin" ? "/agents" : "/admin/agents",
+      label: "Agents",
+      path: "/admin/agents",
+      icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
+    },
+    (userRole === "Admin" || userRole === "Manager") && {
+      id: "admin",
+      label: "Admin",
+      path: "/admin/sub-admins",
       icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
     },
   ];
@@ -114,13 +120,13 @@ function MenuItems({ setOpen }) {
     navigate("/");
   };
   return (
-    <nav className="mt-0 flex flex-col gap-1 h-screen  pl-3 ">
+    <nav className="mt-0 flex flex-col gap-1 h-screen overflow-y-scroll  pl-3 ">
       {SidebarMenuItems.map((menuItem) => {
-        const isActive =
-          location.pathname === menuItem.path ||
-          (menuItem.id === "agent" &&
-            (location.pathname.startsWith("/admin/agents") ||
-              location.pathname.startsWith("/admin/sub-admins")));
+        const isActive = location.pathname === menuItem.path;
+        // ||
+        // (menuItem.id === "agent" &&
+        //   (location.pathname.startsWith("/admin/agents") ||
+        //     location.pathname.startsWith("/admin/sub-admins")));
         // (menuItem.id === "fees" &&
         //   location.pathname.startsWith("/payout-summary"));
 
@@ -146,7 +152,7 @@ function MenuItems({ setOpen }) {
         <span>Sign Out</span>
       </div>
       <div className="absolute bottom-0 inset-x-0 ps-4 lg:ps-5.5 px-3">
-        <div className="flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 hover:bg-[#FFBFBF]">
+        <div className="flex items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 ">
           <img src={Admin} alt="Admin-logo" className="w-5 h-5" />
           <span>{`${first_name} `}</span>
         </div>

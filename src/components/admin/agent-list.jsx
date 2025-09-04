@@ -105,7 +105,55 @@ const AdminAgentList = () => {
     }
   };
   if (loading) {
-    <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />;
+    // <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />;
+    <Table className={" md:w-[1100px]"}>
+      <TableBody>
+        {Array.from({ length: 15 }).map((_, index) => (
+          <TableRow key={index}>
+            {/* Agent (with avatar + name) */}
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-full bg-gray-300 animate-pulse"></div>
+                <div className="flex flex-col gap-1">
+                  <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-2.5 w-12 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </TableCell>
+
+            {/* Delivery Code */}
+            <TableCell>
+              <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+            </TableCell>
+
+            {/* Date */}
+            <TableCell>
+              <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+            </TableCell>
+
+            {/* Delivery Fee */}
+            <TableCell>
+              <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+            </TableCell>
+
+            {/* Total */}
+            <TableCell>
+              <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+            </TableCell>
+
+            {/* Customer Payment Status */}
+            <TableCell>
+              <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+            </TableCell>
+
+            {/* Rider Payment Status */}
+            <TableCell>
+              <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>;
   }
   if (error && !loading) {
     <h2 className="text-sm text-center text-red-500">Error fetching agents</h2>;
@@ -115,15 +163,15 @@ const AdminAgentList = () => {
       <div className="flex justify-between items-center mb-6  w-[80%] ">
         <h2 className="text-sm font-semibold">Agent Listing</h2>
         <div className="flex gap-2.5 text-sm">
-          <Button
+          {/* <Button
             className={`cursor-pointer rounded-[4px] ${
               location.pathname === "/admin/agents"
                 ? "bg-[#B10303] hover:bg-[#B10303]/80"
                 : "bg-white border-[1px] border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C]"
             } `}>
             <Link to="/admin/agents">Agents </Link>
-          </Button>
-          {(userRole === "Admin" || userRole === "Manager") && (
+          </Button> */}
+          {/* {(userRole === "Admin" || userRole === "Manager") && (
             <Button
               className={`cursor-pointer rounded-[4px] ${
                 location.pathname === "/admin/sub-admins"
@@ -132,11 +180,59 @@ const AdminAgentList = () => {
               }`}>
               <Link to="/admin/sub-admins">Staffs</Link>
             </Button>
-          )}
+          )} */}
         </div>
       </div>
       {loader ? (
-        <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        // <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        <Table className={" md:w-[1100px]"}>
+          <TableBody>
+            {Array.from({ length: 15 }).map((_, index) => (
+              <TableRow key={index}>
+                {/* Agent (with avatar + name) */}
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-gray-300 animate-pulse"></div>
+                    <div className="flex flex-col gap-1">
+                      <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                      <div className="h-2.5 w-12 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </TableCell>
+
+                {/* Delivery Code */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Date */}
+                <TableCell>
+                  <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Delivery Fee */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Total */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Customer Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Rider Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       ) : (
         <Table>
           <TableHeader>

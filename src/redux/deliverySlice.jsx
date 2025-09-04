@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const fetchDelivery = createAsyncThunk(
   "delivery/fetchDelivery",
   async (
-    { token, userRole, page = 0, size = 40 },
+    { token, userRole, page = 0, size = 50 },
     { rejectWithValue, getState }
   ) => {
     try {

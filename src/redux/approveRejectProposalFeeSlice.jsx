@@ -9,7 +9,19 @@ export const approveProposalFee = createAsyncThunk(
       const response = await fetch(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/approve-fee/${adminId}/${id}?approved=true`
-          : `${BASE_URL}api/v1/subadmin/approve-fee/${adminId}/${id}?approved=true`,
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/approve-fee/${adminId}/${id}?approved=true`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/approve-fee/${adminId}/${id}?approved=true`
+          : `${BASE_URL}api/v1/accountant/approve-fee/${adminId}/${id}?approved=true`,
+
+        // userRole === "Admin"
+        // ? `${BASE_URL}api/v1/admin/delivery-view-summaries?${params}`
+        // : userRole === "CustomerCare"
+        // ? `${BASE_URL}api/v1/customercare/delivery-view-summaries?${params}`
+        // : userRole === "Manager"
+        // ? `${BASE_URL}api/v1/manager/delivery-view-summaries?${params}`
+        // : `${BASE_URL}api/v1/accountant/delivery-view-summaries?${params}`
         {
           method: "POST",
           headers: {
@@ -108,6 +120,7 @@ const approveRejectProposalFeeSlice = createSlice({
       .addCase(approveProposalFee.pending, (state) => {
         state.approveLoading = true;
         state.success = false;
+        state.error = false;
       })
       .addCase(approveProposalFee.fulfilled, (state, action) => {
         state.approveLoading = false;
@@ -122,6 +135,7 @@ const approveRejectProposalFeeSlice = createSlice({
       .addCase(rejectProposalFee.pending, (state) => {
         state.rejectLoading = true;
         state.rejectSuccess = false;
+        state.error = false;
       })
       .addCase(rejectProposalFee.fulfilled, (state, action) => {
         state.rejectLoading = false;
