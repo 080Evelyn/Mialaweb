@@ -19,6 +19,7 @@ import {
 } from "../ui/dialog";
 import { BASE_URL } from "@/lib/Api";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
 
 const SummaryOrder = () => {
   const dispatch = useDispatch();
@@ -35,7 +36,7 @@ const SummaryOrder = () => {
   const [openDialog, setOpenDialog] = useState("");
   const [details, setDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  // console.log(details);
+  const [detailsErr, setDetailsErr] = useState("");
   const filtered = summary?.filter((product) =>
     product?.productName.toLowerCase().includes(query.toLowerCase())
   );
@@ -47,8 +48,9 @@ const SummaryOrder = () => {
   const handleOpen = async (index, productId) => {
     setOpenDialog(index);
     setLoadingDetails(true);
+    setDetailsErr("");
     try {
-      const response = await fetch(
+      const response = await axios.get(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/sale-per-product/${productId}`
           : userRole === "CustomerCare"
@@ -64,7 +66,11 @@ const SummaryOrder = () => {
       const data = await response.json();
       setDetails(data.data);
     } catch (err) {
-      console.error("Failed to fetch agent deliveries", err);
+      console.log(err);
+      err.response.data.responseDesc ===
+      "This product does not have any DELIVERED deliveries yet."
+        ? setDetailsErr(err.response.data.responseDesc)
+        : setDetailsErr("Failed to fetch product summary");
     } finally {
       setLoadingDetails(false);
     }
@@ -117,7 +123,7 @@ const SummaryOrder = () => {
           <p className="text-sm text-center font-semibold pb-3">
             Double click each row to view product summary.
           </p>
-          <Table className={"overflow-x-scroll md:w-[1100px]"}>
+          <Table className={" md:w-[1100px]"}>
             <TableHeader>
               <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
                 <TableHead>Product Name </TableHead>
@@ -167,6 +173,8 @@ const SummaryOrder = () => {
                           <div className="py-4 text-center text-sm">
                             Loading...
                           </div>
+                        ) : !loadingDetails && detailsErr ? (
+                          <p>{detailsErr}</p>
                         ) : (
                           <div className="flex flex-col !h-[400px] overflow-y-scrol gap-3">
                             <div className="flex items-center gap-3">
@@ -289,8 +297,8 @@ const SummaryOrder = () => {
           </Table>
         </>
       )}
-      <div className="flex gap-2 mt-4 m-auto w-[80%] justify-center flex-wrap">
-        {/* Prev button */}
+      {/* <div className="flex gap-2 mt-4 m-auto w-[80%] justify-center flex-wrap">
+        
         <button
           className={`${
             page === 0
@@ -304,7 +312,7 @@ const SummaryOrder = () => {
           Prev
         </button>
 
-        {/* Page numbers */}
+    
         {[...Array(totalPages)].map((_, i) => (
           <button
             key={i}
@@ -320,7 +328,6 @@ const SummaryOrder = () => {
           </button>
         ))}
 
-        {/* Next button */}
         <button
           className={`${
             page + 1 >= totalPages
@@ -333,7 +340,7 @@ const SummaryOrder = () => {
           }}>
           Next
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -762,6 +762,7 @@ const DeliveryFormDialog = ({
                     )}
                   </select>
                 </div>
+
                 <div className="flex flex-col gap-1">
                   <label className="text-xs">Customer Payment Status</label>
                   <select
@@ -784,6 +785,26 @@ const DeliveryFormDialog = ({
                     <option value="CUSTOMER_PAID">Paid</option>
                   </select>
                 </div>
+
+                {formMode === "add" && (
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="note">
+                      Note (optional)
+                    </Label>
+                    <textarea
+                      type={"text"}
+                      className="rounded-xs bg-[#8C8C8C33]"
+                      id="note"
+                      value={formData.note}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          note: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )}
 
                 {formData.customerPaymentStatus === "CUSTOMER_PAID" && (
                   // <>

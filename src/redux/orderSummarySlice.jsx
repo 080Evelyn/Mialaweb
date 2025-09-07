@@ -80,7 +80,7 @@ const orderSummarySlice = createSlice({
       })
       .addCase(fetchOrderSummary.fulfilled, (state, action) => {
         state.loading = false;
-        state.summary = action.payload.content;
+        state.summary = action.payload;
         state.success = true;
         state.totalPages = action.payload.totalPages;
         state.totalElements = action.payload.totalElements;

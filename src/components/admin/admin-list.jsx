@@ -41,6 +41,7 @@ const initialFormState = {
   phone: "",
   userRole: "",
   state: "",
+  permissions: [],
 };
 
 const AdminList = () => {
@@ -49,6 +50,20 @@ const AdminList = () => {
     { id: 2, role: "Manager" },
     { id: 3, role: "CustomerCare" },
   ];
+
+  const permissions = [
+    "CREATE_STAFF",
+    "APPROVE_BLOCK_RIDER_SIGNUP",
+    "CREATE_EDIT_DELIVERY",
+    "PIN_UNPIN_RIDER",
+    "DELETE_RIDER",
+    "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
+    "VIEW_ALL_DELIVERIES",
+    "ACCEPT_REJECT_DELIVERY_FEE",
+    "CREATE_DELETE_PRODUCT",
+    "ACTIVATE_DEACTIVATE_RIDER",
+  ];
+
   const [formData, setFormData] = useState(initialFormState);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -57,13 +72,16 @@ const AdminList = () => {
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
+  const [dloading, setDloading] = useState(false);
   const loading = useSelector((state) => state.subadmin.loading);
   const success = useSelector((state) => state.subadmin.success);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const restricted = useSelector((state) => state.restriction.restricted);
+  const permission = useSelector((state) => state.auth.permissions);
+
   const location = useLocation();
   const dispatch = useDispatch();
-  // console.log(subAdmins);
+
   useEffect(() => {
     if (success) {
       return;
@@ -74,13 +92,15 @@ const AdminList = () => {
 
   const handleAddSubadmin = async (e) => {
     e.preventDefault();
+
     if (
       formData.first_name === "" ||
       formData.last_name === "" ||
       formData.email === "" ||
       formData.password === "" ||
       formData.phone === "" ||
-      formData.userRole === ""
+      formData.userRole === "" ||
+      formData.permissions.length === 0
     ) {
       setErrorMessage("All Input Field must be filled!!");
       return;
@@ -118,9 +138,52 @@ const AdminList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (userRole === "Manager") {
+    if (permission.includes(" DELETE_STAFF") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
       dispatch(setRestricted(true));
+      return;
+    }
 
+    setDloading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await axios.delete(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/super-delete/${id}`
+          : "",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.responseCode === "00") {
+        dispatch(fetchSubadmin({ token, userRole }));
+        setSuccessMessage(response.data.data);
+        setSuccessModalOpen(true);
+        setTimeout(() => {
+          setSuccessMessage("");
+          setSuccessModalOpen(false);
+        }, 10000);
+      } else if (response.data.responseCode === "55") {
+        setErrorMessage(response.data.responseDesc);
+      }
+    } catch (error) {
+      setErrorMessage(`An error occured.`);
+      console.log(error);
+    } finally {
+      setdLoading(false);
+    }
+  };
+
+  const handleDeactivate = async (id) => {
+    if (permission.includes(" DELETE_STAFF") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
       return;
     }
 
@@ -130,12 +193,12 @@ const AdminList = () => {
     try {
       const response = await axios.delete(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/delete-admin-staffs/${id}`
+          ? `${BASE_URL}api/v1/admin/deactivate-user/${id}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/delete-admin-staffs/${id}`
+          ? `${BASE_URL}api/v1/customercare/deactivate-user/${id}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/delete-admin-staffs/${id}`
-          : `${BASE_URL}api/v1/accountant/delete-admin-staffs/${id}`,
+          ? `${BASE_URL}api/v1/manager/deactivate-user/${id}`
+          : `${BASE_URL}api/v1/accountant/deactivate-user/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -162,7 +225,7 @@ const AdminList = () => {
     }
   };
   return (
-    <div className="sm:me-5 sm:ms-2.5">
+    <div className="sm:me-5 sm:ms-2.5 ">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Admin Listing</h2>
         <div className="flex gap-2.5 text-sm">
@@ -186,7 +249,12 @@ const AdminList = () => {
             {/* <DialogTrigger asChild> */}
             <button
               onClick={() => {
-                if (userRole === "Accountant" || userRole === "CustomerCare") {
+                if (
+                  permission.includes("CREATE_STAFF") ||
+                  userRole === "Admin"
+                ) {
+                  dispatch(setRestricted(false));
+                } else {
                   dispatch(setRestricted(true));
                   return;
                 }
@@ -197,111 +265,147 @@ const AdminList = () => {
               Add Staff
             </button>
             {/* </DialogTrigger> */}
-            <DialogContent className="sm:max-w-[362px]">
+            <DialogContent className="sm:max-w-[450px]">
               <DialogHeader>
                 <DialogTitle className="text-[#B10303] text-left">
                   Create Admin staff
                 </DialogTitle>
               </DialogHeader>
-              <form className="flex flex-col gap-2 py-3">
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs" htmlFor="first_name">
-                    First Name
-                  </Label>
-                  <Input
-                    className="rounded-xs bg-[#8C8C8C33]"
-                    id="first_name"
-                    value={formData.first_name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, first_name: e.target.value })
-                    }
-                  />
-                </div>
+              <form className="flex flex-col gap-2 py-3 ">
+                <div className="flex justify-between gap-2">
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="first_name">
+                      First Name
+                    </Label>
+                    <Input
+                      className="rounded-xs bg-[#8C8C8C33]"
+                      id="first_name"
+                      value={formData.first_name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, first_name: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs" htmlFor="last_name">
-                    Last Name
-                  </Label>
-                  <Input
-                    className="rounded-xs bg-[#8C8C8C33]"
-                    id="last_name"
-                    value={formData.last_name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, last_name: e.target.value })
-                    }
-                  />
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="last_name">
+                      Last Name
+                    </Label>
+                    <Input
+                      className="rounded-xs bg-[#8C8C8C33]"
+                      id="last_name"
+                      value={formData.last_name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, last_name: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
+                <div className="flex gap-2 justify-between">
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="password">
+                      Password
+                    </Label>
+                    <Input
+                      className="rounded-xs bg-[#8C8C8C33]"
+                      id="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs" htmlFor="password">
-                    Password
-                  </Label>
-                  <Input
-                    className="rounded-xs bg-[#8C8C8C33]"
-                    id="password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                  />
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="email">
+                      Email
+                    </Label>
+                    <Input
+                      className="rounded-xs bg-[#8C8C8C33]"
+                      id="email"
+                      type={"email"}
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          email: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
+                <div className="flex gap-2 justify-between">
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="phone">
+                      Phone Number
+                    </Label>
+                    <Input
+                      className="rounded-xs bg-[#8C8C8C33]"
+                      id="phone"
+                      type={"number"}
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          phone: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs" htmlFor="email">
-                    Email
-                  </Label>
-                  <Input
-                    className="rounded-xs bg-[#8C8C8C33]"
-                    id="email"
-                    type={"email"}
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        email: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs" htmlFor="phone">
-                    Phone Number
-                  </Label>
-                  <Input
-                    className="rounded-xs bg-[#8C8C8C33]"
-                    id="phone"
-                    type={"number"}
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        phone: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs" htmlFor="user-role">
-                    User Role
-                  </label>
-                  <select
-                    id="user-role"
-                    value={formData.userRole}
-                    onChange={(e) =>
-                      setFormData({ ...formData, userRole: e.target.value })
-                    }
-                    className="w-full rounded bg-[#8C8C8C33] p-2">
-                    <option value="" disabled>
-                      Select Role
-                    </option>
-                    {userRoles.map(({ id, role }) => (
-                      <option className="bg-white" key={id} value={role}>
-                        {role}
+                  <div className="flex flex-col gap-1 w-[50%]">
+                    <label className="text-xs" htmlFor="user-role">
+                      User Role
+                    </label>
+                    <select
+                      id="user-role"
+                      value={formData.userRole}
+                      onChange={(e) =>
+                        setFormData({ ...formData, userRole: e.target.value })
+                      }
+                      className="w-full rounded bg-[#8C8C8C33] p-2">
+                      <option value="" disabled>
+                        Select Role
                       </option>
+                      {userRoles.map(({ id, role }) => (
+                        <option className="bg-white" key={id} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs">Permissions</Label>
+                  <div className="grid grid-cols-2 gap-2 max-h-50 overflow-y-auto p-2 border rounded bg-[#8C8C8C33]">
+                    {permissions.map((perm) => (
+                      <label
+                        key={perm}
+                        className="flex items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={formData.permissions.includes(perm)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData({
+                                ...formData,
+                                permissions: [...formData.permissions, perm],
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                permissions: formData.permissions.filter(
+                                  (p) => p !== perm
+                                ),
+                              });
+                            }
+                          }}
+                        />
+                        {perm}
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
                 {errorMessage && (
@@ -391,6 +495,9 @@ const AdminList = () => {
               <TableHead>
                 <span className="sr-only">Action</span>
               </TableHead>
+              <TableHead>
+                <span className="sr-only">Action</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-[12px] font-[Raleway] ">
@@ -404,7 +511,7 @@ const AdminList = () => {
                       className="h-6 w-6 rounded-full"
                     />
                     <span>{`${data?.first_name} ${
-                      data.last_name ? data.last_name : ""
+                      data.last_mame ? data.last_mame : ""
                     }`}</span>
                   </div>
                 </TableCell>
@@ -430,7 +537,9 @@ const AdminList = () => {
                           <span>Delete</span>
                         </DialogTitle>
                         <DialogDescription className="text-center text-foreground font-semibold text-xs">
-                          Are you sure you want to delete this staff?
+                          {userRole === "Admin"
+                            ? "Deleting this user will permanently remove all their records from the database. This action is irreversible and the data cannot be recovered. If you only want to restrict the user’s access without losing their records, please consider deactivating the user instead.  "
+                            : "Are you sure you want to deactivate this Staff?"}
                         </DialogDescription>
                       </DialogHeader>
                       {successMessage && (
@@ -451,15 +560,47 @@ const AdminList = () => {
                           className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
                           Cancel
                         </DialogClose>
+                        {userRole === "Admin" && (
+                          <Button
+                            onClick={() => {
+                              handleDelete(data.id);
+                            }}
+                            type="submit"
+                            className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
+                            {dloading ? "Deleting..." : "Delete"}
+                          </Button>
+                        )}
                         <Button
                           onClick={() => {
-                            handleDelete(data.id);
+                            handleDeactivate(data.id);
                           }}
                           type="submit"
                           className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                          {isLoading ? "Deleting..." : "Delete"}
+                          {isLoading ? "Processing..." : "Deactivate"}
                         </Button>
                       </div>
+                    </DialogContent>
+                  </Dialog>
+                </TableCell>
+                <TableCell>
+                  {/* Details Dialog */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button>
+                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
+                          <span>Profile</span>
+                        </DialogTitle>
+                      </DialogHeader>
+                      <UserProfile
+                        data={data}
+                        formData={formData}
+                        setFormData={setFormData}
+                      />
                     </DialogContent>
                   </Dialog>
                 </TableCell>
@@ -485,3 +626,82 @@ const AdminList = () => {
 };
 
 export default AdminList;
+
+const UserProfile = ({ data, formData, setFormData }) => {
+  const permissions = [
+    "CREATE_STAFF",
+    "APPROVE_BLOCK_RIDER_SIGNUP",
+    "CREATE_EDIT_DELIVERY",
+    "PIN_UNPIN_RIDER",
+    "DELETE_RIDER",
+    "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
+    "VIEW_ALL_DELIVERIES",
+    "ACCEPT_REJECT_DELIVERY_FEE",
+    "CREATE_DELETE_PRODUCT",
+    "ACTIVATE_DEACTIVATE_RIDER",
+  ];
+  const [userPermissions, setUserPermissions] = useState(
+    data.permissions || []
+  );
+
+  const togglePermission = (perm) => {
+    let updated;
+    if (userPermissions.includes(perm)) {
+      updated = userPermissions.filter((p) => p !== perm);
+    } else {
+      updated = [...userPermissions, perm];
+    }
+
+    setUserPermissions(updated);
+
+    // also update formData so backend gets the change
+    setFormData((prev) => ({
+      ...prev,
+      permissions: updated,
+    }));
+  };
+  return (
+    <div>
+      <div className="flex justify-between">
+        <p className="font-semibold">Full Name:</p>
+        <div className="flex items-center gap-2">
+          <img src={Avatar} alt="avatar" className="h-6 w-6 rounded-full" />
+          <span className="font-semibold">{`${data?.first_name} ${
+            data?.last_name ?? ""
+          }`}</span>
+        </div>
+      </div>
+
+      <div className="flex justify-between">
+        <p className="font-semibold">User Role:</p>
+        <span className="font-semibold">{data.userRole}</span>
+      </div>
+
+      <div className="flex justify-between">
+        <p className="font-semibold">Email:</p>
+        <span className="font-semibold">{data.email}</span>
+      </div>
+
+      <div className="flex justify-between">
+        <p className="font-semibold">Phone:</p>
+        <span className="font-semibold">{data.phone}</span>
+      </div>
+
+      <div>
+        <p className="font-semibold mt-3">Permissions:</p>
+        <div className="flex flex-col gap-2 mt-2">
+          {permissions.map((perm) => (
+            <label key={perm} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={userPermissions.includes(perm)}
+                onChange={() => togglePermission(perm)}
+              />
+              <span>{perm}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};

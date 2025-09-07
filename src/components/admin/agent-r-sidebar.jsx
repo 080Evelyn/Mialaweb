@@ -36,17 +36,23 @@ const AdminAgentSidebar = () => {
   const error = useSelector((state) => state.pendingRiders.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const restricted = useSelector((state) => state.restriction.restricted);
+  const permissions = useSelector((state) => state.auth.permissions);
 
   useEffect(() => {
     dispatch(fetchPendingRiders({ token, userRole }));
   }, []);
 
   const handleApproveRider = async (id) => {
-    if (userRole === "Accountant" || userRole === "CustomerCare") {
+    if (
+      permissions.includes("APPROVE_BLOCK_RIDER_SIGNUP") ||
+      userRole === "Admin"
+    ) {
+      dispatch(setRestricted(false));
+    } else {
       dispatch(setRestricted(true));
-
       return;
     }
+
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
@@ -83,7 +89,12 @@ const AdminAgentSidebar = () => {
   };
 
   const handleBlockRider = async (id) => {
-    if (userRole === "Accountant" || userRole === "CustomerCare") {
+    if (
+      permissions.includes("APPROVE_BLOCK_RIDER_SIGNUP") ||
+      userRole === "Admin"
+    ) {
+      dispatch(setRestricted(false));
+    } else {
       dispatch(setRestricted(true));
       return;
     }

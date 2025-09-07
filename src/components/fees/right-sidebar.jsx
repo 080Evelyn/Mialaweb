@@ -15,17 +15,22 @@ import { fetchRiders } from "@/redux/riderSlice";
 import { BASE_URL } from "@/lib/Api";
 import { Copy, Loader2, LoaderCircle, Pin } from "lucide-react";
 import axios from "axios";
+import { setRestricted } from "@/redux/restrictionSlice";
+import RestrictionModal from "../common/RestrictionModal";
 
 const FeesSidebar = () => {
   const dispatch = useDispatch();
   const [copiedCode, setCopiedCode] = useState(null);
   const token = useSelector((state) => state.auth.token);
+  const permissions = useSelector((state) => state.auth.permissions);
+  console.log(permissions);
   const riders = useSelector((state) => state.riders.riders);
   const loading = useSelector((state) => state.riders.loading);
   const error = useSelector((state) => state.riders.error);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
+  const restricted = useSelector((state) => state.restriction.restricted);
 
   // Track open modal state
   const [openDialog, setOpenDialog] = useState("");
@@ -38,6 +43,12 @@ const FeesSidebar = () => {
   }, []);
 
   const handlePinRider = async (id, status) => {
+    if (permissions.includes("PIN_UNPIN_RIDER") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
     setIsLoading(true);
     setLoadingId(id);
     // setErrorMessage("");
@@ -105,8 +116,28 @@ const FeesSidebar = () => {
     }
   };
   if (loading) {
-    return <p className="text-center">Loading agents..</p>;
+    return (
+      <>
+        {Array.from({ length: 10 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between gap-2 py-2">
+            <div className="flex items-center gap-3">
+              {/* Icon skeleton */}
+              <div className="w-5 h-5 rounded-full bg-gray-300 animate-pulse" />
+
+              {/* Name skeleton */}
+              <div className="flex flex-col gap-1">
+                <div className="h-4 w-32 bg-gray-300 rounded animate-pulse" />
+                <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </>
+    );
   }
+
   if (!loading && error) {
     return (
       <p className="text-sm text-red-600 text-center">
@@ -126,26 +157,6 @@ const FeesSidebar = () => {
       {sorted?.map((data, index) => (
         <div className="flex items-center justify-between gap-2" key={index}>
           <div className="flex items-center gap-3">
-            {/* <img
-              src={NewAgentAvatar}
-              alt="agent avatar"
-              className="h-10 w-10"
-            /> */}
-
-            {/* <button
-              disabled={isLoading}
-              onClick={() => handlePinRider(data.userId, !data.pinned)}
-              className="ml-2"
-              title={data.pinned ? "Unpin rider" : "Pin rider"}>
-              <Pin
-                className={`w-4 h-4 cursor-pointer ${
-                  data.pinned
-                    ? "!text-yellow-500 !fill-yellow-500"
-                    : "!text-gray-400"
-                }`}
-              />
-              <Loader2 className="animate-spin w-6 h-6" />
-            </button> */}
             <button
               disabled={loadingId === data.userId}
               onClick={() => handlePinRider(data.userId, !data.pinned)}
@@ -312,6 +323,13 @@ const FeesSidebar = () => {
           </Dialog>
         </div>
       ))}
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
+      />
     </div>
   );
 };

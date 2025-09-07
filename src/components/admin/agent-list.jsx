@@ -32,15 +32,19 @@ import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 import { fetchBankList } from "@/redux/bankListSlice";
+import RestrictionModal from "../common/RestrictionModal";
+import { setRestricted } from "@/redux/restrictionSlice";
 
 const AdminAgentList = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [dloading, setDloading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const location = useLocation();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const riders = useSelector((state) => state.allRiders.allRiders);
+  // console.log(riders);
   const loader = useSelector((state) => state.allRiders.loading);
   const loading = useSelector((state) => state.allRiders.loading);
   const error = useSelector((state) => state.allRiders.error);
@@ -50,6 +54,9 @@ const AdminAgentList = () => {
   const bankList = useSelector((state) => state.bankList.bankList);
   const success = useSelector((state) => state.bankList.success);
   const [filteredBank, setFilteredBank] = useState([]);
+  const permissions = useSelector((state) => state.auth.permissions);
+  // console.log(permissions);
+  const restricted = useSelector((state) => state.restriction.restricted);
 
   const handleBankSelection = (data) => {
     const selectedBank = bankList.filter((bnk) => {
@@ -74,13 +81,25 @@ const AdminAgentList = () => {
       dispatch(fetchBankList({ token }));
     }
   }, []);
-  const handleDelete = async (id) => {
+  const handleDactivate = async (id) => {
+    if (permissions.includes("DELETE_RIDER") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
     try {
       const response = await axios.delete(
-        `${BASE_URL}api/v1/admin/delete-rider/${id}`,
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/deactivate-user/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/deactivate-user/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/deactivate-user/${id}`
+          : `${BASE_URL}api/v1/accountant/deactivate-user/${id}`,
 
         {
           headers: {
@@ -102,6 +121,45 @@ const AdminAgentList = () => {
       console.log(error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
+    setDloading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await axios.delete(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/super-delete/${id}`
+          : "",
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.responseCode === "00") {
+        dispatch(fetchRiders({ token, userRole }));
+        setSuccessMessage(response.data.data);
+        setSuccessModalOpen(true);
+      } else if (response.data.responseCode === "55") {
+        setErrorMessage(response.data.responseDesc);
+      }
+    } catch (error) {
+      setErrorMessage(`An error occured.`);
+      console.log(error);
+    } finally {
+      setDloading(false);
     }
   };
   if (loading) {
@@ -383,7 +441,9 @@ const AdminAgentList = () => {
                               <span>Delete</span>
                             </DialogTitle>
                             <DialogDescription className="text-center text-foreground font-semibold text-xs">
-                              Are you sure you want to delete this Agent?
+                              {userRole === "Admin"
+                                ? "Deleting this user will permanently remove all their records from the database. This action is irreversible and the data cannot be recovered. If you only want to restrict the user’s access without losing their records, please consider deactivating the user instead.  "
+                                : "Are you sure you want to deactivate this Agent?"}
                             </DialogDescription>
                           </DialogHeader>
                           {erorMessage && (
@@ -397,17 +457,28 @@ const AdminAgentList = () => {
                             </p>
                           )}
                           <div className="flex justify-center gap-2">
-                            <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                            <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] px-3 text-sm rounded-[3px] h-9">
                               Cancel
                             </DialogClose>
                             <Button
                               onClick={() => {
-                                handleDelete(data.userId);
+                                handleDactivate(data.userId);
                               }}
                               type="submit"
-                              className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                              {isLoading ? "Deleting.." : "Delete"}
+                              className="bg-[#B10303] hover:bg-[#B10303]/80 text-white  text-sm rounded-[3px] h-9">
+                              {isLoading ? "processing.." : "Deactivate"}
                             </Button>
+
+                            {userRole === "Admin" && (
+                              <Button
+                                onClick={() => {
+                                  handleDelete(data.userId);
+                                }}
+                                type="submit"
+                                className="bg-[#B10303] hover:bg-[#B10303]/80 text-white  text-sm rounded-[3px] h-9">
+                                {dloading ? "processing.." : "Delete"}
+                              </Button>
+                            )}
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -418,11 +489,18 @@ const AdminAgentList = () => {
             )}
           </TableBody>
         </Table>
-      )}{" "}
+      )}
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
-        message={`Agent Deleted Successfully.`}
+        message={successMessage}
+      />
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
       />
     </div>
   );

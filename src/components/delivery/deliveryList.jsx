@@ -43,6 +43,7 @@ const initialFormState = {
   balance: "",
   dueDate: "",
   deliveryStatus: "",
+  note: "",
 };
 
 const DeliveryList = () => {
@@ -56,6 +57,7 @@ const DeliveryList = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const multiCall = useSelector((state) => state.delivery.multiCall);
   const token = useSelector((state) => state.auth.token);
+  const permissions = useSelector((state) => state.auth.permissions);
   const deliveryList = useSelector((state) => state.delivery.delivery);
   const { totalPages, currentPage, loading, error } = useSelector(
     (state) => state.delivery
@@ -78,15 +80,17 @@ const DeliveryList = () => {
         Agent: `${item.riderFirstName ?? ""} ${item.riderLastName ?? ""}`,
         DeliveryCode: item.deliveryCode ?? "",
         UploadDate: item.uploadDate ?? [],
+        CustomerName: item.receiverName ?? "",
         // Products: products.map((p) => p.productName).join(", "),
         // ProductPrices: products
         //   .map((p) => Number(p.productPrice).toLocaleString())
         //   .join(", "),
         // Quantities: products.map((p) => p.qty).join(", "),
         DeliveryFee: Number(item.deliveryFee || 0).toLocaleString(),
-        TotalFee: Number(item.totalFee || 0).toLocaleString(),
+        TotalFee: Number(item.totalProductValue || 0).toLocaleString(),
         CustomerPaymentStatus: item.customerPaymentStatus ?? "",
-        RiderPaymentStatus: item.riderPaymentStatus ?? "",
+        PaymentType: item.paymentType ?? "",
+        DeliveryStatus: item.deliveryStatus ?? "",
       };
     });
 
@@ -162,7 +166,9 @@ const DeliveryList = () => {
   }, []);
 
   const handleOpenAdd = () => {
-    if (userRole === "Accountant") {
+    if (permissions.includes("CREATE_EDIT_DELIVERY") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
       dispatch(setRestricted(true));
       return;
     }
@@ -174,7 +180,9 @@ const DeliveryList = () => {
   const handleOpenEdit = (data) => {
     dispatch(fetchDeliveryById({ token, userRole, id: data.deliveryId }));
 
-    if (userRole === "Accountant") {
+    if (permissions.includes("CREATE_EDIT_DELIVERY") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
       dispatch(setRestricted(true));
       return;
     }
@@ -187,27 +195,26 @@ const DeliveryList = () => {
   useEffect(() => {
     if (formMode === "edit" && deliveryDetails.custPaymentStatus) {
       setFormData({
-        products:
-          Array.isArray(deliveryDetails.products) &&
-          deliveryDetails.products
-            .filter((product) => product.deleted === false)
-            .map((product) => ({
-              productId: product.productId || "",
-              productName: product.productName || "",
-              quantity: product.qty || "",
-              productPrice:
-                product.totalAfterDiscount != null
-                  ? product.totalAfterDiscount / product.qty
-                  : "",
-              originalPrice: product.productPrice,
-            })),
-        // : [
-        //     {
-        //       productName: "",
-        //       quantity: "",
-        //       productPrice: "",
-        //     },
-        //   ],
+        products: Array.isArray(deliveryDetails.products)
+          ? deliveryDetails.products
+              .filter((product) => product.deleted === false)
+              .map((product) => ({
+                productId: product.productId || "",
+                productName: product.productName || "",
+                quantity: product.qty || "",
+                productPrice:
+                  product.totalAfterDiscount != null
+                    ? product.totalAfterDiscount / product.qty
+                    : "",
+                originalPrice: product.productPrice,
+              }))
+          : [
+              {
+                productName: "",
+                quantity: "",
+                productPrice: "",
+              },
+            ],
         receiverAddress: deliveryDetails.receiverAddress || "",
         riderId: deliveryDetails.riderId || "",
         receiverName: deliveryDetails.receiverName || "",
@@ -218,6 +225,7 @@ const DeliveryList = () => {
         amountPaid: deliveryDetails.amountPaid || "",
         balance: deliveryDetails.balance || "",
         deliveryStatus: deliveryDetails.deliveryStatus || "",
+        // note: deliveryDetails?.note || "",
       });
     }
   }, [deliveryDetails, formMode]);
@@ -318,6 +326,7 @@ const DeliveryList = () => {
             <TableHead>Total(₦) </TableHead>
             <TableHead>Customer Name </TableHead>
             <TableHead> Payment Type</TableHead>
+            <TableHead> Delivery Status</TableHead>
             <TableHead> Payment Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -368,6 +377,7 @@ const DeliveryList = () => {
                 </TableCell>
                 <TableCell>{data.receiverName}</TableCell>
                 <TableCell>{data.paymentType}</TableCell>
+                <TableCell>{data.deliveryStatus}</TableCell>
                 <TableCell>
                   <div className="flex gap-3 items-center">
                     {data.customerPaymentStatus}
@@ -375,7 +385,7 @@ const DeliveryList = () => {
                     {/* Edit button */}
                     {data.deliveryStatus !== "DELIVERED" && (
                       <button onClick={() => handleOpenEdit(data)}>
-                        <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+                        <PenBox className="h-5.5 w-5.5  text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
                       </button>
                     )}
 
@@ -411,37 +421,7 @@ const DeliveryList = () => {
         }}
       />
 
-      {/* <div className="flex gap-2 mt-4 m-auto w-[300px] justify-center">
-        <button
-          className={`${
-            page === 0
-              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
-              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
-          } `}
-          disabled={page === 0}
-          onClick={() => {
-            setPage(page - 1), dispatch(setMultiCallFalse());
-          }}>
-          Prev
-        </button>
-        <span className="items-center px-3 py-1.5">
-          Page {currentPage + 1} of {totalPages}
-        </span>
-        <button
-          className={`${
-            page + 1 >= totalPages
-              ? " bg-stone-100 cursor-not-allowed px-3 py-1.5 rounded-sm"
-              : "bg-[#D9D9D9] px-3 py-1.5 rounded-sm cursor-pointer"
-          } `}
-          disabled={page + 1 >= totalPages}
-          onClick={() => {
-            setPage(page + 1), dispatch(setMultiCallFalse());
-          }}>
-          Next
-        </button>
-      </div> */}
-      <div className="flex gap-2 mt-4 m-auto w-[80%] justify-center flex-wrap">
-        {/* Prev button */}
+      {/* <div className="flex gap-2 mt-4 m-auto w-[80%] justify-center flex-wrap">
         <button
           className={`${
             page === 0
@@ -456,7 +436,6 @@ const DeliveryList = () => {
           Prev
         </button>
 
-        {/* Page numbers */}
         {[...Array(totalPages)].map((_, i) => (
           <button
             key={i}
@@ -473,7 +452,6 @@ const DeliveryList = () => {
           </button>
         ))}
 
-        {/* Next button */}
         <button
           className={`${
             page + 1 >= totalPages
@@ -487,7 +465,7 @@ const DeliveryList = () => {
           }}>
           Next
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

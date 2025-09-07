@@ -116,7 +116,39 @@ const NotificationList = () => {
   }
 
   if (loading && !multiCallNot) {
-    return <h2>Loading notifcations...</h2>;
+    return (
+      <div className="font-normal text-[#1C1C1C]">
+        {/* Header skeleton */}
+        <div className="pb-3 flex items-center gap-1 text-sm">
+          <div className="h-4 w-28 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-4 bg-gray-200 rounded-full animate-pulse" />
+          <span className="h-[20px] w-[20px] rounded-full bg-gray-300 animate-pulse relative right-3 bottom-1.5" />
+        </div>
+
+        {/* List skeletons */}
+        <div className="max-h-screen overflow-y-auto">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-2 mb-2 pe-1 animate-pulse">
+              {/* Left icon */}
+              <div className="shrink-0 h-6 w-6 rounded bg-gray-300" />
+
+              {/* Right content */}
+              <div className="flex flex-col flex-grow gap-2">
+                <div className="flex justify-between items-center gap-2">
+                  <div className="h-3 w-48 bg-gray-300 rounded" />
+                  <div className="h-3 w-16 bg-gray-200 rounded ml-2" />
+                  <div className="h-5 w-5 bg-gray-300 rounded-full" />
+                </div>
+                {/* Optional action button skeleton */}
+                <div className="h-6 w-24 bg-gray-200 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (!loading && error) {

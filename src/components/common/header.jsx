@@ -24,6 +24,8 @@ function AdminHeader({ setOpen, rightSidebar }) {
   const dispatch = useDispatch();
   const search = useSelector((state) => state.search.query);
   const filters = useSelector((state) => state.search.filters);
+  const startDateP = useSelector((state) => state.performance.startDate);
+  const endDateP = useSelector((state) => state.performance.endDate);
   const token = useSelector((state) => state.auth.token);
   const riders = useSelector((state) => state.riders.riders);
   const userRole = useSelector((state) => state.auth.user.userRole);
@@ -330,10 +332,17 @@ function AdminHeader({ setOpen, rightSidebar }) {
                     <label className="text-sm"> start date</label>
                     <input
                       type="date"
-                      value={filters.startDate || ""}
-                      onChange={(e) =>
-                        handleFilterChange("startDate", e.target.value)
+                      value={
+                        path === "/performance"
+                          ? startDateP || ""
+                          : filters.startDate || ""
                       }
+                      onChange={(e) => {
+                        handleFilterChange("startDate", e.target.value);
+                        if (path === "/performance") {
+                          dispatch(setStartDate(e.target.value));
+                        }
+                      }}
                       className="px-2 py-1 border rounded text-sm"
                     />
                   </>
@@ -341,10 +350,17 @@ function AdminHeader({ setOpen, rightSidebar }) {
                     <label className="text-sm"> end date</label>
                     <input
                       type="date"
-                      value={filters.endDate || ""}
-                      onChange={(e) =>
-                        handleFilterChange("endDate", e.target.value)
+                      value={
+                        path === "/performance"
+                          ? endDateP || ""
+                          : filters.endDate || ""
                       }
+                      onChange={(e) => {
+                        handleFilterChange("endDate", e.target.value);
+                        if (path === "/performance") {
+                          dispatch(setEndDate(e.target.value));
+                        }
+                      }}
                       className="px-2 py-1 border rounded text-sm"
                     />
                   </>
