@@ -28,10 +28,8 @@ import { fetchProducts, setMultiCallProducts } from "@/redux/productSlice";
 import axios from "axios";
 import SuccessModal from "../common/SuccessModal";
 import { BASE_URL } from "@/lib/Api";
-import DeliveryList from "../delivery/deliveryList";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
-import { fetchProposedOrders } from "@/redux/proposedFeeSlice";
 import { clearFilters } from "@/redux/searchSlice";
 const initialFormState = {
   productName: "",
@@ -53,11 +51,11 @@ const ProductList = () => {
   const query = useSelector((state) => state.search.query);
   const filters = useSelector((state) => state.search.filters);
   const userRole = useSelector((state) => state.auth.user.userRole);
+  const permissions = useSelector((state) => state.auth.permissions);
   const { products, loading, error, multiCallProducts, success } = useSelector(
     (state) => state.product
   );
   const restricted = useSelector((state) => state.restriction.restricted);
-  // console.log(success);
   useEffect(() => {
     if (success) {
       return;
@@ -123,6 +121,12 @@ const ProductList = () => {
     }
   };
   const handleDeleteProduct = async (id) => {
+    if (permissions.includes("CREATE_DELETE_PRODUCT") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
@@ -274,7 +278,12 @@ const ProductList = () => {
           {/* <DialogTrigger asChild> */}
           <Button
             onClick={() => {
-              if (userRole === "Accountant") {
+              if (
+                permissions.includes("CREATE_DELETE_PRODUCT") ||
+                userRole === "Admin"
+              ) {
+                dispatch(setRestricted(false));
+              } else {
                 dispatch(setRestricted(true));
                 return;
               }
@@ -365,185 +374,187 @@ const ProductList = () => {
           </TableRow>
         </TableHeader>
         <TableBody className="text-[12px] font-[Raleway] font-[500]">
-          {sortedProducts?.map((data, index) => (
-            <TableRow key={index}>
-              <TableCell>{data.id}</TableCell>
-              <TableCell>{data.productName}</TableCell>
-              <TableCell>{data.unitPrice.toLocaleString()}</TableCell>
-              <TableCell>{formatDate(data.createdAt)}</TableCell>
-              <TableCell>
-                <div className="flex gap-3 justify-center">
-                  {/* Edit Dialog */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      {/* <button className="bg-[#0A55D0] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#0A55D0]/80 transition-colors">
+          {sortedProducts
+            ?.filter((product) => product.deleted === false)
+            .map((data, index) => (
+              <TableRow key={index}>
+                <TableCell>{data.id}</TableCell>
+                <TableCell>{data.productName}</TableCell>
+                <TableCell>{data.unitPrice.toLocaleString()}</TableCell>
+                <TableCell>{formatDate(data.createdAt)}</TableCell>
+                <TableCell>
+                  <div className="flex gap-3 justify-center">
+                    {/* Edit Dialog */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        {/* <button className="bg-[#0A55D0] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#0A55D0]/80 transition-colors">
                         <img src={PencilEdit} className="h-6 w-6 text-white" />
                       </button> */}
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[362px] ">
-                      <DialogHeader>
-                        <DialogTitle className="text-[#B10303] text-left">
-                          Edit
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="grid gap-2 py-0.5">
-                        <div className="grid grid-cols-1 items-center gap-1.5">
-                          <Label htmlFor="name" className="text-xs">
-                            Product Name
-                          </Label>
-                          <Input
-                            id="name"
-                            defaultValue={data.productName}
-                            className="w-full rounded-xs bg-[#8C8C8C33]"
-                          />
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[362px] ">
+                        <DialogHeader>
+                          <DialogTitle className="text-[#B10303] text-left">
+                            Edit
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-2 py-0.5">
+                          <div className="grid grid-cols-1 items-center gap-1.5">
+                            <Label htmlFor="name" className="text-xs">
+                              Product Name
+                            </Label>
+                            <Input
+                              id="name"
+                              defaultValue={data.productName}
+                              className="w-full rounded-xs bg-[#8C8C8C33]"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 items-center gap-1.5">
+                            <Label htmlFor="stockQty" className="text-xs">
+                              Stock Quantity
+                            </Label>
+                            <Input
+                              id="stockQty"
+                              defaultValue={data.qty}
+                              className="w-full rounded-xs bg-[#8C8C8C33]"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 items-center gap-1.5">
+                            <Label htmlFor="price" className="text-xs">
+                              Price
+                            </Label>
+                            <Input
+                              id="price"
+                              defaultValue={data.price}
+                              className="w-full rounded-xs bg-[#8C8C8C33]"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 items-center gap-1.5">
+                            <Label htmlFor="status" className="text-xs">
+                              Status
+                            </Label>
+                            <Input
+                              id="status"
+                              defaultValue={data.deliveryStatus}
+                              className="w-full rounded-xs bg-[#8C8C8C33]"
+                            />
+                          </div>
                         </div>
-                        <div className="grid grid-cols-1 items-center gap-1.5">
-                          <Label htmlFor="stockQty" className="text-xs">
-                            Stock Quantity
-                          </Label>
-                          <Input
-                            id="stockQty"
-                            defaultValue={data.qty}
-                            className="w-full rounded-xs bg-[#8C8C8C33]"
-                          />
+                        <div className="flex justify-end gap-2 -mt-2">
+                          <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                            Cancel
+                          </DialogClose>
+                          <Button
+                            type="submit"
+                            className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                            Done
+                          </Button>
                         </div>
-                        <div className="grid grid-cols-1 items-center gap-1.5">
-                          <Label htmlFor="price" className="text-xs">
-                            Price
-                          </Label>
-                          <Input
-                            id="price"
-                            defaultValue={data.price}
-                            className="w-full rounded-xs bg-[#8C8C8C33]"
-                          />
-                        </div>
-                        <div className="grid grid-cols-1 items-center gap-1.5">
-                          <Label htmlFor="status" className="text-xs">
-                            Status
-                          </Label>
-                          <Input
-                            id="status"
-                            defaultValue={data.deliveryStatus}
-                            className="w-full rounded-xs bg-[#8C8C8C33]"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2 -mt-2">
-                        <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                          Cancel
-                        </DialogClose>
-                        <Button
-                          type="submit"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                          Done
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogContent>
+                    </Dialog>
 
-                  {/* Delete Dialog */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
-                        <img src={Delete} className="h-6 w-6 text-white" />
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
-                          <img
-                            src={AlertCircle}
-                            alt="Alert Icon"
-                            className="w-20 h-20 mx-auto"
-                          />
-                          <span>Delete</span>
-                        </DialogTitle>
-                        <DialogDescription className="text-center text-foreground font-semibold text-xs">
-                          Are you sure you want to delete this product?
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="flex justify-center gap-2">
-                        <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                          Cancel
-                        </DialogClose>
-                        <Button
-                          onClick={() => handleDeleteProduct(data.id)}
-                          disable={isLoading}
-                          type="submit"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                          {isLoading ? "deleting..." : "Done"}
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                    {/* Delete Dialog */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
+                          <img src={Delete} className="h-6 w-6 text-white" />
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
+                            <img
+                              src={AlertCircle}
+                              alt="Alert Icon"
+                              className="w-20 h-20 mx-auto"
+                            />
+                            <span>Delete</span>
+                          </DialogTitle>
+                          <DialogDescription className="text-center text-foreground font-semibold text-xs">
+                            Are you sure you want to delete this product?
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex justify-center gap-2">
+                          <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                            Cancel
+                          </DialogClose>
+                          <Button
+                            onClick={() => handleDeleteProduct(data.id)}
+                            disable={isLoading}
+                            type="submit"
+                            className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
+                            {isLoading ? "deleting..." : "Delete"}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
-                  {/* View Dialog */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      {/* <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                    {/* View Dialog */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        {/* <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
                         <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                       </button> */}
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[362px] ">
-                      <DialogHeader>
-                        <DialogTitle className="text-[#B10303] text-left">
-                          Details
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="flex flex-col gap-3 py-0.5">
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Product Name</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.productName}
-                          </span>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[362px] ">
+                        <DialogHeader>
+                          <DialogTitle className="text-[#B10303] text-left">
+                            Details
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col gap-3 py-0.5">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Product Name</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.productName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Stock Quantity</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.qty}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Price</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.productName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Date</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.uploadDate}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Delivery Status</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.deliveryStatus}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Payment Status</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.paymentStatus}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Stock Quantity</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.qty}
-                          </span>
+                        <div className="flex justify-end gap-2">
+                          <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                            Close
+                          </DialogClose>
+                          <Button
+                            type="submit"
+                            className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
+                            Done
+                          </Button>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Price</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.productName}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Date</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.uploadDate}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Delivery Status</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.deliveryStatus}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs">Payment Status</Label>
-                          <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                            {data.paymentStatus}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                          Close
-                        </DialogClose>
-                        <Button
-                          type="submit"
-                          className="bg-[#153D80] hover:bg-[#153D80]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                          Done
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       {/* Pagination */}

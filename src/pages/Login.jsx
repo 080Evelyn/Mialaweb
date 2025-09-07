@@ -34,9 +34,11 @@ const Login = () => {
       });
 
       if (response.status === 200) {
-        const { jwt, userRole, userId, first_name, last_name } =
+        const { jwt, userRole, userId, first_name, last_name, permissions } =
           response.data.data;
-        dispatch(login({ jwt, userRole, userId, first_name, last_name }));
+        dispatch(
+          login({ jwt, userRole, userId, first_name, last_name, permissions })
+        );
         if (
           userRole === "Admin" ||
           userRole === "Manager" ||

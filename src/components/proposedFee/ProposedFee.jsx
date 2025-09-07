@@ -38,6 +38,8 @@ const ProposedFee = () => {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const adminId = useSelector((state) => state.auth.user.userId);
+  const permissions = useSelector((state) => state.auth.permissions);
+  const restricted = useSelector((state) => state.restriction.restricted);
   const approvalLoading = useSelector(
     (state) => state.approveReject.approveLoading
   );
@@ -49,13 +51,10 @@ const ProposedFee = () => {
     (state) => state.approveReject.rejectSuccess
   );
   const approvalError = useSelector((state) => state.approveReject.error);
-  // console.log(approvalError);
-
   const [page, setPage] = useState(0);
   const { proposedOrders, errorOrders, loadingOrders, multiCall } = useSelector(
     (state) => state.proposedFee
   );
-  const restricted = useSelector((state) => state.restriction.restricted);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const dispatch = useDispatch();
   const query = useSelector((state) => state.search.query);
@@ -65,18 +64,28 @@ const ProposedFee = () => {
     setAction(!action);
     setSelectedFee(id);
   };
-  const handleApprove = (id) => {
-    if (userRole === "Accountant") {
-      dispatch(setRestricted(true));
 
+  const handleApprove = (id) => {
+    if (
+      permissions.includes("ACCEPT_REJECT_DELIVERY_FEE") ||
+      userRole === "Admin"
+    ) {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
       return;
     }
+
     dispatch(approveProposalFee({ token, userRole, id, adminId }));
   };
   const handleReject = (id) => {
-    if (userRole === "Accountant") {
+    if (
+      permissions.includes("ACCEPT_REJECT_DELIVERY_FEE") ||
+      userRole === "Admin"
+    ) {
+      dispatch(setRestricted(false));
+    } else {
       dispatch(setRestricted(true));
-
       return;
     }
     dispatch(rejectProposalFee({ token, userRole, id, adminId }));

@@ -125,7 +125,7 @@ const deliverySlice = createSlice({
       })
       .addCase(fetchDelivery.fulfilled, (state, action) => {
         state.loading = false;
-        state.delivery = action.payload.content;
+        state.delivery = action.payload;
         state.totalPages = action.payload.totalPages;
         state.totalElements = action.payload.totalElements;
         state.currentPage = action.payload.number;

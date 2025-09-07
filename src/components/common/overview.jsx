@@ -22,6 +22,8 @@ const AdminOverview = () => {
     dispatch(fetchRevenue({ token, userRole }));
   }, []);
 
+  const p = products?.filter((product) => product.deleted === false);
+
   return (
     <div className="md:left-[240px]  top-[77px] flex flex-row md:flex-col gap-[8px] mb-3">
       <h2 className="text-sm font-medium mt-[-15px]">Overview</h2>
@@ -30,7 +32,7 @@ const AdminOverview = () => {
         <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
           <p className="text-sm font-medium text-slate-500">Total Products</p>
           <p className="text-xl font-bold text-slate-900">
-            {products?.length > 0 ? products?.length : "..."}
+            {p?.length > 0 ? p?.length : "..."}
           </p>
         </div>
 
@@ -45,13 +47,15 @@ const AdminOverview = () => {
             <span className="text-sm font-medium text-slate-500 ">
               Receipt:₦
             </span>
-            {loading ? "..." : revenue.totalDeposits}
+            {loading ? "..." : revenue?.totalDeposits?.toLocaleString()}
           </p>
           <p className="text-xl font-bold text-slate-900">
             <span className="text-sm font-medium text-slate-500">
               Withdraw:₦
             </span>
-            {loading ? "..." : revenue.totalTransfers * 100}
+            {loading
+              ? "..."
+              : (revenue?.totalTransfers * 100)?.toLocaleString()}
           </p>
         </div>
 

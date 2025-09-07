@@ -29,6 +29,8 @@ import SuccessModal from "../common/SuccessModal";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 import { fetchBankList } from "@/redux/bankListSlice";
 import { fetchRiders } from "@/redux/riderSlice";
+import { setRestricted } from "@/redux/restrictionSlice";
+import RestrictionModal from "../common/RestrictionModal";
 
 const AgentList = () => {
   const dispatch = useDispatch();
@@ -36,6 +38,8 @@ const AgentList = () => {
   const [erorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const token = useSelector((state) => state.auth.token);
+  const permissions = useSelector((state) => state.auth.permissions);
+  const restricted = useSelector((state) => state.restriction.restricted);
   const riders = useSelector((state) => state.allRiders.allRiders);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const query = useSelector((state) => state.search.query);
@@ -68,6 +72,12 @@ const AgentList = () => {
       String(rider?.last_name).toLowerCase().includes(query.toLowerCase())
   );
   const handleDelete = async (id) => {
+    if (permissions.includes("DELETE_RIDER")) {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
     // e.preventDefault();
     setIsLoading(true);
     setErrorMessage("");
@@ -75,7 +85,14 @@ const AgentList = () => {
 
     try {
       const response = await axios.delete(
-        `${BASE_URL}api/v1/cutomercare/delete-rider/${id}`,
+        // `${BASE_URL}api/v1/cutomercare/delete-rider/${id}`,
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/super-delete/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/deactivate-rider/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/deactivate-rider/${id}`
+          : `${BASE_URL}api/v1/accountant/deactivate-rider/${id}`,
 
         {
           headers: {
@@ -279,6 +296,13 @@ const AgentList = () => {
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
         message={`Agent Deleted Successfully.`}
+      />
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
       />
     </div>
   );

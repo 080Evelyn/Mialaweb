@@ -39,9 +39,28 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
         </DialogHeader>
 
         {loading ? (
-          <div className="">
-            <p className="!text-center">Loading...</p>
-            <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+          <div className="flex flex-col gap-3 py-0.5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="border shadow-md rounded-md p-3 flex flex-col gap-3">
+                {/* Section title */}
+                <div className="h-4 w-32 bg-gray-300 rounded animate-pulse" />
+
+                {/* Fake rows */}
+                {Array.from({ length: 3 }).map((_, j) => (
+                  <div
+                    key={j}
+                    className="flex justify-between items-center gap-3">
+                    {/* Label skeleton */}
+                    <div className="h-3 w-20 bg-gray-300 rounded animate-pulse" />
+
+                    {/* Value skeleton */}
+                    <div className="h-3 w-28 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         ) : error ? (
           <p className="text-red-500 text-center">

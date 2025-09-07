@@ -99,7 +99,7 @@ const Performance = () => {
           ) : !loader && error ? (
             <p className="text-center text-red-500">Something went wrong</p>
           ) : filtered?.length === 0 ? (
-            <p className="!text-center py-4"></p>
+            <p className="!text-center py-4">Search not found.</p>
           ) : (
             filtered?.map((data, index) => (
               <TableRow key={index}>
