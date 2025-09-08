@@ -43,14 +43,14 @@ function App() {
               </Layout>
             }
           />
-          <Route
+          {/* <Route
             path="agents"
             element={
               <Layout rightSidebar={<AgentSidebar />}>
                 <Agents />
               </Layout>
             }
-          />
+          /> */}
           <Route
             path="admin/agents"
             element={

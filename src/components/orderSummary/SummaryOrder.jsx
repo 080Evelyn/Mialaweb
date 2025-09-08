@@ -63,8 +63,7 @@ const SummaryOrder = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const data = await response.json();
-      setDetails(data.data);
+      setDetails(response.data.data);
     } catch (err) {
       console.log(err);
       err.response.data.responseDesc ===
@@ -218,7 +217,7 @@ const SummaryOrder = () => {
                                         {details.totalAmountOfTimesAssigned}
                                       </p>
                                       <p>
-                                        <strong>Delivered Count:</strong>
+                                        <strong>Total Sold:</strong>
                                         {details.totalRevenueCount}
                                       </p>
                                     </div>
