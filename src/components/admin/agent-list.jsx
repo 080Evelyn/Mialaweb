@@ -67,7 +67,7 @@ const AdminAgentList = () => {
 
   const handleBankSelection = (data) => {
     const selectedBank = bankList.filter((bnk) => {
-      return bnk.code === data?.bankName;
+      return bnk.code === data?.bankCode;
     });
     setFilteredBank(selectedBank[0]?.name);
   };
@@ -78,7 +78,7 @@ const AdminAgentList = () => {
       rider?.first_name.toLowerCase().includes(query.toLowerCase()) ||
       String(rider?.last_name).toLowerCase().includes(query.toLowerCase())
   );
-
+  // console.log(filteredBank);
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
     if (success) {
