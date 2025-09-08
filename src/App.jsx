@@ -78,7 +78,7 @@ function App() {
           <Route
             path="proposedFee"
             element={
-              <Layout>
+              <Layout rightSidebar={<OverviewSidebar />}>
                 <ProposedFeeReview />
               </Layout>
             }
