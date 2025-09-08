@@ -212,7 +212,7 @@ const ProposedFee = () => {
     );
   }
   return (
-    <div className="sm:me-5 sm:ms-2.5">
+    <div className="sm:me-5 sm:ms-2.5 w-[800px]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Delivery List</h2>
         {/* For adding and editting */}

@@ -9,6 +9,7 @@ const Layout = ({ children, rightSidebar }) => {
   const mainRef = useRef(null);
   const location = useLocation();
   const dash = location.pathname === "/overview";
+  const fee = location.pathname === "/proposedFee";
 
   return (
     <div className="flex h-screen w-full overflow-x-hidden">
@@ -25,7 +26,7 @@ const Layout = ({ children, rightSidebar }) => {
       {rightSidebar && (
         <aside
           className={`hidden lg:flex flex-col  border-l bg-background p-4 ${
-            dash ? "!w-[22%]" : "!w-[20%]"
+            dash ? "!w-[22%]" : fee ? "!w-[30%]" : "!w-[20%]"
           }  overflow-auto `}>
           {rightSidebar}
         </aside>
