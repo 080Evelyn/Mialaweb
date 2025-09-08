@@ -583,7 +583,7 @@ const AdminList = () => {
                     data.approvalStatus === "ACTIVATE"
                       ? "text-green-400"
                       : "text-red-500"
-                  } text-center`}>
+                  } `}>
                   {data.approvalStatus === "ACTIVATE"
                     ? "APPROVED"
                     : data.approvalStatus}
