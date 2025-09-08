@@ -307,7 +307,7 @@ const ProposedFee = () => {
                   id={selectedFee}
                 />
                 {action && selectedFee === data.id && (
-                  <div className="shadow-2xl absolute right-10 flex flex-col bg-gradient-to-tr from-white via-pink-300 to-rose-500  py-2 px-3">
+                  <div className="shadow-2xl absolute right-[-50px] flex flex-col bg-gradient-to-tr from-white via-pink-300 to-rose-500  py-2 px-3">
                     <button
                       disabled={approvalLoading || rejectLoading}
                       onClick={() => {
