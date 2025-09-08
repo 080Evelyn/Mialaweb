@@ -64,7 +64,10 @@ const AgentList = () => {
     }
   }, []);
   const approved = riders?.filter((rider) => {
-    return rider.approvalStatus === "APPROVED";
+    return (
+      rider?.approvalStatus === "APPROVED" ||
+      rider?.approvalStatus === "ACTIVATE"
+    );
   });
   const filtered = approved?.filter(
     (rider) =>

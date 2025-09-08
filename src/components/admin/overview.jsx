@@ -3,7 +3,10 @@ import { useSelector } from "react-redux";
 const SuperAdminOverview = () => {
   const riders = useSelector((state) => state.allRiders.allRiders);
   const approved = riders?.filter((rider) => {
-    return rider.approvalStatus === "APPROVED";
+    return (
+      rider?.approvalStatus === "APPROVED" ||
+      rider?.approvalStatus === "ACTIVATE"
+    );
   });
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
   const pendingRiders = useSelector(

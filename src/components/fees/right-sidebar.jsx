@@ -23,7 +23,7 @@ const FeesSidebar = () => {
   const [copiedCode, setCopiedCode] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const permissions = useSelector((state) => state.auth.permissions);
-  console.log(permissions);
+  // console.log(permissions);
   const riders = useSelector((state) => state.riders.riders);
   const loading = useSelector((state) => state.riders.loading);
   const error = useSelector((state) => state.riders.error);
@@ -146,7 +146,10 @@ const FeesSidebar = () => {
     );
   }
   const approved = riders?.filter((rider) => {
-    return rider.approvalStatus === "APPROVED";
+    return (
+      rider?.approvalStatus === "APPROVED" ||
+      rider.approvalStatus === "ACTIVATE"
+    );
   });
   const sorted = approved && [...approved].sort((a, b) => b.pinned - a.pinned);
   // console.log(details);
@@ -191,7 +194,7 @@ const FeesSidebar = () => {
                 View Deliveries
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[900px]">
               <DialogHeader>
                 <DialogTitle className="text-[#B10303] text-left">
                   Agent Details
@@ -228,82 +231,95 @@ const FeesSidebar = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {details.map((item, i) => (
-                          <tr key={i}>
-                            <td className="p-1 border">
-                              {item?.products?.map((product, index) => (
-                                <div key={index}>{product.productName}</div>
-                              ))}
-                            </td>
-                            <td className="p-1 border flex items-center gap-2">
-                              <div className="flex items-center gap-2">
-                                <span>{item.deliveryCode}</span>
-                                <Copy
-                                  size={16}
-                                  className="cursor-pointer"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(
-                                      item.deliveryCode
-                                    );
-                                    setCopiedCode(item.deliveryCode);
-                                    setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
-                                  }}
-                                />
-                                {copiedCode === item.deliveryCode && (
-                                  <span className="text-green-600 text-xs">
-                                    Copied!
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="p-1 border">{item.deliveryFee}</td>
-                            <td className="p-1 border">
-                              {item?.products?.map((product, index) => (
-                                <div key={index}>
-                                  {Number(
-                                    product?.productPrice
-                                  ).toLocaleString()}
+                        {details.length === 0 ? (
+                          <div>
+                            <p className="text-center py-3">No data</p>
+                          </div>
+                        ) : (
+                          details.map((item, i) => (
+                            <tr key={i}>
+                              <td className="p-1 border">
+                                {item?.products?.map((product, index) => (
+                                  <div key={index}>{product.productName}</div>
+                                ))}
+                              </td>
+                              <td className="p-1 border flex items-center gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span>{item.deliveryCode}</span>
+                                  <Copy
+                                    size={16}
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        item.deliveryCode
+                                      );
+                                      setCopiedCode(item.deliveryCode);
+                                      setTimeout(
+                                        () => setCopiedCode(null),
+                                        2000
+                                      ); // hide after 2s
+                                    }}
+                                  />
+                                  {copiedCode === item.deliveryCode && (
+                                    <span className="text-green-600 text-xs">
+                                      Copied!
+                                    </span>
+                                  )}
                                 </div>
-                              ))}
-                            </td>
+                              </td>
+                              <td className="p-1 border">{item.deliveryFee}</td>
+                              <td className="p-1 border">
+                                {item?.products?.map((product, index) => (
+                                  <div key={index}>
+                                    {Number(
+                                      product?.productPrice
+                                    ).toLocaleString()}
+                                  </div>
+                                ))}
+                              </td>
 
-                            <td className="p-1 border">
-                              {item?.products?.map((product, index) => (
-                                <div key={index}>
-                                  {Number(
-                                    product?.totalAfterDiscount / product?.qty
-                                  ).toLocaleString()}
-                                </div>
-                              ))}
-                            </td>
-                            <td className="p-1 border">
-                              {item?.products?.map((product, index) => (
-                                <div key={index}>
-                                  {Number(product?.qty).toLocaleString()}
-                                </div>
-                              ))}
-                            </td>
-                            <td className="p-1 border">
-                              {Number(item.totalProductValue).toLocaleString()}
-                            </td>
-                            <td
-                              className={`p-1 border ${
-                                item.deliveryStatus === "DELIVERED" ||
-                                item.deliveryStatus === "DELIVERED"
-                                  ? "text-green-500"
-                                  : item.deliveryStatus === "CANCELLED" ||
-                                    item.deliveryStatus === "NOT_REACHABLE"
-                                  ? "text-red-500"
-                                  : "text-yellow-400"
-                              }`}>
-                              {item.deliveryStatus}
-                            </td>
-                            <td className="p-1 border">{item.receiverName}</td>
-                            <td className="p-1 border">
-                              {item.receiverAddress}
-                            </td>
-                          </tr>
-                        ))}
+                              <td className="p-1 border">
+                                {item?.products?.map((product, index) => (
+                                  <div key={index}>
+                                    {Number(
+                                      product?.totalAfterDiscount / product?.qty
+                                    ).toLocaleString()}
+                                  </div>
+                                ))}
+                              </td>
+                              <td className="p-1 border">
+                                {item?.products?.map((product, index) => (
+                                  <div key={index}>
+                                    {Number(product?.qty).toLocaleString()}
+                                  </div>
+                                ))}
+                              </td>
+                              <td className="p-1 border">
+                                {Number(
+                                  item.totalProductValue
+                                ).toLocaleString()}
+                              </td>
+                              <td
+                                className={`p-1 border ${
+                                  item.deliveryStatus === "DELIVERED" ||
+                                  item.deliveryStatus === "DELIVERED"
+                                    ? "text-green-500"
+                                    : item.deliveryStatus === "CANCELLED" ||
+                                      item.deliveryStatus === "NOT_REACHABLE"
+                                    ? "text-red-500"
+                                    : "text-yellow-400"
+                                }`}>
+                                {item.deliveryStatus}
+                              </td>
+                              <td className="p-1 border">
+                                {item.receiverName}
+                              </td>
+                              <td className="p-1 border">
+                                {item.receiverAddress}
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   ) : (
@@ -315,7 +331,7 @@ const FeesSidebar = () => {
               )}
 
               <div className="flex justify-end gap-2 mt-4">
-                <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-[100px] text-sm rounded-[3px] h-9">
                   Close
                 </DialogClose>
               </div>

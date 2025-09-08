@@ -262,7 +262,7 @@ const UserProfile = ({
             <button
               disabled={isLoading}
               onClick={handleUpdatePermissions}
-              className="justify-center text-white border cursor-pointer w-[100px] hover:bg-green-400 font-semibold  bg-green-500  p-2 rounded-md shadow-md m-auto ">
+              className="justify-center text-white border cursor-pointer w-[100px] hover:bg-green-500 font-semibold  bg-green-400  p-2 rounded-md shadow-md m-auto ">
               {isLoading ? "Processing..." : "Add "}
             </button>
             <button
