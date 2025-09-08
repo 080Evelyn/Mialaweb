@@ -325,6 +325,7 @@ const DeliveryList = () => {
             <TableHead>Delivery Fee(₦) </TableHead>
             <TableHead>Total(₦) </TableHead>
             <TableHead>Customer Name </TableHead>
+            <TableHead> Note </TableHead>
             <TableHead> Payment Type</TableHead>
             <TableHead> Delivery Status</TableHead>
             <TableHead> Payment Status</TableHead>
@@ -376,6 +377,9 @@ const DeliveryList = () => {
                   {Number(data.totalProductValue).toLocaleString()}
                 </TableCell>
                 <TableCell>{data.receiverName}</TableCell>
+                <TableCell>
+                  {data.note ? data.note : "No Note Provided"}
+                </TableCell>
                 <TableCell>{data.paymentType}</TableCell>
                 <TableCell>{data.deliveryStatus}</TableCell>
                 <TableCell>

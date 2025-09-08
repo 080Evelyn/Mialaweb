@@ -179,9 +179,12 @@ const PayoutSummaryTable = () => {
                           setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
                         }}
                       />
-                      {copiedCode === data.deliveryCode && (
-                        <span className="text-green-600 text-xs">Copied!</span>
-                      )}
+                      {data.deliveryCode &&
+                        copiedCode === data.deliveryCode && (
+                          <span className="text-green-600 text-xs">
+                            Copied!
+                          </span>
+                        )}
                     </div>
                   </TableCell>
                   <TableCell>{data?.transactionDate.split("T")[0]}</TableCell>

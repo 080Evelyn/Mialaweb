@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowRightCircle, Loader2 } from "lucide-react";
+import { ArrowRightCircle, CheckCircle, Loader2, Power } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,7 @@ import { fetchSubadmin } from "@/redux/subadminSlice";
 import SuccessModal from "../common/SuccessModal";
 import { setRestricted } from "@/redux/restrictionSlice";
 import RestrictionModal from "../common/RestrictionModal";
+import UserProfile from "./UserProfile";
 
 const initialFormState = {
   first_name: "",
@@ -56,14 +57,18 @@ const AdminList = () => {
     "APPROVE_BLOCK_RIDER_SIGNUP",
     "CREATE_EDIT_DELIVERY",
     "PIN_UNPIN_RIDER",
-    "DELETE_RIDER",
+    // "DELETE_RIDER",
+    // "DELETE_STAFF",
+    // "NO_PERMISSION",
+    // DELETE_MANAGER,
     "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
     "VIEW_ALL_DELIVERIES",
     "ACCEPT_REJECT_DELIVERY_FEE",
     "CREATE_DELETE_PRODUCT",
-    "ACTIVATE_DEACTIVATE_RIDER",
+    // ALL_ACTIONS,
+    "ACTIVATE_DEACTIVATE_USER",
   ];
-
+  const [activate, setActivate] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -72,6 +77,7 @@ const AdminList = () => {
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
+  // console.log(subAdmins);
   const [dloading, setDloading] = useState(false);
   const loading = useSelector((state) => state.subadmin.loading);
   const success = useSelector((state) => state.subadmin.success);
@@ -138,7 +144,10 @@ const AdminList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (permission.includes(" DELETE_STAFF") || userRole === "Admin") {
+    if (
+      permission.includes("ACTIVATE_DEACTIVATE_USER") ||
+      userRole === "Admin"
+    ) {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -175,12 +184,15 @@ const AdminList = () => {
       setErrorMessage(`An error occured.`);
       console.log(error);
     } finally {
-      setdLoading(false);
+      setDLoading(false);
     }
   };
 
   const handleDeactivate = async (id) => {
-    if (permission.includes(" DELETE_STAFF") || userRole === "Admin") {
+    if (
+      permission.includes("ACTIVATE_DEACTIVATE_USER") ||
+      userRole === "Admin"
+    ) {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -214,6 +226,52 @@ const AdminList = () => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
         }, 10000);
+      } else if (response.data.responseCode === "55") {
+        setErrorMessage(response.data.responseDesc);
+      }
+    } catch (error) {
+      setErrorMessage(`An error occured.`);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleActivate = async (id) => {
+    if (
+      permissions.includes("ACTIVATE_DEACTIVATE_USER") ||
+      userRole === "Admin"
+    ) {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await axios.delete(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/activate-user/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/activate-user/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/activate-user/${id}`
+          : `${BASE_URL}api/v1/accountant/activate-user/${id}`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.responseCode === "00") {
+        dispatch(fetchSubadmin({ token, userRole }));
+        setSuccessMessage(response.data.data);
+        setSuccessModalOpen(true);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -492,6 +550,7 @@ const AdminList = () => {
               <TableHead className="rounded-l-sm">Role</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone Number </TableHead>
+              <TableHead>Status </TableHead>
               <TableHead>
                 <span className="sr-only">Action</span>
               </TableHead>
@@ -518,28 +577,75 @@ const AdminList = () => {
                 <TableCell>{data.userRole}</TableCell>
                 <TableCell>{data.email}</TableCell>
                 <TableCell>{data.phone}</TableCell>
+                <TableCell
+                  className={`${
+                    data.approvalStatus === "APPROVED" ||
+                    data.approvalStatus === "ACTIVATE"
+                      ? "bg-green-400"
+                      : "bg-red-500"
+                  } text-center`}>
+                  {data.approvalStatus === "ACTIVATE"
+                    ? "APPROVED"
+                    : data.approvalStatus}
+                </TableCell>
                 <TableCell>
                   {/* Delete Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <button className="bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1">
-                        <img src={Delete} className="h-6 w-6 text-white" />
+                      <button
+                        className={` ${
+                          data.approvalStatus === "DEACTIVATE"
+                            ? "bg-green-500 hover:bg-green-400"
+                            : ""
+                        } bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1`}>
+                        {(data.approvalStatus === "APPROVED" ||
+                          data.approvalStatus === "ACTIVATE") && (
+                          <img
+                            onClick={() => {
+                              setErrorMessage("");
+                              setSuccessMessage("");
+                              setActivate(false);
+                            }}
+                            src={Delete}
+                            className="h-6 w-6 text-white"
+                          />
+                        )}
+                        {data.approvalStatus === "DEACTIVATE" && (
+                          <Power
+                            onClick={() => {
+                              setErrorMessage("");
+                              setSuccessMessage("");
+                              setActivate(true);
+                            }}
+                          />
+                        )}
                       </button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
                         <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
-                          <img
-                            src={AlertCircle}
-                            alt="Alert Icon"
-                            className="w-20 h-20 mx-auto"
-                          />
-                          <span>Delete</span>
+                          {activate ? (
+                            <>
+                              <CheckCircle className="w-20 h-20 mx-auto text-green-400" />
+                              <span className="text-green-500">Activate</span>
+                            </>
+                          ) : (
+                            <>
+                              <img
+                                src={AlertCircle}
+                                alt="Alert Icon"
+                                className="w-20 h-20 mx-auto"
+                              />
+                              <span>Deactivate</span>
+                            </>
+                          )}
                         </DialogTitle>
                         <DialogDescription className="text-center text-foreground font-semibold text-xs">
-                          {userRole === "Admin"
+                          {userRole === "Admin" && !activate
                             ? "Deleting this user will permanently remove all their records from the database. This action is irreversible and the data cannot be recovered. If you only want to restrict the user’s access without losing their records, please consider deactivating the user instead.  "
-                            : "Are you sure you want to deactivate this Staff?"}
+                            : `Are you sure you want to ${
+                                activate ? "activate" : "deactivate"
+                              }  this Staff?`}
                         </DialogDescription>
                       </DialogHeader>
                       {successMessage && (
@@ -557,26 +663,36 @@ const AdminList = () => {
                           onClick={() => {
                             setErrorMessage(""), setSuccessMessage("");
                           }}
-                          className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                          className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] px-3 text-sm rounded-[3px] h-9">
                           Cancel
                         </DialogClose>
-                        {userRole === "Admin" && (
+                        {userRole === "Admin" && !activate && (
                           <Button
                             onClick={() => {
                               handleDelete(data.id);
                             }}
                             type="submit"
-                            className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
+                            className="bg-[#B10303] hover:bg-[#B10303]/80 text-white px-3 text-sm rounded-[3px] h-9">
                             {dloading ? "Deleting..." : "Delete"}
                           </Button>
                         )}
                         <Button
                           onClick={() => {
-                            handleDeactivate(data.id);
+                            if (activate) {
+                              handleActivate(data.id);
+                            } else {
+                              handleDeactivate(data.id);
+                            }
                           }}
                           type="submit"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 text-white w-1/2 text-sm rounded-[3px] h-9">
-                          {isLoading ? "Processing..." : "Deactivate"}
+                          className={`${
+                            activate
+                              ? "bg-green-500 hover:bg-green-400"
+                              : "bg-[#B10303] hover:bg-[#B10303]/80"
+                          }  text-white  text-sm rounded-[3px] h-9`}>
+                          {isLoading
+                            ? "processing.."
+                            : `${activate ? "Activate" : "Deactivate"} `}
                         </Button>
                       </div>
                     </DialogContent>
@@ -586,7 +702,11 @@ const AdminList = () => {
                   {/* Details Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <button>
+                      <button
+                        onClick={() => {
+                          setErrorMessage("");
+                          setSuccessMessage("");
+                        }}>
                         <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
                       </button>
                     </DialogTrigger>
@@ -600,6 +720,11 @@ const AdminList = () => {
                         data={data}
                         formData={formData}
                         setFormData={setFormData}
+                        id={data.id}
+                        successModalOpen={successModalOpen}
+                        setSuccessModalOpen={setSuccessModalOpen}
+                        successMessage={successMessage}
+                        setSuccessMessage={setSuccessMessage}
                       />
                     </DialogContent>
                   </Dialog>
@@ -626,82 +751,3 @@ const AdminList = () => {
 };
 
 export default AdminList;
-
-const UserProfile = ({ data, formData, setFormData }) => {
-  const permissions = [
-    "CREATE_STAFF",
-    "APPROVE_BLOCK_RIDER_SIGNUP",
-    "CREATE_EDIT_DELIVERY",
-    "PIN_UNPIN_RIDER",
-    "DELETE_RIDER",
-    "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
-    "VIEW_ALL_DELIVERIES",
-    "ACCEPT_REJECT_DELIVERY_FEE",
-    "CREATE_DELETE_PRODUCT",
-    "ACTIVATE_DEACTIVATE_RIDER",
-  ];
-  const [userPermissions, setUserPermissions] = useState(
-    data.permissions || []
-  );
-
-  const togglePermission = (perm) => {
-    let updated;
-    if (userPermissions.includes(perm)) {
-      updated = userPermissions.filter((p) => p !== perm);
-    } else {
-      updated = [...userPermissions, perm];
-    }
-
-    setUserPermissions(updated);
-
-    // also update formData so backend gets the change
-    setFormData((prev) => ({
-      ...prev,
-      permissions: updated,
-    }));
-  };
-  return (
-    <div>
-      <div className="flex justify-between">
-        <p className="font-semibold">Full Name:</p>
-        <div className="flex items-center gap-2">
-          <img src={Avatar} alt="avatar" className="h-6 w-6 rounded-full" />
-          <span className="font-semibold">{`${data?.first_name} ${
-            data?.last_name ?? ""
-          }`}</span>
-        </div>
-      </div>
-
-      <div className="flex justify-between">
-        <p className="font-semibold">User Role:</p>
-        <span className="font-semibold">{data.userRole}</span>
-      </div>
-
-      <div className="flex justify-between">
-        <p className="font-semibold">Email:</p>
-        <span className="font-semibold">{data.email}</span>
-      </div>
-
-      <div className="flex justify-between">
-        <p className="font-semibold">Phone:</p>
-        <span className="font-semibold">{data.phone}</span>
-      </div>
-
-      <div>
-        <p className="font-semibold mt-3">Permissions:</p>
-        <div className="flex flex-col gap-2 mt-2">
-          {permissions.map((perm) => (
-            <label key={perm} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={userPermissions.includes(perm)}
-                onChange={() => togglePermission(perm)}
-              />
-              <span>{perm}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
