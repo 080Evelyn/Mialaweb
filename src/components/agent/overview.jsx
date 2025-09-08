@@ -6,7 +6,10 @@ const AgentOverview = () => {
     (state) => state.pendingRiders.pendingRiders
   );
   const approved = riders?.filter((rider) => {
-    return rider.approvalStatus === "APPROVED";
+    return (
+      rider?.approvalStatus === "APPROVED" ||
+      rider?.approvalStatus === "ACTIVATE"
+    );
   });
   return (
     <div className="left-[240px] top-[77px] flex flex-col gap-[8px] mb-3">

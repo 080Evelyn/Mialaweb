@@ -40,7 +40,10 @@ function AdminHeader({ setOpen, rightSidebar }) {
     path === "/payout-summary";
 
   const approved = riders?.filter((rider) => {
-    return rider?.approvalStatus === "APPROVED";
+    return (
+      rider?.approvalStatus === "APPROVED" ||
+      rider?.approvalStatus === "ACTIVATE"
+    );
   });
   const sorted = riders && [...approved].sort((a, b) => b.pinned - a.pinned);
 

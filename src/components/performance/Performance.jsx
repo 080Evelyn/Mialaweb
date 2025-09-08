@@ -109,14 +109,14 @@ const Performance = () => {
 
                 <TableCell>{data.totalDeliveries}</TableCell>
                 <TableCell>
-                  {data.statusCounts.DELIVERED
-                    ? data.statusCounts.DELIVERED
+                  {data?.statusCounts?.DELIVERED
+                    ? data?.statusCounts?.DELIVERED
                     : "0"}
                 </TableCell>
                 <TableCell>
-                  {data.statusCounts.DELIVERED > 0
+                  {data?.statusCounts?.DELIVERED > 0
                     ? (
-                        (data.statusCounts.DELIVERED / data.totalDeliveries) *
+                        (data?.statusCounts?.DELIVERED / data.totalDeliveries) *
                         100
                       ).toFixed(2)
                     : "0.00"}

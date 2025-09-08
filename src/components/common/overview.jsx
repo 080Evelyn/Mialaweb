@@ -13,7 +13,10 @@ const AdminOverview = () => {
   const success = useSelector((state) => state.revenue.success);
   const riders = useSelector((state) => state.allRiders.allRiders);
   const approved = riders?.filter((rider) => {
-    return rider.approvalStatus === "APPROVED";
+    return (
+      rider?.approvalStatus === "APPROVED" ||
+      rider?.approvalStatus === "ACTIVATE"
+    );
   });
   useEffect(() => {
     if (success) {
