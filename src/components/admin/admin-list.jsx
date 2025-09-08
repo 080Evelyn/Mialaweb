@@ -581,8 +581,8 @@ const AdminList = () => {
                   className={`${
                     data.approvalStatus === "APPROVED" ||
                     data.approvalStatus === "ACTIVATE"
-                      ? "bg-green-400"
-                      : "bg-red-500"
+                      ? "text-green-400"
+                      : "text-red-500"
                   } text-center`}>
                   {data.approvalStatus === "ACTIVATE"
                     ? "APPROVED"
