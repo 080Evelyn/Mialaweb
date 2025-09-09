@@ -77,7 +77,7 @@ const ProposedFeeDialog = ({ id, openDialog, setOpenDialog, index }) => {
                 <th>Delivery Code</th>
                 <th>Proposed Fee(₦) </th>
                 <th>Quantity </th>
-                <th>Adress </th>
+                <th>Address </th>
               </tr>
             </thead>
             <tbody className="text-[12px] font-[Raleway] font-[500] ">

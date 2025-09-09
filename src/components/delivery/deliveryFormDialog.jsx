@@ -188,7 +188,10 @@ const DeliveryFormDialog = ({
     // console.log(payload);
     setErrorMessage("");
     setSuccessMessage("");
-
+    if (formData.receiverPhone.length !== 11) {
+      setErrorMessage("Phone number must be 11 digits");
+      return;
+    }
     if (
       formData.receiverAddress === "" ||
       formData.riderId === "" ||

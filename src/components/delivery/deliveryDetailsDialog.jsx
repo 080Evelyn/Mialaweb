@@ -80,48 +80,52 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
               </div>
               <div className="border shadow-md rounded-md p-3">
                 <p className="text-sm font-semibold">Package Details</p>
-                <div className="flex justify-between items-center">
-                  <Label className="text-xs">Package</Label>
-                  <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {filteredProducts?.map((product, index) => (
-                      <div key={index}>{product.productName}</div>
-                    ))}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <Label className="text-xs">Product Price</Label>
-                  <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {filteredProducts?.map((product, index) => (
-                      <div key={index}>
-                        ₦{Number(product?.productPrice).toLocaleString()}
+
+                <div className="flex flex-col gap-3 mt-2">
+                  {filteredProducts?.map((product, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-md p-2 shadow-sm bg-gray-50">
+                      <p className="text-xs font-semibold mb-1">
+                        {product.productName}
+                      </p>
+
+                      <div className="flex justify-between text-[10px] text-[#8C8C8C] font-[Raleway]">
+                        <span>Unit Price:</span>
+                        <span>
+                          ₦{Number(product.productPrice).toLocaleString()}
+                        </span>
                       </div>
-                    ))}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <Label className="text-xs">Discount Price</Label>
-                  <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {filteredProducts?.map((product, index) => (
-                      <div key={index}>
-                        ₦
-                        {Number(
-                          product?.totalAfterDiscount / product?.qty
-                        ).toLocaleString()}
+
+                      <div className="flex justify-between text-[10px] text-[#8C8C8C] font-[Raleway]">
+                        <span>Discount Price:</span>
+                        <span>
+                          ₦
+                          {Number(
+                            product.totalAfterDiscount / product.qty
+                          ).toLocaleString()}
+                        </span>
                       </div>
-                    ))}
-                  </span>
+
+                      <div className="flex justify-between text-[10px] text-[#8C8C8C] font-[Raleway]">
+                        <span>Quantity:</span>
+                        <span>{product.qty}</span>
+                      </div>
+
+                      <div className="flex justify-between text-[10px] text-[#8C8C8C] font-[Raleway]">
+                        <span>Total After Discount:</span>
+                        <span>
+                          ₦{Number(product.totalAfterDiscount).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex justify-between items-center">
-                  <Label className="text-xs">Quantity</Label>
-                  <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {filteredProducts?.map((product, index) => (
-                      <div key={index}>{Number(product?.qty)}</div>
-                    ))}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <Label className="text-xs">Total Amount </Label>
-                  <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
+
+                {/* Grand total */}
+                <div className="flex justify-between mt-3 text-xs font-semibold">
+                  <span>Total Amount:</span>
+                  <span>
                     ₦{Number(data?.totalProductValue).toLocaleString()}
                   </span>
                 </div>

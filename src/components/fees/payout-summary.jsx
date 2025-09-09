@@ -33,6 +33,7 @@ const PayoutSummaryTable = () => {
   const query = useSelector((state) => state.search.query);
   const filters = useSelector((state) => state.search.filters);
   const dispatch = useDispatch();
+  const [filteredBank, setFilteredBank] = useState([]);
   const filtered = transaction?.filter((trans) => {
     const search =
       trans?.transactionReference.toLowerCase().includes(query.toLowerCase()) ||
@@ -63,13 +64,21 @@ const PayoutSummaryTable = () => {
 
     return search && dateMatch && state && agentMatch;
   });
+
+  const sortedTransactions = filtered?.sort((a, b) => {
+    return new Date(b.transactionDate) - new Date(a.transactionDate);
+  });
+
   useEffect(() => {
     dispatch(fetchTransaction({ token, userRole }));
   }, []);
-  // const selectedBank = bankList.filter((bnk) => {
-  //   return bnk.code === data?.bank_code;
-  // });
-  // console.log(selectedBank);
+  const handleBankSelection = (data) => {
+    const selectedBank = bankList.filter((bnk) => {
+      return bnk.code === data?.bankName;
+    });
+    setFilteredBank(selectedBank[0]?.name);
+  };
+  // console.log(filtered);
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
@@ -157,10 +166,10 @@ const PayoutSummaryTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody className="text-sm font-[Raleway] ">
-            {transaction?.length === 0 ? (
+            {filtered?.length === 0 ? (
               <p className="text-center">No transactions at the moment.</p>
             ) : (
-              filtered?.map((data, index) => (
+              sortedTransactions?.map((data, index) => (
                 <TableRow key={index}>
                   <TableCell>{data?.riderFullName}</TableCell>
                   <TableCell>₦{data?.amount?.toLocaleString()}</TableCell>
@@ -200,7 +209,11 @@ const PayoutSummaryTable = () => {
                   <TableCell>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                        <button
+                          onClick={() => {
+                            console.log(data.bankName);
+                          }}
+                          className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
                           <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                         </button>
                       </DialogTrigger>
@@ -214,7 +227,25 @@ const PayoutSummaryTable = () => {
                           <div className="flex justify-between items-center">
                             <Label className="text-xs">Agent Name</Label>
                             <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.riderName}
+                              {data.riderFullName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Account Name</Label>
+                            <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.accountName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Account Number</Label>
+                            <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.accountNumber}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Bank</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.bankName}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
@@ -234,12 +265,7 @@ const PayoutSummaryTable = () => {
                               {data.transactionStatus}
                             </span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <Label className="text-xs">Transfer Code</Label>
-                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                              {data.transferCode}
-                            </span>
-                          </div>
+
                           <div className="flex justify-between items-center">
                             <Label className="text-xs">Date </Label>
                             <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">

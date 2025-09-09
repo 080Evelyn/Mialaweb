@@ -86,8 +86,8 @@ const UserProfile = ({
     try {
       const response = await axios.post(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/${id}/add-permissions`
-          : `${BASE_URL}api/v1/manager/${id}/add-permissions`,
+          ? `${BASE_URL}api/v1/admin/users/${id}/permissions`
+          : `${BASE_URL}api/v1/manager/users/${id}/permissions`,
         payload,
 
         {
@@ -109,53 +109,6 @@ const UserProfile = ({
       console.log(error);
     } finally {
       setIsLoading(false);
-    }
-  };
-  const handleRemove = async () => {
-    if (
-      permissions.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
-      dispatch(setRestricted(false));
-    } else {
-      dispatch(setRestricted(true));
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-    const payload = {
-      userId: id,
-      permissions: formData.permissions,
-    };
-
-    try {
-      const response = await axios.post(
-        userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/${id}/remove-permissions`
-          : `${BASE_URL}api/v1/manager/${id}/remove-permissions`,
-        payload,
-
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data.responseMsg === "Success") {
-        setSuccessModalOpen(response.data.responseMsg === "Success");
-        dispatch(fetchSubadmin({ token, userRole }));
-        setSuccessMessage(response.data.responseMsg);
-      } else if (response.data.responseCode === "55") {
-        setErrorMessage(response.data.responseDesc);
-      }
-    } catch (error) {
-      setErrorMessage(`An error occured.`);
-      console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -263,13 +216,7 @@ const UserProfile = ({
               disabled={isLoading}
               onClick={handleUpdatePermissions}
               className="justify-center text-white border cursor-pointer w-[100px] hover:bg-green-500 font-semibold  bg-green-400  p-2 rounded-md shadow-md m-auto ">
-              {isLoading ? "Processing..." : "Add "}
-            </button>
-            <button
-              disabled={Loading}
-              onClick={handleRemove}
-              className="justify-center text-white border cursor-pointer bg-[#B10303] hover:bg-[#B10303]/80 font-semibold w-[100px]  p-2 rounded-md shadow-md m-auto ">
-              {Loading ? "Processing..." : "Remove "}
+              {isLoading ? "Processing..." : "Update "}
             </button>
           </div>
           {successMessage && (
