@@ -1,12 +1,13 @@
 import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 // Async thunks to fetch transactions
 export const fetchAllPayment = createAsyncThunk(
   "payment/fetchAllPayment",
   async ({ token, userRole }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         userRole === "Admin"
           ? ` ${BASE_URL}api/v1/admin/deposits-with-customers`
           : userRole === "CustomerCare"
@@ -15,7 +16,6 @@ export const fetchAllPayment = createAsyncThunk(
           ? `${BASE_URL}api/v1/manager/deposits-with-customers`
           : `${BASE_URL}api/v1/accountant/deposits-with-customers`,
         {
-          method: "GET",
           headers: {
             accept: "application/json",
             "Content-Type": "application/json",
@@ -24,13 +24,9 @@ export const fetchAllPayment = createAsyncThunk(
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch payments");
-      const data = await response.json();
-      // console.log(data);
-
-      return data.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response.data.responseDesc);
     }
   }
 );

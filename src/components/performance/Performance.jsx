@@ -97,7 +97,12 @@ const Performance = () => {
               </TableBody>
             </Table>
           ) : !loader && error ? (
-            <p className="text-center text-red-500">Something went wrong</p>
+            <p className="text-center text-red-500">
+              {error ===
+              "You do not have permission to perform this action: VIEW_ALL_DELIVERIES"
+                ? "You do not have permission to view this data."
+                : "Failed to fetch"}
+            </p>
           ) : filtered?.length === 0 ? (
             <p className="!text-center py-4">Search not found.</p>
           ) : (

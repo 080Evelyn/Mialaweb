@@ -1,12 +1,13 @@
 import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 // Async thunks to fetch transactions
 export const fetchRevenue = createAsyncThunk(
   "revenue/fetchRevenue",
   async ({ token, userRole }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         userRole === "Admin"
           ? ` ${BASE_URL}api/v1/admin/transaction-summary-and-revenue`
           : userRole === "CustomerCare"
@@ -25,12 +26,9 @@ export const fetchRevenue = createAsyncThunk(
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch revenue");
-      const data = await response.json();
-
-      return data.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response.data.responseDesc);
     }
   }
 );

@@ -31,7 +31,7 @@ const SummaryOrder = () => {
   const { totalPages, currentPage, loading, error } = useSelector(
     (state) => state.orderSummary
   );
-
+  const [totalSold, setTotalSold] = useState(null);
   const [page, setPage] = useState(0);
   const [openDialog, setOpenDialog] = useState("");
   const [details, setDetails] = useState(null);
@@ -64,6 +64,11 @@ const SummaryOrder = () => {
         }
       );
       setDetails(response.data.data);
+      const totalQuantity = response.data.data?.deliveries.reduce(
+        (sum, delivery) => sum + delivery.quantity,
+        0
+      );
+      setTotalSold(totalQuantity);
     } catch (err) {
       console.log(err);
       err.response.data.responseDesc ===
@@ -218,7 +223,7 @@ const SummaryOrder = () => {
                                       </p>
                                       <p>
                                         <strong>Total Sold:</strong>
-                                        {details.totalRevenueCount}
+                                        {totalSold}
                                       </p>
                                     </div>
 

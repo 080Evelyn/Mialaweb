@@ -178,14 +178,14 @@ const AdminAgentSidebar = () => {
                 <Button
                   onClick={() => {
                     if (
-                      userRole === "Accountant" ||
-                      userRole === "CustomerCare"
+                      permissions.includes("APPROVE_BLOCK_RIDER_SIGNUP") ||
+                      userRole === "Admin"
                     ) {
-                      dispatch(setRestricted(true));
-
-                      return;
-                    } else {
+                      dispatch(setRestricted(false));
                       setDialogOpen(true);
+                    } else {
+                      dispatch(setRestricted(true));
+                      return;
                     }
                   }}
                   className="h-6 px-3 text-xs bg-green-600 hover:bg-green-700 text-white rounded-[4px]">

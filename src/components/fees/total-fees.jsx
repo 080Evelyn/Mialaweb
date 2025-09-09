@@ -35,6 +35,8 @@ const TotalFeesTable = () => {
   const userRole = useSelector((state) => state.auth.user.userRole);
   const userId = useSelector((state) => state.auth.user.userId);
   const totalPayments = useSelector((state) => state.payment.payment);
+  const error = useSelector((state) => state.payment.error);
+  const loading = useSelector((state) => state.payment.loading);
   // console.log(totalPayments);
   const query = useSelector((state) => state.search.query);
   const initialFormState = {
@@ -163,62 +165,114 @@ const TotalFeesTable = () => {
           </Button>
         </div>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
-            <TableHead className="rounded-l-sm">Customer Name</TableHead>
-            <TableHead>Customer Contact</TableHead>
-            <TableHead>Amount </TableHead>
-            <TableHead>Delivery Code </TableHead>
-            <TableHead>State </TableHead>
-            <TableHead>Date </TableHead>
-            <TableHead>
-              <span className="sr-only">Action</span>
-            </TableHead>
-            <TableHead>
-              <span className="sr-only">more</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="text-[14px] font-medium font-[Raleway]">
-          {sortedTransactions?.map((data, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={Avatar}
-                    alt="avatar"
-                    className="h-6 w-6 rounded-full"
-                  />
-                  <span>{data.customerName}</span>
-                </div>
-              </TableCell>
-              <TableCell>{data.customerPhone}</TableCell>
-              <TableCell>₦{data.amount}</TableCell>
-              <TableCell>
-                {/* {data.deliveryCode} */}
-                <div className="flex items-center gap-2">
-                  <span>{data.deliveryCode}</span>
-                  <Copy
-                    size={16}
-                    className="cursor-pointer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(data.deliveryCode);
-                      setCopiedCode(data.deliveryCode);
-                      setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
-                    }}
-                  />
-                  {data.deliveryCode && copiedCode === data.deliveryCode && (
-                    <span className="text-green-600 text-xs">Copied!</span>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>{data.riderState}</TableCell>
-              <TableCell>{data.depositDate.split("T")[0]}</TableCell>
-              <TableCell>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    {/* <button
+      {loading ? (
+        // <Loader2 className="animate-spin w-5 h-5 m-auto mt-5" />
+        <Table className={" md:w-[1100px]"}>
+          <TableBody>
+            {Array.from({ length: 15 }).map((_, index) => (
+              <TableRow key={index}>
+                {/* Delivery Code */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Date */}
+                <TableCell>
+                  <div className="h-2.5 w-16 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Delivery Fee */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Total */}
+                <TableCell>
+                  <div className="h-2.5 w-14 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Customer Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+
+                {/* Rider Payment Status */}
+                <TableCell>
+                  <div className="h-2.5 w-20 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : !loading && error ? (
+        <p className="text-sm text-red-500 text-center">
+          {error === "You do not have permission to view account details"
+            ? "You do not have permission to view this data."
+            : "Failed to fetch."}
+        </p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
+              <TableHead className="rounded-l-sm">Customer Name</TableHead>
+              <TableHead>Customer Contact</TableHead>
+              <TableHead>Amount </TableHead>
+              <TableHead>Delivery Code </TableHead>
+              <TableHead>State </TableHead>
+              <TableHead>Date </TableHead>
+              <TableHead>
+                <span className="sr-only">Action</span>
+              </TableHead>
+              <TableHead>
+                <span className="sr-only">more</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="text-[14px] font-medium font-[Raleway]">
+            {filtered.length === 0 ? (
+              <p>No data </p>
+            ) : (
+              sortedTransactions?.map((data, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={Avatar}
+                        alt="avatar"
+                        className="h-6 w-6 rounded-full"
+                      />
+                      <span>{data.customerName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{data.customerPhone}</TableCell>
+                  <TableCell>₦{data.amount}</TableCell>
+                  <TableCell>
+                    {/* {data.deliveryCode} */}
+                    <div className="flex items-center gap-2">
+                      <span>{data.deliveryCode}</span>
+                      <Copy
+                        size={16}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          navigator.clipboard.writeText(data.deliveryCode);
+                          setCopiedCode(data.deliveryCode);
+                          setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
+                        }}
+                      />
+                      {data.deliveryCode &&
+                        copiedCode === data.deliveryCode && (
+                          <span className="text-green-600 text-xs">
+                            Copied!
+                          </span>
+                        )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{data.riderState}</TableCell>
+                  <TableCell>{data.depositDate.split("T")[0]}</TableCell>
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        {/* <button
                       className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center"
                       onClick={() =>
                         setFormData({
@@ -228,174 +282,180 @@ const TotalFeesTable = () => {
                       }>
                       <EllipsisVertical className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
                     </button> */}
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[362px]">
-                    <DialogHeader>
-                      <DialogTitle className="text-[#B10303] text-left">
-                        Assign Payment
-                      </DialogTitle>
-                    </DialogHeader>
-                    <form className="flex flex-col gap-2 py-3">
-                      <div className="flex flex-col gap-1">
-                        <Label className="text-xs" htmlFor="depositReference">
-                          Deposit Reference
-                        </Label>
-                        <Input
-                          className="rounded-xs bg-[#8C8C8C33]"
-                          id="depositReference"
-                          value={formData.depositReference}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              depositReference: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[362px]">
+                        <DialogHeader>
+                          <DialogTitle className="text-[#B10303] text-left">
+                            Assign Payment
+                          </DialogTitle>
+                        </DialogHeader>
+                        <form className="flex flex-col gap-2 py-3">
+                          <div className="flex flex-col gap-1">
+                            <Label
+                              className="text-xs"
+                              htmlFor="depositReference">
+                              Deposit Reference
+                            </Label>
+                            <Input
+                              className="rounded-xs bg-[#8C8C8C33]"
+                              id="depositReference"
+                              value={formData.depositReference}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  depositReference: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-                      <div className="flex flex-col gap-1">
-                        <Label className="text-xs" htmlFor="deliveryCode">
-                          Delivery Code
-                        </Label>
-                        <Input
-                          className="rounded-xs bg-[#8C8C8C33]"
-                          id="deliveryCode"
-                          value={formData.deliveryCode}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              deliveryCode: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      {successMessage && (
-                        <p className="text-green-500 text-sm text-center">
-                          {successMessage}
-                        </p>
-                      )}
-                      {errorMessage && (
-                        <p className="text-red-500 text-sm text-center">
-                          {errorMessage}
-                        </p>
-                      )}
-                      <div className="flex justify-end gap-2 mt-4">
-                        <DialogClose
-                          onClick={() => {
-                            setErrorMessage("");
-                            setSuccessMessage("");
-                          }}
-                          className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                          Cancel
-                        </DialogClose>
-                        <Button
-                          onClick={handleAssignPayment}
-                          type="button"
-                          className="bg-[#B10303] hover:bg-[#B10303]/80 cursor-pointer text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                          {isLoading ? "Loading.." : "Submit"}
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </TableCell>
-              <TableCell>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    {
-                      // data.usedForDelivery === 0 &&
-                      <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
-                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
-                      </button>
-                    }
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[362px]">
-                    <DialogHeader>
-                      <DialogTitle className="text-[#B10303] text-left">
-                        Details
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="flex flex-col gap-3 py-0.5">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Agent </Label>
-                        <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.riderAccountName}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Reference</Label>
-                        <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.reference}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Rider Account Number</Label>
-                        <span
-                          className={` text-right text-[10px] text-[#8C8C8C] font-[Raleway] `}>
-                          {data.riderAccountNumber}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Agent Phone</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.riderPhone}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs"> State </Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.riderState}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Delivery Code </Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.deliveryCode}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Currency </Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.currency}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Customer Name</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.customerName}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Customer Contact</Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          {data.customerPhone}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs">Amount </Label>
-                        <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                          ₦{Number(data.amount).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
+                          <div className="flex flex-col gap-1">
+                            <Label className="text-xs" htmlFor="deliveryCode">
+                              Delivery Code
+                            </Label>
+                            <Input
+                              className="rounded-xs bg-[#8C8C8C33]"
+                              id="deliveryCode"
+                              value={formData.deliveryCode}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  deliveryCode: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          {successMessage && (
+                            <p className="text-green-500 text-sm text-center">
+                              {successMessage}
+                            </p>
+                          )}
+                          {errorMessage && (
+                            <p className="text-red-500 text-sm text-center">
+                              {errorMessage}
+                            </p>
+                          )}
+                          <div className="flex justify-end gap-2 mt-4">
+                            <DialogClose
+                              onClick={() => {
+                                setErrorMessage("");
+                                setSuccessMessage("");
+                              }}
+                              className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                              Cancel
+                            </DialogClose>
+                            <Button
+                              onClick={handleAssignPayment}
+                              type="button"
+                              className="bg-[#B10303] hover:bg-[#B10303]/80 cursor-pointer text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                              {isLoading ? "Loading.." : "Submit"}
+                            </Button>
+                          </div>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        {
+                          // data.usedForDelivery === 0 &&
+                          <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                            <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                          </button>
+                        }
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[362px]">
+                        <DialogHeader>
+                          <DialogTitle className="text-[#B10303] text-left">
+                            Details
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col gap-3 py-0.5">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Agent </Label>
+                            <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.riderAccountName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Reference</Label>
+                            <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.reference}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">
+                              Rider Account Number
+                            </Label>
+                            <span
+                              className={` text-right text-[10px] text-[#8C8C8C] font-[Raleway] `}>
+                              {data.riderAccountNumber}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Agent Phone</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.riderPhone}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs"> State </Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.riderState}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Delivery Code </Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.deliveryCode}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Currency </Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.currency}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Customer Name</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.customerName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Customer Contact</Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              {data.customerPhone}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs">Amount </Label>
+                            <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                              ₦{Number(data.amount).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
 
-                    <div className="flex justify-end gap-2 mt-4">
-                      <DialogClose className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
-                        Cancel
-                      </DialogClose>
-                      {/* <Button
+                        <div className="flex justify-end gap-2 mt-4">
+                          <DialogClose className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
+                            Cancel
+                          </DialogClose>
+                          {/* <Button
                         type="button"
                         className="bg-[#B10303] hover:bg-[#B10303]/80 cursor-pointer text-white w-1/2 font-[Raleway] text-sm rounded-[3px] h-9">
                         {isLoading ? "Loading.." : "Submit"}
                       </Button> */}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      )}
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}

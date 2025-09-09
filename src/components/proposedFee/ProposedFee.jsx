@@ -230,7 +230,7 @@ const ProposedFee = () => {
             <TableHead>Product</TableHead>
             <TableHead>Quantity</TableHead>
             <TableHead>Delivery Code</TableHead>
-            <TableHead> Adress</TableHead>
+            <TableHead> Address</TableHead>
             <TableHead> Status</TableHead>
             <TableHead> Proposed Fee(₦)</TableHead>
             <TableHead>Date </TableHead>
@@ -242,98 +242,104 @@ const ProposedFee = () => {
           //   setAction(!action);
           // }}
           className="text-[12px] font-[Raleway] font-[500] ">
-          {filtered?.map((data, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={Avatar}
-                    alt="avatar"
-                    className="h-6 w-6 rounded-full"
-                  />
-                  <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                {data?.products?.map((product, index) => (
-                  <div key={index}>{product.productName}</div>
-                ))}
-              </TableCell>
-              <TableCell>
-                {data?.products?.map((product, index) => (
-                  <div key={index}>{product.qty}</div>
-                ))}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <span>{data.deliveryCode}</span>
-                  <Copy
-                    size={16}
-                    className="cursor-pointer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(data.deliveryCode);
-                      setCopiedCode(data.deliveryCode);
-                      setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
-                    }}
-                  />
-                  {copiedCode === data.deliveryCode && (
-                    <span className="text-green-600 text-xs">Copied!</span>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>{data.receiverAddress}</TableCell>
-              <TableCell>{data.negotiationStatus}</TableCell>
-              <TableCell>{Number(data.proposedFee).toLocaleString()}</TableCell>
-              <TableCell>{data.uploadDate}</TableCell>
-              <TableCell>
-                <div className="flex gap-3 items-center">
-                  <EllipsisVertical
-                    onClick={() => {
-                      handleAction(data.id);
-                    }}
-                    className="items-center cursor-pointer text-[#8C8C8C]"
-                  />
-                </div>
-                <ProposedFeeDialog
-                  openDialog={openDialog}
-                  setOpenDialog={setOpenDialog}
-                  index={index}
-                  id={selectedFee}
-                />
-                <ReassignDeliveryDialog
-                  openDialog={dialogOpen}
-                  setOpenDialog={setDialogOpen}
-                  index={index}
-                  id={selectedFee}
-                />
-                {action && selectedFee === data.id && (
-                  <div className="shadow-2xl absolute right-[-50px] flex flex-col bg-gradient-to-tr from-white via-pink-300 to-rose-500  py-2 px-3">
-                    <button
-                      disabled={approvalLoading || rejectLoading}
+          {filtered.length === 0 ? (
+            <p className="text-center mt-5">No data</p>
+          ) : (
+            filtered?.map((data, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={Avatar}
+                      alt="avatar"
+                      className="h-6 w-6 rounded-full"
+                    />
+                    <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {data?.products?.map((product, index) => (
+                    <div key={index}>{product.productName}</div>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {data?.products?.map((product, index) => (
+                    <div key={index}>{product.qty}</div>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span>{data.deliveryCode}</span>
+                    <Copy
+                      size={16}
+                      className="cursor-pointer"
                       onClick={() => {
-                        handleApprove(selectedFee);
+                        navigator.clipboard.writeText(data.deliveryCode);
+                        setCopiedCode(data.deliveryCode);
+                        setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
                       }}
-                      className="text-[12px] font-bold text-black hover:bg-green-500 hover:shadow-2xl px-3 py-2 cursor-pointer ">
-                      {approvalLoading ? "Processing..." : "Approve fee"}
-                    </button>
-
-                    <button
-                      disabled={approvalLoading || rejectLoading}
-                      onClick={() => {
-                        handleReject(selectedFee);
-                      }}
-                      className="text-[12px] hover:bg-[#B10303] hover:text-white hover:shadow-2xl  font-bold text-black px-3 py-2 cursor-pointer">
-                      {rejectLoading ? "Processing..." : "Reject fee"}
-                    </button>
-
-                    {approvalError && (
-                      <p className="text-red-500">{approvalError}</p>
+                    />
+                    {copiedCode === data.deliveryCode && (
+                      <span className="text-green-600 text-xs">Copied!</span>
                     )}
                   </div>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>{data.receiverAddress}</TableCell>
+                <TableCell>{data.negotiationStatus}</TableCell>
+                <TableCell>
+                  {Number(data.proposedFee).toLocaleString()}
+                </TableCell>
+                <TableCell>{data.uploadDate}</TableCell>
+                <TableCell>
+                  <div className="flex gap-3 items-center">
+                    <EllipsisVertical
+                      onClick={() => {
+                        handleAction(data.id);
+                      }}
+                      className="items-center cursor-pointer text-[#8C8C8C]"
+                    />
+                  </div>
+                  <ProposedFeeDialog
+                    openDialog={openDialog}
+                    setOpenDialog={setOpenDialog}
+                    index={index}
+                    id={selectedFee}
+                  />
+                  <ReassignDeliveryDialog
+                    openDialog={dialogOpen}
+                    setOpenDialog={setDialogOpen}
+                    index={index}
+                    id={selectedFee}
+                  />
+                  {action && selectedFee === data.id && (
+                    <div className="shadow-2xl absolute right-[-50px] flex flex-col bg-gradient-to-tr from-white via-pink-300 to-rose-500  py-2 px-3">
+                      <button
+                        disabled={approvalLoading || rejectLoading}
+                        onClick={() => {
+                          handleApprove(selectedFee);
+                        }}
+                        className="text-[12px] font-bold text-black hover:bg-green-500 hover:shadow-2xl px-3 py-2 cursor-pointer ">
+                        {approvalLoading ? "Processing..." : "Approve fee"}
+                      </button>
+
+                      <button
+                        disabled={approvalLoading || rejectLoading}
+                        onClick={() => {
+                          handleReject(selectedFee);
+                        }}
+                        className="text-[12px] hover:bg-[#B10303] hover:text-white hover:shadow-2xl  font-bold text-black px-3 py-2 cursor-pointer">
+                        {rejectLoading ? "Processing..." : "Reject fee"}
+                      </button>
+
+                      {approvalError && (
+                        <p className="text-red-500">{approvalError}</p>
+                      )}
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
       <SuccessModal

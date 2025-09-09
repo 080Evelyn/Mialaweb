@@ -1,5 +1,6 @@
 import { BASE_URL } from "@/lib/Api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 // 🔹 Utility to format date as YYYY-MM-DD
 const formatDate = (date) => {
@@ -23,8 +24,7 @@ export const fetchPerformance = createAsyncThunk(
           ? `${BASE_URL}api/v1/manager/list-riders-delivery/performance?startDate=${startDate}&endDate=${endDate}`
           : `${BASE_URL}api/v1/accountant/list-riders-delivery/performance?startDate=${startDate}&endDate=${endDate}`;
 
-      const response = await fetch(url, {
-        method: "GET",
+      const response = await axios.get(url, {
         headers: {
           accept: "application/json",
           "Content-Type": "application/json",
@@ -32,12 +32,10 @@ export const fetchPerformance = createAsyncThunk(
         },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch");
-
-      const data = await response.json();
-      return data.data;
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      console.log("error", error);
+      return rejectWithValue(error.response.data.responseDesc);
     }
   }
 );

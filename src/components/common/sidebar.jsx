@@ -48,12 +48,12 @@ function MenuItems({ setOpen }) {
       ),
     },
 
-    {
-      id: "product-stats",
-      label: "Product Stats",
-      path: "/productStat",
-      icon: <TrendingUp className="w-5 h-5" />,
-    },
+    // {
+    //   id: "product-stats",
+    //   label: "Product Stats",
+    //   path: "/productStat",
+    //   icon: <TrendingUp className="w-5 h-5" />,
+    // },
     {
       id: "delivery",
       label: "Orders",
