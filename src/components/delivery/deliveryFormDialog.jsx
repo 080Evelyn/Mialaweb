@@ -54,6 +54,7 @@ const DeliveryFormDialog = ({
   const loading = useSelector((state) => state.delivery.idLoading);
   const error = useSelector((state) => state.delivery.idError);
 
+  const nigerianPhoneRegex = /^(?:\+234|234|0)(7[0-9]|8[01]|9[01])\d{7}$/;
   useEffect(() => {
     if (token && userRole) {
       dispatch(fetchProducts({ token, userRole }));
@@ -73,6 +74,7 @@ const DeliveryFormDialog = ({
     const numeric = String(input).replace(/[^0-9]/g, "");
     return numeric ? parseInt(numeric, 10) : 0;
   };
+
   const handleCurrencyChange = (e, key) => {
     const rawNumber = parseCurrency(e.target.value);
     setFormData((prev) => ({
@@ -190,6 +192,11 @@ const DeliveryFormDialog = ({
     setSuccessMessage("");
     if (formData.receiverPhone.length !== 11) {
       setErrorMessage("Phone number must be 11 digits");
+      return;
+    }
+
+    if (!nigerianPhoneRegex.test(formData.receiverPhone)) {
+      setErrorMessage("Invalid phone number");
       return;
     }
     if (
