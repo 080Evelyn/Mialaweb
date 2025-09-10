@@ -78,7 +78,7 @@ const PayoutSummaryTable = () => {
     });
     setFilteredBank(selectedBank[0]?.name);
   };
-  // console.log(filtered);
+  // console.log(error);
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <div className="flex justify-between items-center mb-6">
@@ -143,7 +143,9 @@ const PayoutSummaryTable = () => {
         </Table>
       ) : !loading && error ? (
         <p className="text-sm text-red-500 text-center">
-          Something went wrong.
+          {error === "You do not have permission to view account details"
+            ? "You do not have permission to view this data."
+            : "Failed to fetch."}
         </p>
       ) : (
         // : !loading && error === "No valid transfer transactions found." ? (

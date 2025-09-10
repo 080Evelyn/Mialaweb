@@ -25,8 +25,8 @@ export const fetchTransaction = createAsyncThunk(
         }
       );
       // console.log(response.data.data);
-      if (response.data.responseMsg !== "Success")
-        throw new Error("Failed to fetch transactions");
+      // if (response.data.responseMsg !== "Success")
+      //   throw new Error("Failed to fetch transactions");
 
       return response.data.data;
     } catch (error) {
