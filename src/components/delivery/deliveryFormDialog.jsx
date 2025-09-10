@@ -306,6 +306,15 @@ const DeliveryFormDialog = ({
   };
   const handleEdit = async (e) => {
     e.preventDefault();
+    if (formData.receiverPhone.length !== 11) {
+      setErrorMessage("Phone number must be 11 digits");
+      return;
+    }
+
+    if (!nigerianPhoneRegex.test(formData.receiverPhone)) {
+      setErrorMessage("Invalid phone number");
+      return;
+    }
     if (formData.paymentType === "FULL_PAYMENT" && formData.amountPaid === "") {
       setErrorMessage("All Fields Must be Filled!!");
       return;
