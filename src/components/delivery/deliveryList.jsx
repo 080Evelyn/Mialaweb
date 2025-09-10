@@ -155,7 +155,6 @@ const DeliveryList = () => {
 
     return searchMatch && agentMatch && statusMatch && dateMatch;
   });
-
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
     dispatch(fetchDelivery({ token, userRole, page }));
@@ -315,100 +314,102 @@ const DeliveryList = () => {
           deliveryId={deliveryId}
         />
       </div>
+      {/* ✅ Scroll container */}
+      <div className="overflow-y-auto max-h-[600px] border rounded-md">
+        <Table className="md:w-[1100px] border-collapse table-fixed">
+          <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+            <TableRow className="text-sm">
+              <TableHead>Agent</TableHead>
+              <TableHead>Delivery Code</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Delivery Fee(₦)</TableHead>
+              <TableHead>Total(₦)</TableHead>
+              <TableHead>Customer Name</TableHead>
+              <TableHead className={"w-[100px]"}>Note</TableHead>
+              <TableHead>Payment Type</TableHead>
+              <TableHead>Delivery Status</TableHead>
+              <TableHead>Payment Status</TableHead>
+            </TableRow>
+          </TableHeader>
 
-      <Table className={"overflow-x-scroll md:w-[1100px]"}>
-        <TableHeader>
-          <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
-            <TableHead>Agent</TableHead>
-            <TableHead>Delivery Code</TableHead>
-            <TableHead>Date </TableHead>
-            <TableHead>Delivery Fee(₦) </TableHead>
-            <TableHead>Total(₦) </TableHead>
-            <TableHead>Customer Name </TableHead>
-            <TableHead> Note </TableHead>
-            <TableHead> Payment Type</TableHead>
-            <TableHead> Delivery Status</TableHead>
-            <TableHead> Payment Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="text-[12px] font-[Raleway] font-[500] ">
-          {filtered.length === 0 ? (
-            <p className="!text-center py-4">No orders at the moment.</p>
-          ) : (
-            filtered.map((data, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <div className="flex items-center gap-2 mr-4">
-                    <img
-                      src={Avatar}
-                      alt="avatar"
-                      className="h-6 w-6 rounded-full"
-                    />
-                    <div className="flex flex-col">
-                      <span>{data.riderFirstName}</span>
-                      <span>{data.riderLastName}</span>
+          <TableBody className="text-[12px] font-[Raleway] font-[500]">
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={10} className="text-center py-4">
+                  No orders at the moment.
+                </td>
+              </tr>
+            ) : (
+              filtered.map((data, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <div className="flex items-center gap-2 mr-4">
+                      <img
+                        src={Avatar}
+                        alt="avatar"
+                        className="h-6 w-6 rounded-full"
+                      />
+                      <div className="flex flex-col">
+                        <span>{data.riderFirstName}</span>
+                        <span>{data.riderLastName}</span>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
+                  </TableCell>
 
-                <TableCell>
-                  {/* {data.deliveryCode} */}
-                  <div className="flex items-center gap-2">
-                    <span>{data.deliveryCode}</span>
-                    <Copy
-                      size={16}
-                      className="cursor-pointer"
-                      onClick={() => {
-                        navigator.clipboard.writeText(data.deliveryCode);
-                        setCopiedCode(data.deliveryCode);
-                        setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
-                      }}
-                    />
-                    {copiedCode === data.deliveryCode && (
-                      <span className="text-green-600 text-xs">Copied!</span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>{formatDate(data.creationDate)}</TableCell>
-                <TableCell>
-                  {Number(data.deliveryFee).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  {Number(data.totalProductValue).toLocaleString()}
-                </TableCell>
-                <TableCell>{data.receiverName}</TableCell>
-                <TableCell>
-                  {data.note ? data.note : "No Note Provided"}
-                </TableCell>
-                <TableCell>{data.paymentType}</TableCell>
-                <TableCell>{data.deliveryStatus}</TableCell>
-                <TableCell>
-                  <div className="flex gap-3 items-center">
-                    {data.customerPaymentStatus}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span>{data.deliveryCode}</span>
+                      <Copy
+                        size={16}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          navigator.clipboard.writeText(data.deliveryCode);
+                          setCopiedCode(data.deliveryCode);
+                          setTimeout(() => setCopiedCode(null), 2000);
+                        }}
+                      />
+                      {copiedCode === data.deliveryCode && (
+                        <span className="text-green-600 text-xs">Copied!</span>
+                      )}
+                    </div>
+                  </TableCell>
 
-                    {/* Edit button */}
-                    {data.deliveryStatus !== "DELIVERED" && (
-                      <button onClick={() => handleOpenEdit(data)}>
-                        <PenBox className="h-5.5 w-5.5  text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+                  <TableCell>{formatDate(data.creationDate)}</TableCell>
+                  <TableCell>
+                    {Number(data.deliveryFee).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    {Number(data.totalProductValue).toLocaleString()}
+                  </TableCell>
+                  <TableCell>{data.receiverName}</TableCell>
+                  <TableCell className={"w-[100px]"}>
+                    {data.note || "No Note Provided"}
+                  </TableCell>
+                  <TableCell>{data.paymentType}</TableCell>
+                  <TableCell>{data.deliveryStatus}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-3 items-center">
+                      {data.customerPaymentStatus}
+                      {data.deliveryStatus !== "DELIVERED" && (
+                        <button onClick={() => handleOpenEdit(data)}>
+                          <PenBox className="h-5 w-5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setSelectedId(data.deliveryId);
+                          setDetailsOpen(true);
+                        }}>
+                        <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
                       </button>
-                    )}
-
-                    {/* ✅ Open details dialog */}
-                    <button
-                      onClick={() => {
-                        setSelectedId(data.deliveryId);
-                        setDetailsOpen(true);
-                      }}>
-                      <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
-                    </button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
       {/* ✅ Single global details dialog */}
       {selectedId && (
         <DeliveryDetailsDialog
