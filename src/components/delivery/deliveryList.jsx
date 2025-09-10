@@ -155,7 +155,6 @@ const DeliveryList = () => {
 
     return searchMatch && agentMatch && statusMatch && dateMatch;
   });
-
   useEffect(() => {
     dispatch(fetchAllRiders({ token, userRole }));
     dispatch(fetchDelivery({ token, userRole, page }));
