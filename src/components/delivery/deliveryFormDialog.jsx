@@ -54,7 +54,8 @@ const DeliveryFormDialog = ({
   const loading = useSelector((state) => state.delivery.idLoading);
   const error = useSelector((state) => state.delivery.idError);
 
-  const nigerianPhoneRegex = /^(?:\+234|234|0)(7[0-9]|8[01]|9[01])\d{7}$/;
+  const nigerianPhoneRegex = /^(?:\+234|234|0)(7\d{9}|8\d{9}|9\d{9})$/;
+
   useEffect(() => {
     if (token && userRole) {
       dispatch(fetchProducts({ token, userRole }));
@@ -190,6 +191,7 @@ const DeliveryFormDialog = ({
     // console.log(payload);
     setErrorMessage("");
     setSuccessMessage("");
+    console.log(formData.receiverPhone.length, formData.receiverPhone);
     if (formData.receiverPhone.length !== 11) {
       setErrorMessage("Phone number must be 11 digits");
       return;
@@ -755,22 +757,20 @@ const DeliveryFormDialog = ({
                     }
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs">Delivery Status</label>
-                  <select
-                    value={formData.deliveryStatus}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        deliveryStatus: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded-xs bg-[#8C8C8C33] p-2 cursor-pointer">
-                    <option value="">Select Status</option>
+                {formMode === "edit" && (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs">Delivery Status</label>
+                    <select
+                      value={formData.deliveryStatus}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          deliveryStatus: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xs bg-[#8C8C8C33] p-2 cursor-pointer">
+                      <option value="">Select Delivery Status</option>
 
-                    {formMode === "add" ? (
-                      <option value="PENDING">PENDING</option>
-                    ) : (
                       <>
                         <option value="PENDING">PENDING</option>
                         <option value="DELIVERED">DELIVERED</option>
@@ -778,9 +778,9 @@ const DeliveryFormDialog = ({
                         <option value="NOT_REACHABLE">NOT_REACHABLE</option>
                         <option value="NOT_PICKING">NOT_PICKING</option>
                       </>
-                    )}
-                  </select>
-                </div>
+                    </select>
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-1">
                   <label className="text-xs">Customer Payment Status</label>
@@ -799,7 +799,7 @@ const DeliveryFormDialog = ({
                       }));
                     }}
                     className="w-full rounded-xs bg-[#8C8C8C33] p-2">
-                    <option value="">Select Status</option>
+                    <option value="">Select Payment Status</option>
                     <option value="CUSTOMER_NOT_PAID">Not Paid</option>
                     <option value="CUSTOMER_PAID">Paid</option>
                   </select>

@@ -1,4 +1,11 @@
-import { AlignJustify, CircleUser, Search, XCircle } from "lucide-react";
+import {
+  AlignJustify,
+  ArrowLeft,
+  CircleArrowLeft,
+  CircleUser,
+  Search,
+  XCircle,
+} from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import {
@@ -97,7 +104,10 @@ function AdminHeader({ setOpen, rightSidebar }) {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink>
-                  <Link to="/overview">Dashboards</Link>
+                  <Link className="flex gap-1 items-center" to="/overview">
+                    <ArrowLeft className="item-center" size={15} />
+                    Dashboards
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {path && (

@@ -42,7 +42,7 @@ const initialFormState = {
   amountPaid: "",
   balance: "",
   dueDate: "",
-  deliveryStatus: "",
+  deliveryStatus: "PENDING",
   note: "",
 };
 
