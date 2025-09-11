@@ -43,7 +43,7 @@ const FeesSidebar = () => {
   }, []);
 
   const handlePinRider = async (id, status) => {
-    if (permissions.includes("PIN_UNPIN_RIDER") || userRole === "Admin") {
+    if (permissions.includes("TAGS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));

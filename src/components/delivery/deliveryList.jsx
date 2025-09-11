@@ -165,7 +165,7 @@ const DeliveryList = () => {
   }, []);
 
   const handleOpenAdd = () => {
-    if (permissions.includes("CREATE_EDIT_DELIVERY") || userRole === "Admin") {
+    if (permissions.includes("ORDERS_MANAGEMENT") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -179,7 +179,7 @@ const DeliveryList = () => {
   const handleOpenEdit = (data) => {
     dispatch(fetchDeliveryById({ token, userRole, id: data.deliveryId }));
 
-    if (permissions.includes("CREATE_EDIT_DELIVERY") || userRole === "Admin") {
+    if (permissions.includes("ORDERS_MANAGEMENT") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -349,7 +349,7 @@ const DeliveryList = () => {
                         alt="avatar"
                         className="h-6 w-6 rounded-full"
                       />
-                      <div className="flex flex-col">
+                      <div className="flex gap-1">
                         <span>{data.riderFirstName}</span>
                         <span>{data.riderLastName}</span>
                       </div>
