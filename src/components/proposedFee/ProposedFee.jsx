@@ -223,7 +223,7 @@ const ProposedFee = () => {
         dialogOpen={modalOpen}
         setDialogOpen={setModalOpen}
       /> */}
-      <Table className={""}>
+      <Table>
         <TableHeader>
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Agent</TableHead>
@@ -243,7 +243,7 @@ const ProposedFee = () => {
           // }}
           className="text-[12px] font-[Raleway] font-[500] ">
           {filtered.length === 0 ? (
-            <p className="text-center mt-5">No data</p>
+            <p className="text-center mt-5">No Proposed Fee</p>
           ) : (
             filtered?.map((data, index) => (
               <TableRow key={index}>
