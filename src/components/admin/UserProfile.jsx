@@ -29,20 +29,31 @@ const UserProfile = ({
     { id: 3, role: "CustomerCare" },
   ];
   const permissions = [
-    "CREATE_STAFF",
-    "APPROVE_BLOCK_RIDER_SIGNUP",
-    "CREATE_EDIT_DELIVERY",
-    "PIN_UNPIN_RIDER",
+    // "CREATE_STAFF",
+    // "APPROVE_BLOCK_RIDER_SIGNUP",
+    // "CREATE_EDIT_DELIVERY",
+    // "PIN_UNPIN_RIDER",
     // "DELETE_RIDER",
     // "DELETE_STAFF",
     // "NO_PERMISSION",
     // DELETE_MANAGER,
-    "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
-    "VIEW_ALL_DELIVERIES",
-    "ACCEPT_REJECT_DELIVERY_FEE",
-    "CREATE_DELETE_PRODUCT",
+    // "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
+    // "VIEW_ALL_DELIVERIES",
+    // "ACCEPT_REJECT_DELIVERY_FEE",
+    // "CREATE_DELETE_PRODUCT",
     // ALL_ACTIONS,
-    "ACTIVATE_DEACTIVATE_USER",
+    // "ACTIVATE_DEACTIVATE_USER",
+
+    "ADMIN",
+    "APPROVALS",
+    "ORDERS_MANAGEMENT",
+    "TAGS",
+    "DELETIONS",
+    // NO_PERMISSION,
+    "TRANSACTIONS",
+    "DELIVERY_FEE",
+    "PRODUCT_MANAGEMENT",
+    "ACTIVATIONS",
   ];
   const [userPermissions, setUserPermissions] = useState(
     data.permissions || []
@@ -66,10 +77,7 @@ const UserProfile = ({
   };
 
   const handleUpdatePermissions = async () => {
-    if (
-      permissions.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -113,10 +121,7 @@ const UserProfile = ({
   };
 
   const handleRole = async () => {
-    if (
-      permissions.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));

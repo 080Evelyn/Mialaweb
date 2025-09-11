@@ -121,7 +121,7 @@ const ProductList = () => {
     }
   };
   const handleDeleteProduct = async (id) => {
-    if (permissions.includes("CREATE_DELETE_PRODUCT") || userRole === "Admin") {
+    if (permissions.includes("PRODUCT_MANAGEMENT") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -281,7 +281,7 @@ const ProductList = () => {
           <Button
             onClick={() => {
               if (
-                permissions.includes("CREATE_DELETE_PRODUCT") ||
+                permissions.includes("PRODUCT_MANAGEMENT") ||
                 userRole === "Admin"
               ) {
                 dispatch(setRestricted(false));

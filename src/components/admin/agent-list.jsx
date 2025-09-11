@@ -30,7 +30,6 @@ import Avatar from "../../assets/icons/avatar.svg";
 // import PencilEdit from "../../assets/icons/pencil-edit.svg";
 import Delete from "../../assets/icons/delete.svg";
 import AlertCircle from "../../assets/icons/alert-circle.svg";
-import { Link, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchRiders } from "@/redux/riderSlice";
@@ -41,6 +40,7 @@ import { fetchAllRiders } from "@/redux/allRiderSlice";
 import { fetchBankList } from "@/redux/bankListSlice";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
+import WarningModal from "../common/WarningModal";
 
 const AdminAgentList = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +51,8 @@ const AdminAgentList = () => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const riders = useSelector((state) => state.allRiders.allRiders);
-  // console.log(riders);
+  const [warningOpen, setWarningOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
   const loader = useSelector((state) => state.allRiders.loading);
   const loading = useSelector((state) => state.allRiders.loading);
   const error = useSelector((state) => state.allRiders.error);
@@ -88,10 +89,7 @@ const AdminAgentList = () => {
     }
   }, []);
   const handleDactivate = async (id) => {
-    if (
-      permissions.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -134,10 +132,7 @@ const AdminAgentList = () => {
   };
 
   const handleActivate = async (id) => {
-    if (
-      permissions.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -372,14 +367,17 @@ const AdminAgentList = () => {
                 ) : (
                   filtered?.map((data, index) => (
                     <TableRow key={index}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
+                      <TableCell className={""}>
+                        <div className="flex items-center gap-2 mr-5">
                           <img
                             src={Avatar}
                             alt="avatar"
                             className="h-6 w-6 rounded-full"
                           />
-                          <span>{`${data.first_name} ${data.last_name}`}</span>
+                          <div className="flex flex-col">
+                            <span>{`${data.first_name} `}</span>
+                            <span>{` ${data.last_name}`}</span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>{data.state}</TableCell>
@@ -543,7 +541,7 @@ const AdminAgentList = () => {
                                 </DialogTitle>
                                 <DialogDescription className="text-center text-foreground font-semibold text-xs">
                                   {userRole === "Admin" && !activate
-                                    ? "Deleting this user will permanently remove all their records from the database. This action is irreversible and the data cannot be recovered. If you only want to restrict the user’s access without losing their records, please consider deactivating the user instead.  "
+                                    ? "Deleting this user will permanently remove all their records including transaction history from the database. This action is irreversible and the data cannot be recovered. If you only want to restrict the user’s access without losing their records, please consider deactivating the user instead.  "
                                     : `Are you sure you want to ${
                                         activate ? "activate" : "deactivate"
                                       }  this Agent?`}
@@ -587,7 +585,9 @@ const AdminAgentList = () => {
                                 {userRole === "Admin" && !activate && (
                                   <Button
                                     onClick={() => {
-                                      handleDelete(data.userId);
+                                      setSelectedId(data.userId);
+                                      setWarningOpen(true);
+                                      setDloading(false);
                                     }}
                                     type="submit"
                                     className="bg-[#B10303] hover:bg-[#B10303]/80 text-white  text-sm rounded-[3px] h-9">
@@ -607,6 +607,17 @@ const AdminAgentList = () => {
           </div>
         </>
       )}
+
+      <WarningModal
+        open={warningOpen}
+        onClose={() => setWarningOpen(false)}
+        onConfirm={() => {
+          handleDelete(selectedId);
+          setWarningOpen(false);
+        }}
+        loading={dloading}
+      />
+
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}

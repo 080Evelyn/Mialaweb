@@ -43,10 +43,7 @@ const AdminAgentSidebar = () => {
   }, []);
 
   const handleApproveRider = async (id) => {
-    if (
-      permissions.includes("APPROVE_BLOCK_RIDER_SIGNUP") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("APPROVALS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -89,10 +86,7 @@ const AdminAgentSidebar = () => {
   };
 
   const handleBlockRider = async (id) => {
-    if (
-      permissions.includes("APPROVE_BLOCK_RIDER_SIGNUP") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("APPROVALS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -178,7 +172,7 @@ const AdminAgentSidebar = () => {
                 <Button
                   onClick={() => {
                     if (
-                      permissions.includes("APPROVE_BLOCK_RIDER_SIGNUP") ||
+                      permissions.includes("APPROVALS") ||
                       userRole === "Admin"
                     ) {
                       dispatch(setRestricted(false));

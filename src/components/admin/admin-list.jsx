@@ -20,7 +20,6 @@ import {
 
 import { Label } from "@/components/ui/label";
 import Avatar from "../../assets/icons/avatar.svg";
-import { Link, useLocation } from "react-router";
 import AlertCircle from "../../assets/icons/alert-circle.svg";
 import Delete from "../../assets/icons/delete.svg";
 import { useEffect, useState } from "react";
@@ -33,6 +32,7 @@ import SuccessModal from "../common/SuccessModal";
 import { setRestricted } from "@/redux/restrictionSlice";
 import RestrictionModal from "../common/RestrictionModal";
 import UserProfile from "./UserProfile";
+import WarningModal from "../common/WarningModal";
 
 const initialFormState = {
   first_name: "",
@@ -53,20 +53,16 @@ const AdminList = () => {
   ];
 
   const permissions = [
-    "CREATE_STAFF",
-    "APPROVE_BLOCK_RIDER_SIGNUP",
-    "CREATE_EDIT_DELIVERY",
-    "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
-    "PIN_UNPIN_RIDER",
-    // "DELETE_RIDER",
-    // "DELETE_STAFF",
-    // "NO_PERMISSION",
-    // DELETE_MANAGER,
-    "VIEW_ALL_DELIVERIES",
-    "ACCEPT_REJECT_DELIVERY_FEE",
-    "CREATE_DELETE_PRODUCT",
-    // ALL_ACTIONS,
-    "ACTIVATE_DEACTIVATE_USER",
+    "ADMIN",
+    "APPROVALS",
+    "ORDERS_MANAGEMENT",
+    "TAGS",
+    "DELETIONS",
+    // NO_PERMISSION,
+    "TRANSACTIONS",
+    "DELIVERY_FEE",
+    "PRODUCT_MANAGEMENT",
+    "ACTIVATIONS",
   ];
   const [activate, setActivate] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
@@ -74,10 +70,12 @@ const AdminList = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [warningOpen, setWarningOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
-  // console.log(subAdmins);
   const [dloading, setDloading] = useState(false);
   const loading = useSelector((state) => state.subadmin.loading);
   const success = useSelector((state) => state.subadmin.success);
@@ -85,7 +83,6 @@ const AdminList = () => {
   const restricted = useSelector((state) => state.restriction.restricted);
   const permission = useSelector((state) => state.auth.permissions);
 
-  const location = useLocation();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -94,7 +91,6 @@ const AdminList = () => {
     }
     dispatch(fetchSubadmin({ token, userRole }));
   }, []);
-  // const sortedAdmin = [...subAdmins]?.reverse();
 
   const handleAddSubadmin = async (e) => {
     e.preventDefault();
@@ -144,10 +140,7 @@ const AdminList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (
-      permission.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
+    if (permission.includes("ACTIVATIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -184,15 +177,12 @@ const AdminList = () => {
       setErrorMessage(`An error occured.`);
       console.log(error);
     } finally {
-      setDLoading(false);
+      setDloading(false);
     }
   };
 
   const handleDeactivate = async (id) => {
-    if (
-      permission.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
+    if (permission.includes("ACTIVATIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -238,10 +228,7 @@ const AdminList = () => {
   };
 
   const handleActivate = async (id) => {
-    if (
-      permissions.includes("ACTIVATE_DEACTIVATE_USER") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -307,10 +294,7 @@ const AdminList = () => {
             {/* <DialogTrigger asChild> */}
             <button
               onClick={() => {
-                if (
-                  permission.includes("CREATE_STAFF") ||
-                  userRole === "Admin"
-                ) {
+                if (permission.includes("ADMIN") || userRole === "Admin") {
                   dispatch(setRestricted(false));
                 } else {
                   dispatch(setRestricted(true));
@@ -673,7 +657,9 @@ const AdminList = () => {
                             {userRole === "Admin" && !activate && (
                               <Button
                                 onClick={() => {
-                                  handleDelete(data.id);
+                                  setSelectedId(data.id);
+                                  setWarningOpen(true);
+                                  setDloading(false);
                                 }}
                                 type="submit"
                                 className="bg-[#B10303] hover:bg-[#B10303]/80 text-white px-3 text-sm rounded-[3px] h-9">
@@ -740,6 +726,15 @@ const AdminList = () => {
           </div>
         </>
       )}
+      <WarningModal
+        open={warningOpen}
+        onClose={() => setWarningOpen(false)}
+        onConfirm={() => {
+          handleDelete(selectedId);
+          setWarningOpen(false);
+        }}
+        loading={dloading}
+      />
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}

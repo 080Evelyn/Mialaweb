@@ -66,10 +66,7 @@ const ProposedFee = () => {
   };
 
   const handleApprove = (id) => {
-    if (
-      permissions.includes("ACCEPT_REJECT_DELIVERY_FEE") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("DELIVERY_FEE") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -79,10 +76,7 @@ const ProposedFee = () => {
     dispatch(approveProposalFee({ token, userRole, id, adminId }));
   };
   const handleReject = (id) => {
-    if (
-      permissions.includes("ACCEPT_REJECT_DELIVERY_FEE") ||
-      userRole === "Admin"
-    ) {
+    if (permissions.includes("DELIVERY_FEE") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
