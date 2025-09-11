@@ -195,10 +195,10 @@ const DeliveryFormDialog = ({
       return;
     }
 
-    if (!nigerianPhoneRegex.test(formData.receiverPhone)) {
-      setErrorMessage("Invalid phone number");
-      return;
-    }
+    // if (!nigerianPhoneRegex.test(formData.receiverPhone)) {
+    //   setErrorMessage("Invalid phone number");
+    //   return;
+    // }
     if (
       formData.receiverAddress === "" ||
       formData.riderId === "" ||
@@ -311,10 +311,10 @@ const DeliveryFormDialog = ({
       return;
     }
 
-    if (!nigerianPhoneRegex.test(formData.receiverPhone)) {
-      setErrorMessage("Invalid phone number");
-      return;
-    }
+    // if (!nigerianPhoneRegex.test(formData.receiverPhone)) {
+    //   setErrorMessage("Invalid phone number");
+    //   return;
+    // }
     if (formData.paymentType === "FULL_PAYMENT" && formData.amountPaid === "") {
       setErrorMessage("All Fields Must be Filled!!");
       return;
