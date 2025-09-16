@@ -46,24 +46,33 @@ const AdminOverview = () => {
         </div> */}
 
         {!error && (
-          <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
-            <p className="text-sm font-medium text-slate-500">Total Revenue</p>
-            <p className="text-xl font-bold text-slate-900">
-              <span className="text-sm font-medium text-slate-500  ">
-                Receipt: ₦
-              </span>
+          <>
+            <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
+              <p className="text-sm font-medium text-slate-500">
+                Total Revenue
+              </p>
+              <p className="text-xl font-bold text-slate-900">
+                <span className="text-sm font-medium text-slate-500  ">
+                  Receipt: ₦
+                </span>
 
-              {loading ? "..." : revenue?.totalDeposits?.toLocaleString()}
-            </p>
-            <p className="text-xl font-bold text-slate-900">
-              <span className="text-sm font-medium text-slate-500">
-                Withdraw: ₦
-              </span>
-              {loading
-                ? "..."
-                : (revenue?.totalTransfers * 100)?.toLocaleString()}
-            </p>
-          </div>
+                {loading ? "..." : revenue?.totalDeposits?.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
+              <p className="text-sm font-medium text-slate-500">
+                Total Revenue
+              </p>
+              <p className="text-xl font-bold text-slate-900">
+                <span className="text-sm font-medium text-slate-500">
+                  Withdraw: ₦
+                </span>
+                {loading
+                  ? "..."
+                  : (revenue?.totalTransfers * 100)?.toLocaleString()}
+              </p>
+            </div>
+          </>
         )}
 
         {/* <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#E6F1FD]">
