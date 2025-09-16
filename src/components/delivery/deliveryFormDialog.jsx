@@ -292,11 +292,11 @@ const DeliveryFormDialog = ({
         resetProducts();
         dispatch(setMultiCall());
 
-        // Hide success message after 10 seconds
+        // Hide success message after 5 seconds
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 10000);
+        }, 5000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -365,11 +365,6 @@ const DeliveryFormDialog = ({
       );
       return;
     }
-    // console.log(
-    //   formData.customerPaymentStatus === "CUSTOMER_PAID" &&
-    //     formData.paymentType === "PAYMENT_ON_DELIVERY"
-    // );
-    // console.log(formData);
     const payload = {
       ...formData,
       products: formData.products.map((p) => {
@@ -414,11 +409,12 @@ const DeliveryFormDialog = ({
         dispatch(setMultiCall());
         setSuccessMessage("Delivery Edited Successfully!");
         setSuccessModalOpen(true);
-        // Hide success message after 10 seconds
+        // Hide success message after 5 seconds
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 10000);
+          setDialogOpen(false);
+        }, 5000);
       }
     } catch (error) {
       setErrorMessage(`An error occured while editing delivery.`);
@@ -552,7 +548,7 @@ const DeliveryFormDialog = ({
                         id={`quantity-${index}`}
                         type="number"
                         placeholder="Quantity"
-                        min="0"
+                        min="1"
                         value={product.quantity}
                         onChange={(e) =>
                           handleProductChange(index, "quantity", e.target.value)

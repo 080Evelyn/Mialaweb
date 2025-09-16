@@ -137,8 +137,12 @@ function MenuItems({ setOpen }) {
               navigate(menuItem.path);
               if (setOpen) setOpen(false);
             }}
-            className={`flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 ${
-              isActive ? "bg-[#FFBFBF] text-foreground" : " hover:bg-[#FFBFBF] "
+            className={`flex  items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 ${
+              isActive
+                ? "bg-[#FFBFBF] text-foreground"
+                : !menuItem.path
+                ? "hover:bg-transparent "
+                : "hover:bg-[#FFBFBF] cursor-pointer"
             }`}>
             {menuItem.icon}
             <span>{menuItem.label}</span>

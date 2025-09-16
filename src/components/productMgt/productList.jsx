@@ -108,7 +108,8 @@ const ProductList = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 10000);
+          setDialogOpen(false);
+        }, 5000);
       }
       // else if (response.data.responseCode === "55") {
       //   setErrorMessage(response.data.responseDesc);
@@ -153,7 +154,8 @@ const ProductList = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 10000);
+          setDialogOpen(false);
+        }, 5000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }

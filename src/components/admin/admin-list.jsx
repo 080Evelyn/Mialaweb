@@ -64,6 +64,18 @@ const AdminList = () => {
     "PRODUCT_MANAGEMENT",
     "ACTIVATIONS",
   ];
+
+  const permissionDescriptions = {
+    ADMIN: "Create staffs.",
+    APPROVALS: "Approve or reject rider sign up.",
+    ORDERS_MANAGEMENT: "Edit, view and assign deliveries to riders.",
+    TAGS: "Pin and Unpin riders.",
+    DELETIONS: "Delete riders and staff accounts",
+    TRANSACTIONS: "view and manage financial transactions.",
+    DELIVERY_FEE: "Approve and reject proposed delivery fee from riders.",
+    PRODUCT_MANAGEMENT: "Add or remove products.",
+    ACTIVATIONS: "Can activate or deactivate rider of staff account.",
+  };
   const [activate, setActivate] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -93,6 +105,12 @@ const AdminList = () => {
   }, []);
 
   const handleAddSubadmin = async (e) => {
+    if (permission.includes("ADMIN") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
     e.preventDefault();
 
     if (
@@ -130,6 +148,11 @@ const AdminList = () => {
         setSuccessMessage("Admin-user Created Successfully!");
         setFormData(initialFormState);
         setSuccessModalOpen(true);
+        setTimeout(() => {
+          setSuccessMessage("");
+          setSuccessModalOpen(false);
+          setDialogOpen(false);
+        }, 5000);
       }
     } catch (error) {
       setErrorMessage(`An error occured while creating admin user.`);
@@ -140,7 +163,7 @@ const AdminList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (permission.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permission.includes("DELETIONS") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -169,7 +192,7 @@ const AdminList = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 10000);
+        }, 5000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -215,7 +238,7 @@ const AdminList = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 10000);
+        }, 5000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -395,10 +418,10 @@ const AdminList = () => {
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1 w-[50%]">
-                    <label className="text-xs" htmlFor="user-role">
+                  <div className="flex flex-col gap-1 w-[47%]">
+                    <Label className="text-xs" htmlFor="user-role">
                       User Role
-                    </label>
+                    </Label>
                     <select
                       id="user-role"
                       value={formData.userRole}
@@ -424,10 +447,12 @@ const AdminList = () => {
                     {permissions.map((perm) => (
                       <label
                         key={perm}
-                        className="flex items-center gap-2 text-xs">
+                        className="flex items-center gap-2 text-xs"
+                        title={permissionDescriptions[perm]}>
                         <input
                           type="checkbox"
                           checked={formData.permissions.includes(perm)}
+                          className="cursor-pointer"
                           onChange={(e) => {
                             if (e.target.checked) {
                               setFormData({
