@@ -74,7 +74,7 @@ const AdminList = () => {
     TRANSACTIONS: "view and manage financial transactions.",
     DELIVERY_FEE: "Approve and reject proposed delivery fee from riders.",
     PRODUCT_MANAGEMENT: "Add or remove products.",
-    ACTIVATIONS: "Can activate or deactivate rider of staff account.",
+    ACTIVATIONS: "Can activate or deactivate rider or staff account.",
   };
   const [activate, setActivate] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
