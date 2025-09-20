@@ -84,7 +84,6 @@ const AdminList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [warningOpen, setWarningOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const subAdmins = useSelector((state) => state.subadmin.subadmin);
@@ -261,7 +260,7 @@ const AdminList = () => {
     setErrorMessage("");
     setSuccessMessage("");
     try {
-      const response = await axios.delete(
+      const response = await axios.put(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/activate-user/${id}`
           : userRole === "CustomerCare"
@@ -269,6 +268,7 @@ const AdminList = () => {
           : userRole === "Manager"
           ? `${BASE_URL}api/v1/manager/activate-user/${id}`
           : `${BASE_URL}api/v1/accountant/activate-user/${id}`,
+        {},
 
         {
           headers: {
@@ -687,6 +687,7 @@ const AdminList = () => {
                                   setDloading(false);
                                 }}
                                 type="submit"
+                                disabled={dloading || isLoading}
                                 className="bg-[#B10303] hover:bg-[#B10303]/80 text-white px-3 text-sm rounded-[3px] h-9">
                                 {dloading ? "Deleting..." : "Delete"}
                               </Button>
@@ -700,6 +701,7 @@ const AdminList = () => {
                                 }
                               }}
                               type="submit"
+                              disabled={isLoading || dloading}
                               className={`${
                                 activate
                                   ? "bg-green-500 hover:bg-green-400"

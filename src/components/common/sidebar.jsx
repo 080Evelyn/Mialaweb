@@ -17,7 +17,7 @@ import { resetriders } from "@/redux/riderSlice";
 import { resetNotifications } from "@/redux/notificationSlice";
 import { resetPayment } from "@/redux/allCustomerPaymentSlice";
 import { resetApproveReject } from "@/redux/approveRejectProposalFeeSlice";
-import { BarChart3, FileText, LogOut, TrendingUp } from "lucide-react";
+import { BarChart3, FileText, LogOut, Power, TrendingUp } from "lucide-react";
 import { resetStats } from "@/redux/statSlice";
 import { resetSummary } from "@/redux/orderSummarySlice";
 
@@ -97,6 +97,12 @@ function MenuItems({ setOpen }) {
       label: "Agents",
       path: "/admin/agents",
       icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
+    },
+    {
+      id: "request",
+      label: "Request",
+      path: "/request",
+      icon: <Power src={Agents} alt="Agent" className="w-5 h-5" />,
     },
     (userRole === "Admin" || userRole === "Manager") && {
       id: "admin",

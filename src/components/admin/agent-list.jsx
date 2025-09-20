@@ -13,7 +13,6 @@ import {
   Loader2,
   PenBox,
   Power,
-  Trash2,
 } from "lucide-react";
 import {
   Dialog,
@@ -142,7 +141,7 @@ const AdminAgentList = () => {
     setErrorMessage("");
     setSuccessMessage("");
     try {
-      const response = await axios.delete(
+      const response = await axios.put(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/activate-user/${id}`
           : userRole === "CustomerCare"
@@ -150,6 +149,7 @@ const AdminAgentList = () => {
           : userRole === "Manager"
           ? `${BASE_URL}api/v1/manager/activate-user/${id}`
           : `${BASE_URL}api/v1/accountant/activate-user/${id}`,
+        {},
 
         {
           headers: {
@@ -488,34 +488,36 @@ const AdminAgentList = () => {
                           {/* Delete Dialog */}
                           <Dialog>
                             <DialogTrigger asChild>
-                              <button
-                                className={` ${
-                                  data.approvalStatus === "DEACTIVATE"
-                                    ? "bg-green-500 hover:bg-green-400"
-                                    : ""
-                                } bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1`}>
-                                {(data.approvalStatus === "APPROVED" ||
-                                  data.approvalStatus === "ACTIVATE") && (
-                                  <img
-                                    onClick={() => {
-                                      setErrorMessage("");
-                                      setSuccessMessage("");
-                                      setActivate(false);
-                                    }}
-                                    src={Delete}
-                                    className="h-6 w-6 text-white"
-                                  />
-                                )}
-                                {data.approvalStatus === "DEACTIVATE" && (
-                                  <Power
-                                    onClick={() => {
-                                      setErrorMessage("");
-                                      setSuccessMessage("");
-                                      setActivate(true);
-                                    }}
-                                  />
-                                )}
-                              </button>
+                              {data.approvalStatus !== "PENDING" && (
+                                <button
+                                  className={` ${
+                                    data.approvalStatus === "DEACTIVATE"
+                                      ? "bg-green-500 hover:bg-green-400"
+                                      : ""
+                                  } bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1`}>
+                                  {(data.approvalStatus === "APPROVED" ||
+                                    data.approvalStatus === "ACTIVATE") && (
+                                    <img
+                                      onClick={() => {
+                                        setErrorMessage("");
+                                        setSuccessMessage("");
+                                        setActivate(false);
+                                      }}
+                                      src={Delete}
+                                      className="h-6 w-6 text-white"
+                                    />
+                                  )}
+                                  {data.approvalStatus === "DEACTIVATE" && (
+                                    <Power
+                                      onClick={() => {
+                                        setErrorMessage("");
+                                        setSuccessMessage("");
+                                        setActivate(true);
+                                      }}
+                                    />
+                                  )}
+                                </button>
+                              )}
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                               <DialogHeader>
@@ -570,6 +572,7 @@ const AdminAgentList = () => {
                                     }
                                   }}
                                   type="submit"
+                                  disabled={isLoading || dloading}
                                   className={`${
                                     activate
                                       ? "bg-green-500 hover:bg-green-400"
@@ -589,6 +592,7 @@ const AdminAgentList = () => {
                                       setWarningOpen(true);
                                       setDloading(false);
                                     }}
+                                    disabled={dloading || isLoading}
                                     type="submit"
                                     className="bg-[#B10303] hover:bg-[#B10303]/80 text-white  text-sm rounded-[3px] h-9">
                                     {dloading ? "processing.." : "Delete"}
