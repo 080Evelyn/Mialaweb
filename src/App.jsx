@@ -22,6 +22,7 @@ import OrderSummary from "./pages/OrderSummary";
 import PerformanceMenu from "./pages/PerformanceMenu";
 import ProductStats from "./pages/ProductStats";
 import ForgotPassword from "./pages/ForgotPassword";
+import DeactivateRequest from "./pages/super-admin/DeactivateRequest";
 
 function App() {
   return (
@@ -130,6 +131,14 @@ function App() {
             element={
               <Layout>
                 <PerformanceMenu />
+              </Layout>
+            }
+          />
+          <Route
+            path="request"
+            element={
+              <Layout>
+                <DeactivateRequest />
               </Layout>
             }
           />
