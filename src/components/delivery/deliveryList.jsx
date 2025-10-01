@@ -27,7 +27,7 @@ const initialFormState = {
   products: [
     {
       productName: "",
-      quantity: "",
+      quantity: "1",
       productPrice: "",
       discountPercent: "",
       productId: "",
@@ -159,7 +159,6 @@ const DeliveryList = () => {
     dispatch(fetchAllRiders({ token, userRole }));
     dispatch(fetchDelivery({ token, userRole, page }));
   }, [dispatch, token, userRole, page]);
-
   useEffect(() => {
     dispatch(clearFilters());
   }, []);

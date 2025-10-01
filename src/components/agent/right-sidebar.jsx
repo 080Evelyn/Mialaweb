@@ -45,7 +45,6 @@ const AgentSidebar = () => {
 
       return;
     }
-    // console.log("hey");
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
