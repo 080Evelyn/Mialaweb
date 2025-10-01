@@ -193,7 +193,6 @@ const DeliveryFormDialog = ({
     // console.log(payload);
     setErrorMessage("");
     setSuccessMessage("");
-    console.log(formData.receiverPhone.length, formData.receiverPhone);
     if (formData.receiverPhone.length !== 11) {
       setErrorMessage("Phone number must be 11 digits");
       return;

@@ -28,6 +28,18 @@ const UserProfile = ({
     { id: 2, role: "Manager" },
     { id: 3, role: "CustomerCare" },
   ];
+
+  const permissionDescriptions = {
+    ADMIN: "Create staffs.",
+    APPROVALS: "Approve or reject rider sign up.",
+    ORDERS_MANAGEMENT: "Edit, view and assign deliveries to riders.",
+    TAGS: "Pin and Unpin riders.",
+    DELETIONS: "Delete riders and staff accounts",
+    TRANSACTIONS: "view and manage financial transactions.",
+    DELIVERY_FEE: "Approve and reject proposed delivery fee from riders.",
+    PRODUCT_MANAGEMENT: "Add or remove products.",
+    ACTIVATIONS: "Can activate or deactivate rider or staff account.",
+  };
   const permissions = [
     // "CREATE_STAFF",
     // "APPROVE_BLOCK_RIDER_SIGNUP",
@@ -205,7 +217,10 @@ const UserProfile = ({
           <p className="font-semibold mt-3">Permissions:</p>
           <div className="flex flex-col gap-2 mt-2">
             {permissions.map((perm) => (
-              <label key={perm} className="flex items-center gap-2 text-sm">
+              <label
+                key={perm}
+                title={permissionDescriptions[perm]}
+                className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={userPermissions.includes(perm)}
