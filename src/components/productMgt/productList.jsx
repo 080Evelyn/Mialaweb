@@ -188,14 +188,9 @@ const ProductList = () => {
 
     return productNames && dateMatch;
   });
-
   const sortedProducts = filtered?.sort((a, b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
-
-  // useEffect(() => {
-  //   dispatch(fetchProducts({ token, page, userRole }));
-  // }, []);
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "";

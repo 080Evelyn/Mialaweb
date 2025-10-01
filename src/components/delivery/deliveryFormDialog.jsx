@@ -26,6 +26,7 @@ import { NIGERIAN_STATES } from "@/config/stateData";
 import { fetchProducts } from "@/redux/productSlice";
 import { Loader2 } from "lucide-react";
 import { fetchStats } from "@/redux/statSlice";
+import { prefetchDNS } from "react-dom";
 
 const DeliveryFormDialog = ({
   dialogOpen,
@@ -50,6 +51,7 @@ const DeliveryFormDialog = ({
   const [agents, setAgents] = useState([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
   const { products } = useSelector((state) => state.product);
+
   const sortedProducts = [...products].reverse();
   const loading = useSelector((state) => state.delivery.idLoading);
   const error = useSelector((state) => state.delivery.idError);
@@ -455,11 +457,9 @@ const DeliveryFormDialog = ({
                 const originalUnitPrice =
                   products.find((p) => p.productName === product.productName)
                     ?.unitPrice || 0;
-
                 const unitPrice = Number(product.productPrice || 0);
                 const quantity = Number(product.quantity || 0);
                 const priceBeforeDiscount = unitPrice * quantity;
-
                 const discountPercent =
                   originalUnitPrice && originalUnitPrice > unitPrice
                     ? ((originalUnitPrice - unitPrice) / originalUnitPrice) *
@@ -471,7 +471,6 @@ const DeliveryFormDialog = ({
                 // const discountAmount =
                 //   (originalUnitPrice * quantity * discountPercent) / 100;
                 const finalPrice = priceBeforeDiscount;
-
                 return (
                   <div
                     key={index}
@@ -510,13 +509,11 @@ const DeliveryFormDialog = ({
                             "productName",
                             selectedName
                           );
-
                           handleProductChange(
                             index,
                             "productId",
                             selectedProduct.id
                           );
-
                           // Set both editable and original price
                           handleProductChange(
                             index,
@@ -531,14 +528,15 @@ const DeliveryFormDialog = ({
                         }}
                         className="rounded-xs bg-[#8C8C8C33] px-2 py-2">
                         <option value="">Select a product</option>
-                        {products.map((item) => (
-                          <option key={item.id} value={item.productName}>
-                            {item.productName}
-                          </option>
-                        ))}
+                        {products
+                          ?.filter((product) => product.deleted === false)
+                          .map((item) => (
+                            <option key={item.id} value={item.productName}>
+                              {item.productName}
+                            </option>
+                          ))}
                       </select>
                     </div>
-
                     {/* Quantity */}
                     <div className="flex flex-col gap-1">
                       <Label className="text-xs" htmlFor={`quantity-${index}`}>
@@ -556,7 +554,6 @@ const DeliveryFormDialog = ({
                         className="rounded-xs bg-[#8C8C8C33]"
                       />
                     </div>
-
                     {/* Editable Unit Price */}
                     <div className="flex flex-col gap-1">
                       <Label
@@ -579,7 +576,6 @@ const DeliveryFormDialog = ({
                         className="rounded-xs bg-[#8C8C8C33]"
                       />
                     </div>
-
                     {/* Discount Percentage */}
                     <div className="flex flex-col gap-1">
                       <Label
@@ -587,7 +583,6 @@ const DeliveryFormDialog = ({
                         htmlFor={`productDiscount-${index}`}>
                         Discount (%)
                       </Label>
-
                       <Input
                         id={`productDiscount-${index}`}
                         type="text"
@@ -597,7 +592,6 @@ const DeliveryFormDialog = ({
                         style={{ cursor: "not-allowed" }}
                       />
                     </div>
-
                     {/* Final Total After Discount */}
                     <div className="flex flex-col gap-1">
                       <Label className="text-xs text-green-700 font-semibold">
@@ -607,7 +601,6 @@ const DeliveryFormDialog = ({
                         ₦{finalPrice.toLocaleString()}
                       </div>
                     </div>
-
                     {/* Remove Button */}
                     {formData.products.length > 1 && (
                       <button

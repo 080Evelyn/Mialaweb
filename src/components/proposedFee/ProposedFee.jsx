@@ -7,12 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Copy, EllipsisVertical, Loader2, PenBox } from "lucide-react";
-import Avatar from "../../assets/icons/avatar.svg";
+import { Copy, EllipsisVertical } from "lucide-react";
+// import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
-// import DeliveryDetailsDialog from "./deliveryDetailsDialog";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDelivery } from "@/redux/deliverySlice";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 import ProposedFeeDialog from "./ProposedFeeDialog";
 import ReassignDeliveryDialog from "./ReassignDeliveryDialog";
@@ -241,13 +239,13 @@ const ProposedFee = () => {
           ) : (
             filtered?.map((data, index) => (
               <TableRow key={index}>
-                <TableCell>
+                <TableCell className={"pr-6"}>
                   <div className="flex items-center gap-2">
-                    <img
+                    {/* <img
                       src={Avatar}
                       alt="avatar"
                       className="h-6 w-6 rounded-full"
-                    />
+                    /> */}
                     <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
                   </div>
                 </TableCell>
