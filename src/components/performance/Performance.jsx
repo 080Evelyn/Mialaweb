@@ -6,10 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchAllRiders } from "@/redux/allRiderSlice";
+// import { fetchAllRiders } from "@/redux/allRiderSlice";
 import { fetchPerformance } from "@/redux/performanceSlice";
 import { clearFilters } from "@/redux/searchSlice";
-import { Loader2 } from "lucide-react";
+// import { Loader2 } from "lucide-react";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -97,7 +97,19 @@ const Performance = () => {
       </Table>
     );
   }
-  if (!loader && error) {
+  if (
+    !loader &&
+    error ===
+      "You do not have permission to perform this action: ORDERS_MANAGEMENT"
+  ) {
+    return (
+      <div>
+        <p className="text-center font-semibold text-sm text-red-600">
+          You do not have permission to perform this data
+        </p>
+      </div>
+    );
+  } else {
     return (
       <div>
         <p className="text-center font-semibold text-sm text-red-600">

@@ -34,7 +34,6 @@ export const fetchPerformance = createAsyncThunk(
 
       return response.data.data;
     } catch (error) {
-      console.log("error", error);
       return rejectWithValue(error.response.data.responseDesc);
     }
   }
