@@ -288,14 +288,7 @@ const PayoutSummaryTable = () => {
                                   {data.deliveryCode}
                                 </span>
                               </div>
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">
-                                  Account Number
-                                </Label>
-                                <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.accountNumber}
-                                </span>
-                              </div>
+
                               <div className="flex justify-between items-center">
                                 <Label className="text-xs">Amount </Label>
                                 <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
