@@ -109,7 +109,8 @@ const Performance = () => {
         </p>
       </div>
     );
-  } else {
+  }
+  if (!loader && error) {
     return (
       <div>
         <p className="text-center font-semibold text-sm text-red-600">
