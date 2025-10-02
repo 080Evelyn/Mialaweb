@@ -133,7 +133,7 @@ const SummaryOrder = () => {
                 <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
                   <TableHead>Product Name </TableHead>
                   <TableHead>Unit Price </TableHead>
-                  <TableHead>Total Assigned count</TableHead>
+                  <TableHead>Total Sold</TableHead>
                   <TableHead>Total Revenue</TableHead>
                 </TableRow>
               </TableHeader>
@@ -150,7 +150,7 @@ const SummaryOrder = () => {
                         <TableCell>
                           ₦{Number(data.unitPrice).toLocaleString()}
                         </TableCell>
-                        <TableCell>{data.totalAssignedCount}</TableCell>
+                        <TableCell>{data.totalSoldCount}</TableCell>
                         <TableCell>
                           ₦{Number(data.totalRevenue).toLocaleString()}
                         </TableCell>
