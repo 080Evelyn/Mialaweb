@@ -23,7 +23,6 @@ const FeesSidebar = () => {
   const [copiedCode, setCopiedCode] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const permissions = useSelector((state) => state.auth.permissions);
-  // console.log(permissions);
   const riders = useSelector((state) => state.riders.riders);
   const loading = useSelector((state) => state.riders.loading);
   const error = useSelector((state) => state.riders.error);
@@ -36,7 +35,11 @@ const FeesSidebar = () => {
   const [openDialog, setOpenDialog] = useState("");
   const [details, setDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  // console.log(details);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredDetails = details?.filter((item) =>
+    item.deliveryCode?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     dispatch(fetchRiders({ token, userRole }));
@@ -204,7 +207,7 @@ const FeesSidebar = () => {
               {loadingDetails ? (
                 <div className="py-4 text-center text-sm">Loading...</div>
               ) : (
-                <div className="flex flex-col !h-[400px] overflow-y-scroll gap-3">
+                <div className="flex flex-col !h-[400px]  gap-3">
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold">
@@ -213,115 +216,133 @@ const FeesSidebar = () => {
                     </div>
                   </div>
 
+                  {/* 🔍 Search Input */}
+                  <div className="flex justify-end mb-2 mr-2">
+                    <input
+                      type="text"
+                      placeholder="Search by Delivery Code..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#B10303]"
+                    />
+                  </div>
+
                   {/* Render delivery data in a table */}
                   {details ? (
-                    <table className="w-full text-xs border mt-2 ">
-                      <thead>
-                        <tr className="bg-gray-100 text-left">
-                          <th className="p-1 border">Product Name</th>
-                          <th className="p-1 border">Delivery Code</th>
-                          <th className="p-1 border">Delivery Fee (₦)</th>
-                          <th className="p-1 border"> Price(₦)</th>
-                          <th className="p-1 border">Price after dicount(₦)</th>
-                          <th className="p-1 border">Quantity</th>
-                          <th className="p-1 border">Total Price(₦)</th>
-                          <th className="p-1 border">Delivery status</th>
-                          <th className="p-1 border">Customer name </th>
-                          <th className="p-1 border">Customer address </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {details.length === 0 ? (
-                          <div>
-                            <p className="text-center py-3">No data</p>
-                          </div>
-                        ) : (
-                          details.map((item, i) => (
-                            <tr key={i}>
-                              <td className="p-1 border">
-                                {item?.products?.map((product, index) => (
-                                  <div key={index}>{product.productName}</div>
-                                ))}
-                              </td>
-                              <td className="p-1 border flex items-center gap-2">
-                                <div className="flex items-center gap-2">
-                                  <span>{item.deliveryCode}</span>
-                                  <Copy
-                                    size={16}
-                                    className="cursor-pointer"
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        item.deliveryCode
-                                      );
-                                      setCopiedCode(item.deliveryCode);
-                                      setTimeout(
-                                        () => setCopiedCode(null),
-                                        2000
-                                      ); // hide after 2s
-                                    }}
-                                  />
-                                  {copiedCode === item.deliveryCode && (
-                                    <span className="text-green-600 text-xs">
-                                      Copied!
-                                    </span>
-                                  )}
-                                </div>
-                              </td>
-                              <td className="p-1 border">{item.deliveryFee}</td>
-                              <td className="p-1 border">
-                                {item?.products?.map((product, index) => (
-                                  <div key={index}>
-                                    {Number(
-                                      product?.productPrice
-                                    ).toLocaleString()}
-                                  </div>
-                                ))}
-                              </td>
-
-                              <td className="p-1 border">
-                                {item?.products?.map((product, index) => (
-                                  <div key={index}>
-                                    {Number(
-                                      product?.totalAfterDiscount / product?.qty
-                                    ).toLocaleString()}
-                                  </div>
-                                ))}
-                              </td>
-                              <td className="p-1 border">
-                                {item?.products?.map((product, index) => (
-                                  <div key={index}>
-                                    {Number(product?.qty).toLocaleString()}
-                                  </div>
-                                ))}
-                              </td>
-                              <td className="p-1 border">
-                                {Number(
-                                  item.totalProductValue
-                                ).toLocaleString()}
-                              </td>
-                              <td
-                                className={`p-1 border ${
-                                  item.deliveryStatus === "DELIVERED" ||
-                                  item.deliveryStatus === "DELIVERED"
-                                    ? "text-green-500"
-                                    : item.deliveryStatus === "CANCELLED" ||
-                                      item.deliveryStatus === "NOT_REACHABLE"
-                                    ? "text-red-500"
-                                    : "text-yellow-400"
-                                }`}>
-                                {item.deliveryStatus}
-                              </td>
-                              <td className="p-1 border">
-                                {item.receiverName}
-                              </td>
-                              <td className="p-1 border">
-                                {item.receiverAddress}
+                    <div className="h-full overflow-y-auto">
+                      <table className="w-full text-xs border mt-2">
+                        <thead className="sticky top-0 z-10">
+                          <tr className="bg-gray-100 text-left">
+                            <th className="p-1 border">Product Name</th>
+                            <th className="p-1 border">Delivery Code</th>
+                            <th className="p-1 border">Delivery Fee (₦)</th>
+                            <th className="p-1 border">Price (₦)</th>
+                            <th className="p-1 border">
+                              Price after discount (₦)
+                            </th>
+                            <th className="p-1 border">Quantity</th>
+                            <th className="p-1 border">Total Price (₦)</th>
+                            <th className="p-1 border">Delivery Status</th>
+                            <th className="p-1 border">Customer Name</th>
+                            <th className="p-1 border">Customer Address</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredDetails.length === 0 ? (
+                            <tr>
+                              <td colSpan={10} className="text-center py-3">
+                                No matching deliveries found.
                               </td>
                             </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                          ) : (
+                            filteredDetails.map((item, i) => (
+                              <tr key={i}>
+                                <td className="p-1 border">
+                                  {item?.products?.map((product, index) => (
+                                    <div key={index}>{product.productName}</div>
+                                  ))}
+                                </td>
+
+                                <td className="p-1 border flex items-center gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span>{item.deliveryCode}</span>
+                                    <Copy
+                                      size={16}
+                                      className="cursor-pointer"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          item.deliveryCode
+                                        );
+                                        setCopiedCode(item.deliveryCode);
+                                        setTimeout(
+                                          () => setCopiedCode(null),
+                                          2000
+                                        );
+                                      }}
+                                    />
+                                    {copiedCode === item.deliveryCode && (
+                                      <span className="text-green-600 text-xs">
+                                        Copied!
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+
+                                <td className="p-1 border">
+                                  {item.deliveryFee}
+                                </td>
+                                <td className="p-1 border">
+                                  {item?.products?.map((product, index) => (
+                                    <div key={index}>
+                                      {Number(
+                                        product?.productPrice
+                                      ).toLocaleString()}
+                                    </div>
+                                  ))}
+                                </td>
+                                <td className="p-1 border">
+                                  {item?.products?.map((product, index) => (
+                                    <div key={index}>
+                                      {Number(
+                                        product?.totalAfterDiscount /
+                                          product?.qty
+                                      ).toLocaleString()}
+                                    </div>
+                                  ))}
+                                </td>
+                                <td className="p-1 border">
+                                  {item?.products?.map((product, index) => (
+                                    <div key={index}>
+                                      {Number(product?.qty).toLocaleString()}
+                                    </div>
+                                  ))}
+                                </td>
+                                <td className="p-1 border">
+                                  {Number(item.finalTotal).toLocaleString()}
+                                </td>
+                                <td
+                                  className={`p-1 border ${
+                                    item.deliveryStatus === "DELIVERED"
+                                      ? "text-green-500"
+                                      : item.deliveryStatus === "CANCELLED" ||
+                                        item.deliveryStatus === "NOT_REACHABLE"
+                                      ? "text-red-500"
+                                      : "text-yellow-400"
+                                  }`}>
+                                  {item.deliveryStatus}
+                                </td>
+                                <td className="p-1 border">
+                                  {item.receiverName}
+                                </td>
+                                <td className="p-1 border">
+                                  {item.receiverAddress}
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   ) : (
                     <p className="text-sm text-gray-500">
                       No delivery data available.
