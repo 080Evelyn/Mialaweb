@@ -224,7 +224,7 @@ const ProposedFee = () => {
             <TableHead>Delivery Code</TableHead>
             <TableHead> Address</TableHead>
             <TableHead> Status</TableHead>
-            <TableHead> Proposed Fee(₦)</TableHead>
+            <TableHead> Delivery Fee(₦)</TableHead>
             <TableHead>Date </TableHead>
             <TableHead>Action</TableHead>
           </TableRow>

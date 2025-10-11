@@ -101,9 +101,9 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                         <span>Discount Price:</span>
                         <span>
                           ₦
-                          {Number(
-                            product.totalAfterDiscount / product.qty
-                          ).toLocaleString()}
+                          {Number(product.totalAfterDiscount / product.qty)
+                            .toFixed(2)
+                            .toLocaleString()}
                         </span>
                       </div>
 
@@ -111,7 +111,15 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                         <span>Quantity:</span>
                         <span>{product.qty}</span>
                       </div>
-
+                      <div className="flex justify-between text-[10px] text-[#8C8C8C] font-[Raleway]">
+                        <span>Total</span>
+                        <span>
+                          ₦
+                          {Number(
+                            product.productPrice * product.qty
+                          ).toLocaleString()}
+                        </span>
+                      </div>
                       <div className="flex justify-between text-[10px] text-[#8C8C8C] font-[Raleway]">
                         <span>Total After Discount:</span>
                         <span>
@@ -125,9 +133,7 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                 {/* Grand total */}
                 <div className="flex justify-between mt-3 text-xs font-semibold">
                   <span>Total Amount:</span>
-                  <span>
-                    ₦{Number(data?.totalProductValue).toLocaleString()}
-                  </span>
+                  <span>₦{Number(data?.finalTotal).toLocaleString()}</span>
                 </div>
               </div>
 

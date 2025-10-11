@@ -104,7 +104,7 @@ function MenuItems({ setOpen }) {
       path: "/request",
       icon: <Power src={Agents} alt="Agent" className="w-5 h-5" />,
     },
-    (userRole === "Admin" || userRole === "Manager") && {
+    {
       id: "admin",
       label: "Admin",
       path: "/admin/sub-admins",
