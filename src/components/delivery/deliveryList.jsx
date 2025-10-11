@@ -6,7 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, PenBox, ArrowRightCircle, Copy } from "lucide-react";
+import {
+  Loader2,
+  PenBox,
+  ArrowRightCircle,
+  Copy,
+  ArrowLeftRight,
+} from "lucide-react";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
 import DeliveryFormDialog from "./deliveryFormDialog";
@@ -22,6 +28,8 @@ import { fetchAllRiders } from "@/redux/allRiderSlice";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
 import { clearFilters } from "@/redux/searchSlice";
+import ReassignDeliveryDialog from "../proposedFee/ReassignDeliveryDialog";
+import CommentsDialog from "./CommentsDialog";
 
 const initialFormState = {
   products: [
@@ -29,7 +37,7 @@ const initialFormState = {
       productName: "",
       quantity: "1",
       productPrice: "",
-      discountPercent: "",
+      totalAfterDiscount: "",
       productId: "",
     },
   ],
@@ -43,13 +51,25 @@ const initialFormState = {
   balance: "",
   dueDate: "",
   deliveryStatus: "PENDING",
-  note: "",
+  comments: [
+    {
+      receiverId: "",
+      message: "",
+    },
+  ],
+  totalProductValue: "",
+  finalTotal: "",
 };
 
 const DeliveryList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState("");
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState(null);
+  const [selectedReciever, setSelectedReciever] = useState(null);
+  const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
   const [formMode, setFormMode] = useState("add");
   const [formData, setFormData] = useState(initialFormState);
+  const [totalFinalPrice, setTotalFinalPrice] = useState(0);
   const [deliveryId, setDeliveryId] = useState("");
   const deliveryDetails = useSelector((state) => state.delivery.details);
   const [page, setPage] = useState(0);
@@ -121,11 +141,22 @@ const DeliveryList = () => {
     link.click();
     document.body.removeChild(link);
   };
+  const handleAction = (id, index) => {
+    setOpenDialog(index);
+    setSelectedId(id);
+  };
+
+  // Function to open the dialog
+  const handleViewComments = (deliveryId, riderId) => {
+    setSelectedDeliveryId(deliveryId);
+    setOpenCommentsDialog(true);
+    setSelectedReciever(riderId);
+  };
+
   const filtered = deliveryList?.filter((item) => {
-    const productNames =
-      item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
     const searchMatch =
-      productNames.includes(query.toLowerCase()) ||
+      item.riderFirstName.toLowerCase().includes(query.toLowerCase()) ||
+      item.riderLastName.toLowerCase().includes(query.toLowerCase()) ||
       item.deliveryCode.toLowerCase().includes(query.toLowerCase());
 
     const agentMatch = filters.agent
@@ -200,6 +231,7 @@ const DeliveryList = () => {
                 productId: product.productId || "",
                 productName: product.productName || "",
                 quantity: product.qty || "",
+                finalPrice: product.totalAfterDiscount,
                 productPrice:
                   product.totalAfterDiscount != null
                     ? product.totalAfterDiscount / product.qty
@@ -223,9 +255,11 @@ const DeliveryList = () => {
         amountPaid: deliveryDetails.amountPaid || "",
         balance: deliveryDetails.balance || "",
         deliveryStatus: deliveryDetails.deliveryStatus || "",
+        finalTotal: deliveryDetails.finalTotal || 0,
         // note: deliveryDetails?.note || "",
       });
     }
+    setTotalFinalPrice(deliveryDetails.finalTotal || 0);
   }, [deliveryDetails, formMode]);
 
   if (loading && !multiCall) {
@@ -292,7 +326,6 @@ const DeliveryList = () => {
       </div>
     );
   }
-
   return (
     <div className="sm:me-5 sm:ms-2.5">
       <button
@@ -311,6 +344,8 @@ const DeliveryList = () => {
           setFormData={setFormData}
           initialState={initialFormState}
           deliveryId={deliveryId}
+          totalFinalPrice={totalFinalPrice}
+          setTotalFinalPrice={setTotalFinalPrice}
         />
       </div>
       {/* ✅ Scroll container */}
@@ -324,9 +359,9 @@ const DeliveryList = () => {
               <TableHead>Delivery Fee(₦)</TableHead>
               <TableHead>Total(₦)</TableHead>
               <TableHead>Customer Name</TableHead>
-              <TableHead className={"w-[100px]"}>Note</TableHead>
               <TableHead>Payment Type</TableHead>
               <TableHead>Delivery Status</TableHead>
+              <TableHead>Comments</TableHead>
               <TableHead>Payment Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -378,14 +413,33 @@ const DeliveryList = () => {
                     {Number(data.deliveryFee).toLocaleString()}
                   </TableCell>
                   <TableCell>
-                    {Number(data.totalProductValue).toLocaleString()}
+                    {Number(data.finalTotal).toLocaleString()}
                   </TableCell>
                   <TableCell>{data.receiverName}</TableCell>
-                  <TableCell className={"w-[100px]"}>
-                    {data.note || "No Note Provided"}
-                  </TableCell>
+
                   <TableCell>{data.paymentType}</TableCell>
-                  <TableCell>{data.deliveryStatus}</TableCell>
+                  <TableCell
+                    className={
+                      data.deliveryStatus === "FAILED_DELIVERY"
+                        ? "text-red-500"
+                        : data.deliveryStatus === "PENDING"
+                        ? "text-yellow-500"
+                        : data.deliveryStatus === "DELIVERED"
+                        ? "text-green-500"
+                        : ""
+                    }>
+                    {data.deliveryStatus}
+                  </TableCell>
+
+                  <TableCell>
+                    <button
+                      onClick={() =>
+                        handleViewComments(data.deliveryId, data.riderId)
+                      }
+                      className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md transition">
+                      View Comments
+                    </button>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-3 items-center">
                       {data.customerPaymentStatus}
@@ -394,6 +448,7 @@ const DeliveryList = () => {
                           <PenBox className="h-5 w-5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
                         </button>
                       )}
+
                       <button
                         onClick={() => {
                           setSelectedId(data.deliveryId);
@@ -401,7 +456,21 @@ const DeliveryList = () => {
                         }}>
                         <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
                       </button>
+                      {data.deliveryStatus === "FAILED_DELIVERY" && (
+                        <button
+                          onClick={() => {
+                            handleAction(data.deliveryId, index);
+                          }}>
+                          <ArrowLeftRight className="w-4 h-4 mr-2  hover:text-gray-500 cursor-pointer" />
+                        </button>
+                      )}
                     </div>
+                    <ReassignDeliveryDialog
+                      openDialog={openDialog}
+                      setOpenDialog={setOpenDialog}
+                      index={index}
+                      id={selectedId}
+                    />
                   </TableCell>
                 </TableRow>
               ))
@@ -423,6 +492,13 @@ const DeliveryList = () => {
         onClose={() => {
           dispatch(setRestricted(false));
         }}
+      />
+      <CommentsDialog
+        open={openCommentsDialog}
+        onClose={() => setOpenCommentsDialog(false)}
+        deliveryId={selectedDeliveryId}
+        token={token}
+        receiverId={selectedReciever}
       />
 
       {/* <div className="flex gap-2 mt-4 m-auto w-[80%] justify-center flex-wrap">

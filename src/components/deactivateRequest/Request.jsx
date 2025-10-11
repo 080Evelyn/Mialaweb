@@ -52,7 +52,7 @@ const Request = () => {
   };
 
   const handleDeactivate = async (id) => {
-    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permissions.includes("ACTIVATE_RIDER") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));

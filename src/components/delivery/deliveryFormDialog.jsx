@@ -3,18 +3,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -26,7 +19,6 @@ import { NIGERIAN_STATES } from "@/config/stateData";
 import { fetchProducts } from "@/redux/productSlice";
 import { Loader2 } from "lucide-react";
 import { fetchStats } from "@/redux/statSlice";
-import { prefetchDNS } from "react-dom";
 
 const DeliveryFormDialog = ({
   dialogOpen,
@@ -37,26 +29,72 @@ const DeliveryFormDialog = ({
   handleOpenAdd,
   initialState,
   deliveryId,
+  totalFinalPrice,
+  setTotalFinalPrice,
 }) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const id = useSelector((state) => state.auth.user.userId);
+  const [receiverId, setReceiverId] = useState("");
   const userRole = useSelector((state) => state.auth.user.userRole);
   const token = useSelector((state) => state.auth.token);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [totalFinalPrice, setTotalFinalPrice] = useState(0);
+  const [originalPrice, setOriginalPrice] = useState(0);
   const [selectedState, setSelectedState] = useState("");
   const [agents, setAgents] = useState([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
   const { products } = useSelector((state) => state.product);
-
-  const sortedProducts = [...products].reverse();
+  const [errors, setErrors] = useState({});
   const loading = useSelector((state) => state.delivery.idLoading);
   const error = useSelector((state) => state.delivery.idError);
 
   const nigerianPhoneRegex = /^(?:\+234|234|0)(7\d{9}|8\d{9}|9\d{9})$/;
+
+  const validate = () => {
+    const newErrors = {};
+
+    // General delivery info validation
+    if (!formData.riderId) newErrors.riderId = "Required";
+    if (!formData.receiverName) newErrors.receiverName = "Required";
+    if (!formData.dueDate) newErrors.dueDate = "Required";
+    if (!formData.receiverPhone) newErrors.receiverPhone = "Required";
+    else if (formData.receiverPhone.length !== 11)
+      newErrors.receiverPhone = "Must be 11 digits";
+    if (!formData.receiverAddress) newErrors.receiverAddress = "Required";
+    if (!formData.deliveryStatus) newErrors.deliveryStatus = "Required";
+    if (!formData.customerPaymentStatus)
+      newErrors.customerPaymentStatus = "Required";
+    // Validate product fields
+    if (!formData.products || formData.products.length === 0) {
+      newErrors.products = "At least one product is required";
+    } else {
+      const invalidProduct = formData.products.some((product, index) => {
+        const productName = (product.productName || "").trim();
+        const quantity = Number(product.quantity ?? 0);
+        // const productPrice = Number(
+        //   product.productPrice ?? product.originalPrice
+        // );
+
+        return (
+          !productName ||
+          isNaN(quantity) ||
+          // isNaN(productPrice) ||
+          quantity <= 0
+          // ||
+          // productPrice <= 0
+        );
+      });
+
+      if (invalidProduct) {
+        newErrors.products = "Each product must have name, quantity, and price";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   useEffect(() => {
     if (token && userRole) {
@@ -164,61 +202,66 @@ const DeliveryFormDialog = ({
   useEffect(() => {
     if (formData?.products?.length > 0) {
       const total = formData.products.reduce((acc, product) => {
-        const unitPrice = Number(product.productPrice || 0);
+        const unitPrice = Number(
+          product.subTotal || product.productPrice * product.quantity
+        );
         const quantity = Number(product.quantity || 0);
+        const finalPrice = unitPrice;
 
-        const finalPrice = unitPrice * quantity;
         return acc + finalPrice;
       }, 0);
+      const original = formData.products.reduce((acc, product) => {
+        const unitPrice = Number(product.originalPrice || 0);
+        const quantity = Number(product.quantity || 0);
+        const finalPrice = unitPrice * quantity;
 
+        return acc + finalPrice;
+      }, 0);
       setTotalFinalPrice(total);
+      setOriginalPrice(original);
     } else {
       setTotalFinalPrice(0);
     }
   }, [formData.products]);
 
+  useEffect(() => {
+    setReceiverId(formData.riderId);
+  }, [formData.riderId]);
+
+  useEffect(() => {
+    if (formData?.finalTotal !== undefined) {
+      setTotalFinalPrice(formData.finalTotal);
+    }
+  }, [formData.finalTotal]);
+
   const handleAdd = async (e) => {
     e.preventDefault();
     const payload = {
       ...formData,
+      totalProductValue: originalPrice,
+      finalTotal: totalFinalPrice,
       products: formData.products.map((p) => ({
         productName: p.productName,
         quantity: p.quantity,
         productPrice: p.originalPrice,
-        discountPercent: p.discountPercent,
+        totalAfterDiscount: p.finalPrice,
         productId: p.productId,
+      })),
+      comments: formData.comments.map((c) => ({
+        ...c,
+        receiverId: receiverId,
       })),
     };
 
     // console.log(payload);
+    if (!validate()) {
+      return;
+    }
     setErrorMessage("");
     setSuccessMessage("");
-    if (formData.receiverPhone.length !== 11) {
-      setErrorMessage("Phone number must be 11 digits");
-      return;
-    }
-
-    // if (!nigerianPhoneRegex.test(formData.receiverPhone)) {
-    //   setErrorMessage("Invalid phone number");
-    //   return;
-    // }
     if (
-      formData.receiverAddress === "" ||
-      formData.riderId === "" ||
-      formData.receiverName === "" ||
-      formData.receiverPhone === "" ||
-      formData.dueDate === "" ||
-      formData.deliveryStatus === "" ||
-      formData.negotiationStatus === "" ||
-      formData.agreementStatus === "" ||
-      formData.riderPaymentStatus === "" ||
-      formData.customerPaymentStatus === ""
-    ) {
-      setErrorMessage("All Fields Must be Filled!!");
-      return;
-    }
-    if (
-      formData.paymentType === "FULL_PAYMENT" &&
+      (formData.paymentType === "FULL_PAYMENT" ||
+        formData.paymentType === "CASH") &&
       formData.amountPaid !== totalFinalPrice
     ) {
       setErrorMessage("Amount entered is not equal to total product amount.");
@@ -250,16 +293,6 @@ const DeliveryFormDialog = ({
         "Failed to assign delivery. Payment status does not align with payment type."
       );
       return;
-    }
-    // Check each product entry
-    const invalidProduct = formData.products.some(
-      (product) =>
-        !product.productName || !product.quantity || !product.productPrice
-    );
-
-    if (invalidProduct) {
-      setErrorMessage("All product fields must be filled!");
-      return false;
     }
     setIsLoading(true);
     setErrorMessage("");
@@ -309,6 +342,9 @@ const DeliveryFormDialog = ({
   };
   const handleEdit = async (e) => {
     e.preventDefault();
+    if (!validate()) {
+      return;
+    }
     if (formData.receiverPhone.length !== 11) {
       setErrorMessage("Phone number must be 11 digits");
       return;
@@ -323,7 +359,8 @@ const DeliveryFormDialog = ({
       return;
     }
     if (
-      formData.paymentType === "FULL_PAYMENT" &&
+      (formData.paymentType === "FULL_PAYMENT" ||
+        formData.paymentType === "CASH") &&
       formData.amountPaid !== totalFinalPrice
     ) {
       setErrorMessage("Amount entered is not equal to total product amount.");
@@ -368,20 +405,20 @@ const DeliveryFormDialog = ({
     }
     const payload = {
       ...formData,
+      finalTotal: totalFinalPrice,
       products: formData.products.map((p) => {
         return {
           productName: p.productName,
           quantity: p.quantity,
           productPrice: p.originalPrice,
-          discountPercent: p.discountPercent,
           productId: p.productId,
+          totalAfterDiscount: p.finalPrice,
         };
       }),
     };
-
-    // if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
-    //   delete payload.paymentType;
-    // }
+    if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
+      delete payload.paymentType;
+    }
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
@@ -452,83 +489,71 @@ const DeliveryFormDialog = ({
             </p>
           ) : (
             <form className="flex flex-col gap-2 h-[650px]">
-              {formData?.products?.map((product, index) => {
-                const originalUnitPrice =
-                  products.find((p) => p.productName === product.productName)
-                    ?.unitPrice || 0;
-                const unitPrice = Number(product.productPrice || 0);
-                const quantity = Number(product.quantity || 0);
-                const priceBeforeDiscount = unitPrice * quantity;
-                const discountPercent =
-                  originalUnitPrice && originalUnitPrice > unitPrice
-                    ? ((originalUnitPrice - unitPrice) / originalUnitPrice) *
-                      100
-                    : 0;
-                formData.products[index].discountPercent = parseFloat(
-                  discountPercent.toFixed(2)
+              {formData.products.map((product, index) => {
+                const selectedProduct = products.find(
+                  (p) => p.productName === product.productName
                 );
-                // const discountAmount =
-                //   (originalUnitPrice * quantity * discountPercent) / 100;
-                const finalPrice = priceBeforeDiscount;
+                const originalUnitPrice =
+                  selectedProduct?.unitPrice ?? product.originalPrice ?? 0;
+                const qty = Number(product.quantity || 0);
+
+                // original total (baseline) = unitPrice * quantity
+                const originalTotal = originalUnitPrice * qty;
+
+                // Use product.subTotal if present; otherwise initialize from originalTotal
+                const subTotal = Number(
+                  product.subTotal ?? product.productPrice * product.quantity
+                );
+
+                const finalPrice = subTotal; // final price mirrors subtotal
+
+                // discount percent from originalTotal vs subTotal
+                const discountPercent =
+                  originalTotal > 0
+                    ? ((originalTotal - subTotal) / originalTotal) * 100
+                    : 0;
+
                 return (
                   <div
                     key={index}
                     className="mb-6 p-4 border grid md:grid-cols-2 gap-2 rounded-xl space-y-3 relative">
-                    {/* Product Selection */}
-                    <div className="flex flex-col gap-1">
-                      <Label
-                        className="text-xs"
-                        htmlFor={`productName-${index}`}>
-                        Product Name
-                      </Label>
+                    {/* Product select */}
+                    <div className="mb-2">
+                      <Label className="text-xs">Product Name</Label>
                       <select
-                        id={`productName-${index}`}
                         value={product.productName}
-                        //   onChange={(e) => {
-                        //     const selectedName = e.target.value;
-                        //     const selectedProduct = products.find(
-                        //       (p) => p.productName === selectedName
-                        //     );
-                        //     handleProductChange(index, "productName", selectedName);
-                        //     handleProductChange(
-                        //       index,
-                        //       "productPrice",
-                        //       selectedProduct ? selectedProduct.unitPrice : ""
-                        //     );
-                        //   }
-                        // }
                         onChange={(e) => {
-                          const selectedName = e.target.value;
-                          const selectedProduct = sortedProducts.find(
-                            (p) => p.productName === selectedName
+                          const name = e.target.value;
+                          const sel = products.find(
+                            (p) => p.productName === name
                           );
-                          // console.log(selectedProduct);
-                          handleProductChange(
-                            index,
-                            "productName",
-                            selectedName
-                          );
+                          const unit = sel?.unitPrice ?? 0;
+                          // set productName, productId, originalPrice, subTotal & finalPrice to unit*quantity
+                          handleProductChange(index, "productName", name);
                           handleProductChange(
                             index,
                             "productId",
-                            selectedProduct.id
+                            sel?.id ?? ""
                           );
-                          // Set both editable and original price
+                          handleProductChange(index, "originalPrice", unit);
+                          const calculatedTotal =
+                            unit * Number(product.quantity || 1);
                           handleProductChange(
                             index,
-                            "productPrice",
-                            selectedProduct ? selectedProduct.unitPrice : ""
+                            "subTotal",
+                            calculatedTotal
                           );
                           handleProductChange(
                             index,
-                            "originalPrice",
-                            selectedProduct ? selectedProduct.unitPrice : 0
+                            "finalPrice",
+                            calculatedTotal
                           );
+                          handleProductChange(index, "discountPercent", 0);
                         }}
                         className="rounded-xs bg-[#8C8C8C33] px-2 py-2">
                         <option value="">Select a product</option>
                         {products
-                          ?.filter((product) => product.deleted === false)
+                          ?.filter((p) => !p.deleted)
                           .map((item) => (
                             <option key={item.id} value={item.productName}>
                               {item.productName}
@@ -536,71 +561,104 @@ const DeliveryFormDialog = ({
                           ))}
                       </select>
                     </div>
+
                     {/* Quantity */}
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-xs" htmlFor={`quantity-${index}`}>
-                        Product Quantity
-                      </Label>
+                    <div className="mb-2">
+                      <Label className="text-xs">Quantity</Label>
                       <Input
-                        id={`quantity-${index}`}
                         type="number"
-                        placeholder="Quantity"
                         min="1"
                         value={product.quantity}
-                        onChange={(e) =>
-                          handleProductChange(index, "quantity", e.target.value)
-                        }
-                        className="rounded-xs bg-[#8C8C8C33]"
-                      />
-                    </div>
-                    {/* Editable Unit Price */}
-                    <div className="flex flex-col gap-1">
-                      <Label
-                        className="text-xs"
-                        htmlFor={`productPrice-${index}`}>
-                        Unit Price (₦)
-                      </Label>
-                      <Input
-                        id={`productPrice-${index}`}
-                        type="number"
-                        placeholder="Unit Price"
-                        value={product.productPrice}
                         onChange={(e) => {
+                          const newQty = Math.max(
+                            1,
+                            Number(e.target.value || 0)
+                          );
+                          // update quantity
+                          handleProductChange(index, "quantity", newQty);
+
+                          // recalc originalTotal and then update subTotal & finalPrice to originalTotal
+                          const newOriginalTotal = originalUnitPrice * newQty;
                           handleProductChange(
                             index,
-                            "productPrice",
-                            e.target.value
+                            "subTotal",
+                            newOriginalTotal
                           );
+                          handleProductChange(
+                            index,
+                            "finalPrice",
+                            newOriginalTotal
+                          );
+
+                          // discount becomes 0 since we reset to original total
+                          handleProductChange(index, "discountPercent", 0);
                         }}
                         className="rounded-xs bg-[#8C8C8C33]"
                       />
                     </div>
-                    {/* Discount Percentage */}
-                    <div className="flex flex-col gap-1">
-                      <Label
-                        className="text-xs"
-                        htmlFor={`productDiscount-${index}`}>
-                        Discount (%)
-                      </Label>
+
+                    {/* Unit Price readonly */}
+                    <div className="mb-2">
+                      <Label className="text-xs">Unit Price (₦)</Label>
                       <Input
-                        id={`productDiscount-${index}`}
-                        type="text"
                         readOnly
-                        value={`${discountPercent.toFixed(2)}%`}
-                        className="rounded-xs bg-[#8C8C8C33] text-gray-600"
-                        style={{ cursor: "not-allowed" }}
+                        value={originalUnitPrice}
+                        className="rounded-xs bg-[#e5e5e5] cursor-not-allowed"
                       />
                     </div>
-                    {/* Final Total After Discount */}
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-xs text-green-700 font-semibold">
-                        Final Price (₦)
-                      </Label>
-                      <div className="bg-green-100 px-3 py-2 rounded text-sm font-medium text-green-900">
-                        ₦{finalPrice.toLocaleString()}
-                      </div>
+
+                    {/* Subtotal editable (this is total = unitPrice * qty, editable by user) */}
+                    <div className="mb-2">
+                      <Label className="text-xs">Subtotal (₦) -editable </Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={product.subTotal ?? finalPrice}
+                        onChange={(e) => {
+                          const entered = Number(e.target.value || 0);
+                          // update subTotal and finalPrice (final mirrors subTotal)
+                          handleProductChange(index, "subTotal", entered);
+                          handleProductChange(index, "finalPrice", entered);
+
+                          // compute discount relative to originalTotal
+                          const newDiscount =
+                            originalTotal > 0
+                              ? ((originalTotal - entered) / originalTotal) *
+                                100
+                              : 0;
+                          handleProductChange(
+                            index,
+                            "discountPercent",
+                            parseFloat(newDiscount.toFixed(2))
+                          );
+                        }}
+                        className="rounded-xs bg-green-100 text-green-900"
+                      />
                     </div>
-                    {/* Remove Button */}
+
+                    {/* Final price readonly (mirrors subtotal) */}
+                    <div className="mb-2">
+                      <Label className="text-xs">Final Price (₦)</Label>
+                      <Input
+                        readOnly
+                        value={finalPrice}
+                        className="rounded-xs bg-gray-200 cursor-not-allowed"
+                      />
+                    </div>
+
+                    {/* Discount % readonly */}
+                    <div className="mb-2">
+                      <Label className="text-xs">Discount (%)</Label>
+                      <Input
+                        readOnly
+                        value={`${Number(
+                          product.discountPercent ?? discountPercent
+                        ).toFixed(2)}%`}
+                        className="rounded-xs bg-[#8C8C8C33] cursor-not-allowed"
+                      />
+                    </div>
+
+                    {/* remove btn */}
                     {formData.products.length > 1 && (
                       <button
                         type="button"
@@ -608,6 +666,9 @@ const DeliveryFormDialog = ({
                         className="absolute top-2 right-2 text-red-500 text-xs hover:underline">
                         Remove
                       </button>
+                    )}
+                    {errors?.products && (
+                      <p className="text-red-500 text-xs">{errors.products}</p>
                     )}
                   </div>
                 );
@@ -643,6 +704,11 @@ const DeliveryFormDialog = ({
                       })
                     }
                   />
+                  {errors?.receiverAddress && (
+                    <p className="text-red-500 text-xs">
+                      {errors.receiverAddress}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs" htmlFor="receiverName">
@@ -656,6 +722,11 @@ const DeliveryFormDialog = ({
                       setFormData({ ...formData, receiverName: e.target.value })
                     }
                   />
+                  {errors?.receiverName && (
+                    <p className="text-red-500 text-xs">
+                      {errors.receiverName}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs" htmlFor="receiverPhone">
@@ -673,6 +744,11 @@ const DeliveryFormDialog = ({
                       })
                     }
                   />
+                  {errors?.receiverPhone && (
+                    <p className="text-red-500 text-xs">
+                      {errors.receiverPhone}
+                    </p>
+                  )}
                 </div>
 
                 {/* State Dropdown */}
@@ -728,6 +804,9 @@ const DeliveryFormDialog = ({
                         ))
                       )}
                     </select>
+                    {errors?.riderId && (
+                      <p className="text-red-500 text-xs">{errors.riderId}</p>
+                    )}
                   </div>
                 )}
 
@@ -744,6 +823,9 @@ const DeliveryFormDialog = ({
                       setFormData({ ...formData, dueDate: e.target.value })
                     }
                   />
+                  {errors?.dueDate && (
+                    <p className="text-red-500 text-xs">{errors.dueDate}</p>
+                  )}
                 </div>
                 {formMode === "edit" && (
                   <div className="flex flex-col gap-1">
@@ -767,6 +849,11 @@ const DeliveryFormDialog = ({
                         <option value="NOT_PICKING">NOT_PICKING</option>
                       </>
                     </select>
+                    {errors?.deliveryStatus && (
+                      <p className="text-red-500 text-xs">
+                        {errors.deliveryStatus}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -791,23 +878,33 @@ const DeliveryFormDialog = ({
                     <option value="CUSTOMER_NOT_PAID">Not Paid</option>
                     <option value="CUSTOMER_PAID">Paid</option>
                   </select>
+                  {errors?.customerPaymentStatus && (
+                    <p className="text-red-500 text-xs">
+                      {errors.customerPaymentStatus}
+                    </p>
+                  )}
                 </div>
 
                 {formMode === "add" && (
                   <div className="flex flex-col gap-1">
                     <Label className="text-xs" htmlFor="note">
-                      Note (optional)
+                      Comment (optional)
                     </Label>
                     <textarea
-                      type={"text"}
-                      className="rounded-xs bg-[#8C8C8C33]"
-                      id="note"
-                      value={formData.note}
+                      id="comment"
+                      className="rounded-xs bg-[#8C8C8C33] px-2 py-1"
+                      placeholder="Add a comment..."
+                      value={formData.comments?.[0]?.message || ""}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          note: e.target.value,
-                        })
+                        setFormData((prev) => ({
+                          ...prev,
+                          comments: [
+                            {
+                              ...prev.comments[0],
+                              message: e.target.value,
+                            },
+                          ],
+                        }))
                       }
                     />
                   </div>
@@ -900,11 +997,13 @@ const DeliveryFormDialog = ({
                           <>
                             <option value="FULL_PAYMENT">Full Payment</option>
                             <option value="PART_PAYMENT">Part Payment</option>
+                            <option value="CASH">Cash Payment</option>
                           </>
                         ) : (
                           <>
                             <option value="FULL_PAYMENT">Full Payment</option>
                             <option value="PART_PAYMENT">Part Payment</option>
+                            <option value="CASH">Cash Payment</option>
                             <option value="PAYMENT_ON_DELIVERY">
                               Payment on delivery
                             </option>

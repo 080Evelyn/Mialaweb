@@ -57,24 +57,31 @@ const AdminList = () => {
     "APPROVALS",
     "ORDERS_MANAGEMENT",
     "TAGS",
-    "DELETIONS",
-    // NO_PERMISSION,
+    "DELETE_RIDER",
+    "DELETE_ADMIN",
     "TRANSACTIONS",
     "DELIVERY_FEE",
     "PRODUCT_MANAGEMENT",
-    "ACTIVATIONS",
+    "ACTIVATE_RIDER",
+    "ACTIVATE_ADMIN",
+    "DEACTIVATE_RIDER",
+    "DEACTIVATE_ADMIN",
   ];
 
   const permissionDescriptions = {
-    ADMIN: "Create staffs.",
+    ADMIN: "Create staffs, Update permissions and change roles.",
     APPROVALS: "Approve or reject rider sign up.",
-    ORDERS_MANAGEMENT: "Edit, view and assign deliveries to riders.",
+    ORDERS_MANAGEMENT: "Edit, view, assign and re-assign deliveries to riders.",
     TAGS: "Pin and Unpin riders.",
-    DELETIONS: "Delete riders and staff accounts",
+    DELETE_RIDER: "Delete riders accounts",
+    DELETE_ADMIN: "Delete staff accounts",
     TRANSACTIONS: "view and manage financial transactions.",
     DELIVERY_FEE: "Approve and reject proposed delivery fee from riders.",
     PRODUCT_MANAGEMENT: "Add or remove products.",
-    ACTIVATIONS: "Can activate or deactivate rider or staff account.",
+    ACTIVATE_RIDER: "Can activate rider account.",
+    ACTIVATE_ADMIN: "Can activate staff account.",
+    DEACTIVATE_RIDER: "Can deactivate rider account.",
+    DEACTIVATE_ADMIN: "Can deactivate staff account.",
   };
   const [activate, setActivate] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
@@ -131,7 +138,11 @@ const AdminList = () => {
       const response = await axios.post(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/create-admin-user`
-          : `${BASE_URL}api/v1/manager/create-admin-user`,
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/create-admin-user`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/create-admin-user`
+          : `${BASE_URL}api/v1/accountant/create-admin-user`,
 
         formData,
 
@@ -154,7 +165,10 @@ const AdminList = () => {
         }, 5000);
       }
     } catch (error) {
-      setErrorMessage(`An error occured while creating admin user.`);
+      setErrorMessage(
+        error.response.data.responseDesc ||
+          `An error occured while creating admin user.`
+      );
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -162,7 +176,10 @@ const AdminList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (permission.includes("DELETIONS") || userRole === "Admin") {
+    if (
+      // permission.includes("DELETIONS") ||
+      userRole === "Admin"
+    ) {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -204,7 +221,7 @@ const AdminList = () => {
   };
 
   const handleDeactivate = async (id) => {
-    if (permission.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permission.includes("DEACTIVATE_ADMIN") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -250,7 +267,7 @@ const AdminList = () => {
   };
 
   const handleActivate = async (id) => {
-    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permissions.includes("ACTIVATE_ADMIN") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));

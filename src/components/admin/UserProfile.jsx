@@ -3,8 +3,9 @@ import { useState } from "react";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSubadmin } from "@/redux/subadminSlice";
-import { setRestricted } from "@/redux/restrictionSlice";
 import { BASE_URL } from "@/lib/Api";
+import RestrictionModal from "../common/RestrictionModal";
+import { setRestricted } from "@/redux/restrictionSlice";
 
 const UserProfile = ({
   data,
@@ -22,7 +23,8 @@ const UserProfile = ({
   const [isLoading, setIsLoading] = useState(false);
   const [Loading, setLoading] = useState(false);
   const [role, setRole] = useState(false);
-
+  const restricted = useSelector((state) => state.restriction.restricted);
+  const permission = useSelector((state) => state.auth.permissions);
   const userRoles = [
     { id: 1, role: "Accountant" },
     { id: 2, role: "Manager" },
@@ -30,42 +32,34 @@ const UserProfile = ({
   ];
 
   const permissionDescriptions = {
-    ADMIN: "Create staffs.",
+    ADMIN: "Create staffs, Update permissions and change roles.",
     APPROVALS: "Approve or reject rider sign up.",
-    ORDERS_MANAGEMENT: "Edit, view and assign deliveries to riders.",
+    ORDERS_MANAGEMENT: "Edit, view, assign and re-assign deliveries to riders.",
     TAGS: "Pin and Unpin riders.",
-    DELETIONS: "Delete riders and staff accounts",
+    DELETE_RIDER: "Delete riders accounts",
+    DELETE_ADMIN: "Delete staff accounts",
     TRANSACTIONS: "view and manage financial transactions.",
     DELIVERY_FEE: "Approve and reject proposed delivery fee from riders.",
     PRODUCT_MANAGEMENT: "Add or remove products.",
-    ACTIVATIONS: "Can activate or deactivate rider or staff account.",
+    ACTIVATE_RIDER: "Can activate rider account.",
+    ACTIVATE_ADMIN: "Can activate staff account.",
+    DEACTIVATE_RIDER: "Can deactivate rider account.",
+    DEACTIVATE_ADMIN: "Can deactivate staff account.",
   };
   const permissions = [
-    // "CREATE_STAFF",
-    // "APPROVE_BLOCK_RIDER_SIGNUP",
-    // "CREATE_EDIT_DELIVERY",
-    // "PIN_UNPIN_RIDER",
-    // "DELETE_RIDER",
-    // "DELETE_STAFF",
-    // "NO_PERMISSION",
-    // DELETE_MANAGER,
-    // "VIEW_ACCOUNT_DETAILS_TXN_HISTORY",
-    // "VIEW_ALL_DELIVERIES",
-    // "ACCEPT_REJECT_DELIVERY_FEE",
-    // "CREATE_DELETE_PRODUCT",
-    // ALL_ACTIONS,
-    // "ACTIVATE_DEACTIVATE_USER",
-
     "ADMIN",
     "APPROVALS",
     "ORDERS_MANAGEMENT",
     "TAGS",
-    "DELETIONS",
-    // NO_PERMISSION,
+    "DELETE_RIDER",
+    "DELETE_ADMIN",
     "TRANSACTIONS",
     "DELIVERY_FEE",
     "PRODUCT_MANAGEMENT",
-    "ACTIVATIONS",
+    "ACTIVATE_RIDER",
+    "ACTIVATE_ADMIN",
+    "DEACTIVATE_RIDER",
+    "DEACTIVATE_ADMIN",
   ];
   const [userPermissions, setUserPermissions] = useState(
     data.permissions || []
@@ -89,7 +83,7 @@ const UserProfile = ({
   };
 
   const handleUpdatePermissions = async () => {
-    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permission.includes("ADMIN") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -107,7 +101,11 @@ const UserProfile = ({
       const response = await axios.post(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/users/${id}/permissions`
-          : `${BASE_URL}api/v1/manager/users/${id}/permissions`,
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/users/${id}/permissions`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/users/${id}/permissions`
+          : `${BASE_URL}api/v1/accountant/users/${id}/permissions`,
         payload,
 
         {
@@ -133,7 +131,7 @@ const UserProfile = ({
   };
 
   const handleRole = async () => {
-    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permission.includes("ADMIN") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -151,7 +149,11 @@ const UserProfile = ({
       const response = await axios.post(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/${id}/change-role`
-          : `${BASE_URL}api/v1/manager/${id}/change-role`,
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/${id}/change-role`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/${id}/change-role`
+          : `${BASE_URL}api/v1/accountant/${id}/change-role`,
         payload,
 
         {
@@ -206,6 +208,7 @@ const UserProfile = ({
           <button
             onClick={() => {
               setRole(!role);
+              setErrorMessage("");
             }}
             className="justify-center text-white border cursor-pointer hover:bg-gray-500 font-semibold bg-gray-400  p-2 rounded-md shadow-md m-auto ">
             {role ? "View Permissions" : "Change Staff Role"}
@@ -213,7 +216,7 @@ const UserProfile = ({
         </div>
       </div>
       {!role && (
-        <div className="border shadow-md px-2 pb-4 m-auto mt-4">
+        <div className="border shadow-md px-2 pb-4 h-[300px] overflow-y-scroll m-auto mt-4">
           <p className="font-semibold mt-3">Permissions:</p>
           <div className="flex flex-col gap-2 mt-2">
             {permissions.map((perm) => (
@@ -281,8 +284,18 @@ const UserProfile = ({
               {Loading ? "Processing..." : "Update Role"}
             </button>
           </div>
+          {errorMessage && (
+            <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+          )}
         </div>
       )}
+
+      <RestrictionModal
+        open={restricted}
+        onClose={() => {
+          dispatch(setRestricted(false));
+        }}
+      />
     </div>
   );
 };

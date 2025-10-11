@@ -88,7 +88,7 @@ const AdminAgentList = () => {
     }
   }, []);
   const handleDactivate = async (id) => {
-    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permissions.includes("ACTIVATE_RIDER") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
@@ -131,7 +131,7 @@ const AdminAgentList = () => {
   };
 
   const handleActivate = async (id) => {
-    if (permissions.includes("ACTIVATIONS") || userRole === "Admin") {
+    if (permissions.includes("ACTIVATE_RIDER") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));

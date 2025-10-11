@@ -11,7 +11,9 @@ export const fetchSubadmin = createAsyncThunk(
           ? `${BASE_URL}api/v1/admin/staffs`
           : userRole === "Manager"
           ? `${BASE_URL}api/v1/manager/staffs`
-          : "",
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/staffs`
+          : `${BASE_URL}api/v1/accountant/staffs`,
         {
           method: "GET",
           headers: {

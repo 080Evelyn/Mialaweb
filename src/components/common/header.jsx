@@ -169,23 +169,34 @@ function AdminHeader({ setOpen, rightSidebar }) {
                       ))}
                     </select>
                   ) : (
-                    <select
-                      value={filters.status || ""}
-                      onChange={(e) =>
-                        handleFilterChange("status", e.target.value)
-                      }
-                      className="px-2 py-1 border rounded text-sm">
-                      <option value="">Status</option>
-                      <option value="PENDING">PENDING</option>
-                      <option value="DELIVERED">DELIVERED</option>
-                      <option value="FEE_PROPOSED">NOT_REACHABLE</option>
-                      <option value="FEE_REJECTED">NOT_PICKING</option>
-                      <option value="PART_PAYMENT">PART_PAYMENT</option>
-                      <option value="PAYMENT_ON_DELIVERY">
-                        PAYMENT_ON_DELIVERY
-                      </option>
-                      <option value="FULL_PAYMENT">FULL_PAYMENT</option>
-                    </select>
+                    <>
+                      <select
+                        value={filters.status || ""}
+                        onChange={(e) =>
+                          handleFilterChange("status", e.target.value)
+                        }
+                        className="px-2 py-1 border rounded text-sm">
+                        <option value="">Delivery Status</option>
+                        <option value="PENDING">PENDING</option>
+                        <option value="DELIVERED">DELIVERED</option>
+                        <option value="NOT_REACHABLE">NOT_REACHABLE</option>
+                        <option value="NOT_PICKING">NOT_PICKING</option>
+                        <option value="FAILED_DELIVERY">FAILED_DELIVERY</option>
+                      </select>
+                      <select
+                        value={filters.status || ""}
+                        onChange={(e) =>
+                          handleFilterChange("status", e.target.value)
+                        }
+                        className="px-2 py-1 border rounded text-sm">
+                        <option value="">Payment Status</option>
+                        <option value="PART_PAYMENT">PART_PAYMENT</option>
+                        <option value="PAYMENT_ON_DELIVERY">
+                          PAYMENT_ON_DELIVERY
+                        </option>
+                        <option value="FULL_PAYMENT">FULL_PAYMENT</option>
+                      </select>
+                    </>
                   )}
                   <select
                     value={filters.agent || ""}

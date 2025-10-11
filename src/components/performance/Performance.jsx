@@ -27,7 +27,9 @@ const Performance = () => {
   const dispatch = useDispatch();
 
   const filtered = riders?.filter((item) => {
-    const searchMatch = item.riderFullName.includes(query.toLowerCase());
+    const searchMatch = item.riderFullName
+      .toLowerCase()
+      .includes(query.toLowerCase());
 
     const agentMatch = filters.agent
       ? `${item.riderFullName} `
