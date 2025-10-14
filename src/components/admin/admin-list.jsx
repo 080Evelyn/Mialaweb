@@ -166,8 +166,9 @@ const AdminList = () => {
       }
     } catch (error) {
       setErrorMessage(
-        error.response.data.responseDesc ||
-          `An error occured while creating admin user.`
+        error.response.data.responseDesc
+        // ||
+        //   `An error occured while creating admin user.`
       );
       console.log(error);
     } finally {
