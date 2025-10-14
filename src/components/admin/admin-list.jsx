@@ -268,7 +268,7 @@ const AdminList = () => {
   };
 
   const handleActivate = async (id) => {
-    if (permissions.includes("ACTIVATE_ADMIN") || userRole === "Admin") {
+    if (permission.includes("ACTIVATE_ADMIN") || userRole === "Admin") {
       dispatch(setRestricted(false));
     } else {
       dispatch(setRestricted(true));
