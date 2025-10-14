@@ -16,7 +16,7 @@ export const fetchDeliveriesByState = createAsyncThunk(
           : `${BASE_URL}api/v1/accountant/delivery-ranking-by-rider-state`,
 
         {
-          method: "POST",
+          method: "GET",
           headers: {
             accept: "application/json",
             "Content-Type": "application/json",

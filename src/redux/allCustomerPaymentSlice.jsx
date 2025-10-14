@@ -9,12 +9,12 @@ export const fetchAllPayment = createAsyncThunk(
     try {
       const response = await axios.get(
         userRole === "Admin"
-          ? ` ${BASE_URL}api/v1/admin/deposits-with-customers`
+          ? ` ${BASE_URL}api/v1/admin/deposits-by-customers`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/deposits-with-customers`
+          ? `${BASE_URL}api/v1/customercare/deposits-by-customers`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/deposits-with-customers`
-          : `${BASE_URL}api/v1/accountant/deposits-with-customers`,
+          ? `${BASE_URL}api/v1/manager/deposits-by-customers`
+          : `${BASE_URL}api/v1/accountant/deposits-by-customers`,
         {
           headers: {
             accept: "application/json",

@@ -192,7 +192,7 @@ const AdminList = () => {
     try {
       const response = await axios.delete(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/super-delete/${id}`
+          ? `${BASE_URL}api/v1/admin/super-delete/admin/${id}`
           : "",
         {
           headers: {
@@ -234,12 +234,12 @@ const AdminList = () => {
     try {
       const response = await axios.delete(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/deactivate-user/${id}`
+          ? `${BASE_URL}api/v1/admin/deactivate-user/admin/${id}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/deactivate-user/${id}`
+          ? `${BASE_URL}api/v1/customercare/deactivate-user/admin/${id}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/deactivate-user/${id}`
-          : `${BASE_URL}api/v1/accountant/deactivate-user/${id}`,
+          ? `${BASE_URL}api/v1/manager/deactivate-user/admin/${id}`
+          : `${BASE_URL}api/v1/accountant/deactivate-user/admin/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -279,12 +279,12 @@ const AdminList = () => {
     try {
       const response = await axios.put(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/activate-user/${id}`
+          ? `${BASE_URL}api/v1/admin/activate/admin/${id}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/activate-user/${id}`
+          ? `${BASE_URL}api/v1/customercare/activate/admin/${id}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/activate-user/${id}`
-          : `${BASE_URL}api/v1/accountant/activate-user/${id}`,
+          ? `${BASE_URL}api/v1/manager/activate/admin/${id}`
+          : `${BASE_URL}api/v1/accountant/activate/admin/${id}`,
         {},
 
         {

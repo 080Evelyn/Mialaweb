@@ -33,6 +33,7 @@ const AgentSidebar = () => {
   );
   const loading = useSelector((state) => state.pendingRiders.loading);
   const error = useSelector((state) => state.pendingRiders.error);
+
   const userRole = useSelector((state) => state.auth.user.userRole);
   const restricted = useSelector((state) => state.restriction.restricted);
 

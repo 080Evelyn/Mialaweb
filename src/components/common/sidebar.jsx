@@ -16,7 +16,6 @@ import { resetTransaction } from "@/redux/transactionSlice";
 import { resetriders } from "@/redux/riderSlice";
 import { resetNotifications } from "@/redux/notificationSlice";
 import { resetPayment } from "@/redux/allCustomerPaymentSlice";
-import { resetApproveReject } from "@/redux/approveRejectProposalFeeSlice";
 import { BarChart3, FileText, LogOut, Power, TrendingUp } from "lucide-react";
 import { resetStats } from "@/redux/statSlice";
 import { resetSummary } from "@/redux/orderSummarySlice";
@@ -26,6 +25,8 @@ function MenuItems({ setOpen }) {
   const location = useLocation();
   const userRole = useSelector((state) => state.auth.user.userRole);
   const first_name = useSelector((state) => state.auth.user.first_name);
+  const permissions = useSelector((state) => state.auth.permissions);
+
   const dispatch = useDispatch();
 
   const SidebarMenuItems = [
@@ -73,20 +74,21 @@ function MenuItems({ setOpen }) {
       path: "/proposedFee",
       icon: <img src={Fees} alt="proposedFee box" className="w-5 h-5" />,
     },
-    {
+
+    (permissions.includes("TRANSACTIONS") || userRole === "Admin") && {
       id: "Revenue",
       label: "payin-summary",
       path: "/Fees",
       icon: <img src={Fees} alt="Fees-logo" className="w-5 h-5" />,
     },
 
-    {
+    (permissions.includes("TRANSACTIONS") || userRole === "Admin") && {
       id: "payout-summary",
       label: "payout-summary",
       path: "/payout-summary",
       icon: <TrendingUp className="w-5 h-5" />,
     },
-    {
+    (permissions.includes("ORDERS_MANAGEMENT") || userRole === "Admin") && {
       id: "performance",
       label: "performance",
       path: "/performance",
@@ -98,7 +100,7 @@ function MenuItems({ setOpen }) {
       path: "/admin/agents",
       icon: <img src={Agents} alt="Agent" className="w-5 h-5" />,
     },
-    {
+    (permissions.includes("ACTIVATE_RIDER") || userRole === "Admin") && {
       id: "request",
       label: "Request",
       path: "/request",
@@ -127,7 +129,7 @@ function MenuItems({ setOpen }) {
   };
   return (
     <nav className="mt-0 flex flex-col gap-1 h-screen overflow-y-scroll  pl-3 ">
-      {SidebarMenuItems.map((menuItem) => {
+      {SidebarMenuItems.filter(Boolean).map((menuItem) => {
         const isActive = location.pathname === menuItem.path;
         // ||
         // (menuItem.id === "agent" &&

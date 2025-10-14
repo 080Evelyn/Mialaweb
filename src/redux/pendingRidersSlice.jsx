@@ -25,7 +25,6 @@ export const fetchPendingRiders = createAsyncThunk(
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch riders");
       const data = await response.json();
 
       return data.data;
