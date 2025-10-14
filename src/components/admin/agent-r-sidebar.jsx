@@ -124,6 +124,10 @@ const AdminAgentSidebar = () => {
     }
   };
 
+  if (!permissions.includes("APPROVALS")) {
+    return null;
+  }
+
   if (loading) {
     return (
       <h2 className="text-center font-semibold mt-11 text-xs">

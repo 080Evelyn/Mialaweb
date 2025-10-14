@@ -118,6 +118,11 @@ const FeesSidebar = () => {
       setLoadingDetails(false);
     }
   };
+
+  if (!permissions.includes("TAGS")) {
+    return null;
+  }
+
   if (loading) {
     return (
       <>

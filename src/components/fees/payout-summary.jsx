@@ -142,11 +142,7 @@ const PayoutSummaryTable = () => {
           </TableBody>
         </Table>
       ) : !loading && error ? (
-        <p className="text-sm text-red-500 text-center">
-          {error === "You do not have permission to view account details"
-            ? "You do not have permission to view this data."
-            : "Failed to fetch."}
-        </p>
+        <p className="text-sm text-red-500 text-center">{error}</p>
       ) : (
         // : !loading && error === "No valid transfer transactions found." ? (
         //   <p className="text-sm text-center">{error}</p>

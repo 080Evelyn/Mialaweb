@@ -100,12 +100,12 @@ const AdminAgentList = () => {
     try {
       const response = await axios.delete(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/deactivate-user/${id}`
+          ? `${BASE_URL}api/v1/admin/deactivate-user/rider/${id}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/deactivate-user/${id}`
+          ? `${BASE_URL}api/v1/customercare/deactivate-user/rider/${id}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/deactivate-user/${id}`
-          : `${BASE_URL}api/v1/accountant/deactivate-user/${id}`,
+          ? `${BASE_URL}api/v1/manager/deactivate-user/rider/${id}`
+          : `${BASE_URL}api/v1/accountant/deactivate-user/rider/${id}`,
 
         {
           headers: {
@@ -143,12 +143,12 @@ const AdminAgentList = () => {
     try {
       const response = await axios.put(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/activate-user/${id}`
+          ? `${BASE_URL}api/v1/admin/activate/rider/${id}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/activate-user/${id}`
+          ? `${BASE_URL}api/v1/customercare/activate/rider/${id}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/activate-user/${id}`
-          : `${BASE_URL}api/v1/accountant/activate-user/${id}`,
+          ? `${BASE_URL}api/v1/manager/activate/rider/${id}`
+          : `${BASE_URL}api/v1/accountant/activate/rider/${id}`,
         {},
 
         {
@@ -187,7 +187,7 @@ const AdminAgentList = () => {
     try {
       const response = await axios.delete(
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/super-delete/${id}`
+          ? `${BASE_URL}api/v1/admin/super-delete/rider/${id}`
           : "",
 
         {

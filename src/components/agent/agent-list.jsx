@@ -90,12 +90,12 @@ const AgentList = () => {
       const response = await axios.delete(
         // `${BASE_URL}api/v1/cutomercare/delete-rider/${id}`,
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/super-delete/${id}`
+          ? `${BASE_URL}api/v1/admin/super-delete/rider/${id}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/deactivate-rider/${id}`
+          ? `${BASE_URL}api/v1/customercare/deactivate-user/rider/${id}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/deactivate-rider/${id}`
-          : `${BASE_URL}api/v1/accountant/deactivate-rider/${id}`,
+          ? `${BASE_URL}api/v1/manager/deactivate-user/rider/${id}`
+          : `${BASE_URL}api/v1/accountant/deactivate-user/rider/${id}`,
 
         {
           headers: {

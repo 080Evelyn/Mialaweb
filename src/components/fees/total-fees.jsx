@@ -205,11 +205,7 @@ const TotalFeesTable = () => {
           </TableBody>
         </Table>
       ) : !loading && error ? (
-        <p className="text-sm text-red-500 text-center">
-          {error === "You do not have permission to view account details"
-            ? "You do not have permission to view this data."
-            : "Failed to fetch."}
-        </p>
+        <p className="text-sm text-red-500 text-center">{error}</p>
       ) : (
         <>
           <div className="max-h-[600px] overflow-y-auto border rounded-md">
