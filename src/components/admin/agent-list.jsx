@@ -584,7 +584,7 @@ const AdminAgentList = () => {
                                         activate ? "Activate" : "Deactivate"
                                       } `}
                                 </Button>
-
+                                {/* 
                                 {userRole === "Admin" && !activate && (
                                   <Button
                                     onClick={() => {
@@ -597,7 +597,7 @@ const AdminAgentList = () => {
                                     className="bg-[#B10303] hover:bg-[#B10303]/80 text-white  text-sm rounded-[3px] h-9">
                                     {dloading ? "processing.." : "Delete"}
                                   </Button>
-                                )}
+                                )} */}
                               </div>
                             </DialogContent>
                           </Dialog>

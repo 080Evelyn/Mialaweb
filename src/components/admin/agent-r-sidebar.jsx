@@ -142,7 +142,6 @@ const AdminAgentSidebar = () => {
       </h2>
     );
   }
-  console.log(pendingRiders);
   return (
     <div className="flex flex-col gap-4 mt-2">
       <div className="text-sm font-medium text-gray-700">New Agent</div>

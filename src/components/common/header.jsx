@@ -195,6 +195,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
                           PAYMENT_ON_DELIVERY
                         </option>
                         <option value="FULL_PAYMENT">FULL_PAYMENT</option>
+                        <option value="CASH">CASH_PAYMENT</option>
                       </select>
                     </>
                   )}

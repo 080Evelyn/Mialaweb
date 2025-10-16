@@ -106,13 +106,11 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
               <div
                 key={i}
                 className={`flex ${
-                  c.senderName?.toLowerCase().includes("admin")
-                    ? "justify-end"
-                    : "justify-start"
+                  c.userRole !== "Rider" ? "justify-end" : "justify-start"
                 }`}>
                 <div
                   className={`max-w-[80%] p-2 rounded-lg text-sm shadow-sm ${
-                    c.senderName?.toLowerCase().includes("admin")
+                    c.userRole !== "Rider"
                       ? "bg-[#0659a6] text-white"
                       : "bg-gray-200 text-gray-800"
                   }`}>
