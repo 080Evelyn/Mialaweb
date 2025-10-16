@@ -697,7 +697,7 @@ const AdminList = () => {
                               className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] px-3 text-sm rounded-[3px] h-9">
                               Cancel
                             </DialogClose>
-                            {userRole === "Admin" && !activate && (
+                            {/* {userRole === "Admin" && !activate && (
                               <Button
                                 onClick={() => {
                                   setSelectedId(data.id);
@@ -709,7 +709,7 @@ const AdminList = () => {
                                 className="bg-[#B10303] hover:bg-[#B10303]/80 text-white px-3 text-sm rounded-[3px] h-9">
                                 {dloading ? "Deleting..." : "Delete"}
                               </Button>
-                            )}
+                            )} */}
                             <Button
                               onClick={() => {
                                 if (activate) {
