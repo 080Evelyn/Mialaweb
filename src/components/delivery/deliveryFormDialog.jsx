@@ -997,7 +997,7 @@ const DeliveryFormDialog = ({
                           <>
                             <option value="FULL_PAYMENT">Full Payment</option>
                             <option value="PART_PAYMENT">Part Payment</option>
-                            <option value="CASH">Cash Payment</option>
+                            {/* <option value="CASH">Cash Payment</option> */}
                           </>
                         ) : (
                           <>

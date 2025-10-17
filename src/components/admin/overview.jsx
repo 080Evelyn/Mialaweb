@@ -18,19 +18,19 @@ const SuperAdminOverview = () => {
       <h2 className="text-sm font-medium">Overview</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:flex lg:gap-4 overflow-x-auto py-1">
-        <div className="flex flex-col w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
+        <div className="flex flex-col w-[250px] lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
           <p className="text-sm font-medium text-slate-500">Total Agent</p>
           <p className="text-xl font-bold text-slate-900">
             {approved ? approved?.length : "..."}
           </p>
         </div>
 
-        <div className="flex flex-col w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#E6F1FD]">
+        <div className="flex flex-col w-[250px] lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#E6F1FD]">
           <p className="text-sm font-medium text-slate-500">Total Admin</p>
           {subAdmins ? subAdmins?.length : "..."}
         </div>
 
-        <div className="flex flex-col w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#E6F1FD]">
+        <div className="flex flex-col w-[250px] lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#E6F1FD]">
           <p className="text-sm font-medium text-slate-500">Agent Request</p>
           {pendingRiders ? pendingRiders?.length : "..."}
         </div>

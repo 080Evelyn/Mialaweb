@@ -206,7 +206,7 @@ const ProposedFee = () => {
   return (
     <div className="sm:me-5 sm:ms-2.5 w-[800px]">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-sm font-semibold">Delivery List</h2>
+        <h2 className="text-sm font-semibold">Delivery Fees</h2>
         {/* For adding and editting */}
       </div>
       {/* <DeliveryPaymentDialog
@@ -215,125 +215,138 @@ const ProposedFee = () => {
         dialogOpen={modalOpen}
         setDialogOpen={setModalOpen}
       /> */}
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
-            <TableHead className="rounded-l-sm">Agent</TableHead>
-            <TableHead>Product</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Delivery Code</TableHead>
-            <TableHead> Address</TableHead>
-            <TableHead> Status</TableHead>
-            <TableHead> Delivery Fee(₦)</TableHead>
-            <TableHead>Date </TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody
-          // onClick={() => {
-          //   setAction(!action);
-          // }}
-          className="text-[12px] font-[Raleway] font-[500] ">
-          {filtered.length === 0 ? (
-            <p className="text-center mt-5">No Proposed Fee</p>
-          ) : (
-            filtered?.map((data, index) => (
-              <TableRow key={index}>
-                <TableCell className={"pr-6"}>
-                  <div className="flex items-center gap-2">
-                    {/* <img
-                      src={Avatar}
-                      alt="avatar"
-                      className="h-6 w-6 rounded-full"
-                    /> */}
-                    <span>{`${data.riderFirstName} ${data.riderLastName} `}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {data?.products?.map((product, index) => (
-                    <div key={index}>{product.productName}</div>
-                  ))}
-                </TableCell>
-                <TableCell>
-                  {data?.products?.map((product, index) => (
-                    <div key={index}>{product.qty}</div>
-                  ))}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span>{data.deliveryCode}</span>
-                    <Copy
-                      size={16}
-                      className="cursor-pointer"
-                      onClick={() => {
-                        navigator.clipboard.writeText(data.deliveryCode);
-                        setCopiedCode(data.deliveryCode);
-                        setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
-                      }}
-                    />
-                    {copiedCode === data.deliveryCode && (
-                      <span className="text-green-600 text-xs">Copied!</span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>{data.receiverAddress}</TableCell>
-                <TableCell>{data.negotiationStatus}</TableCell>
-                <TableCell>
-                  {Number(data.proposedFee).toLocaleString()}
-                </TableCell>
-                <TableCell>{data.uploadDate}</TableCell>
-                <TableCell>
-                  <div className="flex gap-3 items-center">
-                    <EllipsisVertical
-                      onClick={() => {
-                        handleAction(data.id);
-                      }}
-                      className="items-center cursor-pointer text-[#8C8C8C]"
-                    />
-                  </div>
-                  <ProposedFeeDialog
-                    openDialog={openDialog}
-                    setOpenDialog={setOpenDialog}
-                    index={index}
-                    id={selectedFee}
-                  />
-                  <ReassignDeliveryDialog
-                    openDialog={dialogOpen}
-                    setOpenDialog={setDialogOpen}
-                    index={index}
-                    id={selectedFee}
-                  />
-                  {action && selectedFee === data.id && (
-                    <div className="shadow-2xl absolute right-[-50px] flex flex-col bg-gradient-to-tr from-white via-pink-300 to-rose-500  py-2 px-3">
-                      <button
-                        disabled={approvalLoading || rejectLoading}
-                        onClick={() => {
-                          handleApprove(selectedFee);
-                        }}
-                        className="text-[12px] font-bold text-black hover:bg-green-500 hover:shadow-2xl px-3 py-2 cursor-pointer ">
-                        {approvalLoading ? "Processing..." : "Approve fee"}
-                      </button>
-
-                      <button
-                        disabled={approvalLoading || rejectLoading}
-                        onClick={() => {
-                          handleReject(selectedFee);
-                        }}
-                        className="text-[12px] hover:bg-[#B10303] hover:text-white hover:shadow-2xl  font-bold text-black px-3 py-2 cursor-pointer">
-                        {rejectLoading ? "Processing..." : "Reject fee"}
-                      </button>
-
-                      {approvalError && (
-                        <p className="text-red-500">{approvalError}</p>
-                      )}
-                    </div>
-                  )}
-                </TableCell>
+      <div className="overflow-y-auto max-h-[600px] md:w-full">
+        <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
+          <Table className="">
+            <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+              <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
+                <TableHead className="rounded-l-sm">Agent</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Delivery Code</TableHead>
+                <TableHead> Address</TableHead>
+                <TableHead> Status</TableHead>
+                <TableHead> Delivery Fee(₦)</TableHead>
+                <TableHead>Date </TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody className="text-[12px] font-[Raleway] font-[500]">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="text-center py-6 text-gray-500">
+                    No Proposed Fee
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((data, index) => (
+                  <TableRow key={index} className="align-top">
+                    {/* Rider Info */}
+                    <TableCell className="pr-6">
+                      <div className="flex items-center gap-2">
+                        <span>{`${data.riderFirstName} ${data.riderLastName}`}</span>
+                      </div>
+                    </TableCell>
+
+                    {/* Products */}
+                    <TableCell colSpan={2}>
+                      <div className="border border-gray-200 rounded-md bg-gray-50">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="p-1 text-left font-medium text-gray-600">
+                                Product
+                              </th>
+                              <th className="p-1 text-left font-medium text-gray-600">
+                                Qty
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {data?.products?.map((product, i) => (
+                              <tr key={i} className="border-t border-gray-200">
+                                <td className="p-1">{product.productName}</td>
+                                <td className="p-1">{product.qty}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </TableCell>
+
+                    {/* Delivery Code */}
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span>{data.deliveryCode}</span>
+                        <Copy
+                          size={16}
+                          className="cursor-pointer"
+                          onClick={() => {
+                            navigator.clipboard.writeText(data.deliveryCode);
+                            setCopiedCode(data.deliveryCode);
+                            setTimeout(() => setCopiedCode(null), 2000);
+                          }}
+                        />
+                        {copiedCode === data.deliveryCode && (
+                          <span className="text-green-600 text-xs">
+                            Copied!
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>{data.receiverAddress}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-[11px] ${
+                          data.negotiationStatus === "APPROVED"
+                            ? "bg-green-100 text-green-600"
+                            : data.negotiationStatus === "REJECTED"
+                            ? "bg-red-100 text-red-600"
+                            : "bg-yellow-100 text-yellow-600"
+                        }`}>
+                        {data.negotiationStatus}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      ₦{Number(data.proposedFee).toLocaleString()}
+                    </TableCell>
+                    <TableCell>{data.uploadDate}</TableCell>
+
+                    {/* Actions */}
+                    <TableCell>
+                      <div className="relative flex justify-end">
+                        <EllipsisVertical
+                          onClick={() => handleAction(data.id)}
+                          className="cursor-pointer text-[#8C8C8C]"
+                        />
+                        {action && selectedFee === data.id && (
+                          <div className="absolute right-0 top-6 w-[130px] bg-white border shadow-lg rounded-md overflow-hidden">
+                            <button
+                              disabled={approvalLoading}
+                              onClick={() => handleApprove(selectedFee)}
+                              className="block w-full text-left text-xs px-3 py-2 hover:bg-green-100">
+                              {approvalLoading
+                                ? "Processing..."
+                                : "Approve fee"}
+                            </button>
+                            <button
+                              disabled={rejectLoading}
+                              onClick={() => handleReject(selectedFee)}
+                              className="block w-full text-left text-xs px-3 py-2 hover:bg-red-100">
+                              {rejectLoading ? "Processing..." : "Reject fee"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}

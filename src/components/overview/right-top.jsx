@@ -4,7 +4,7 @@ import AgentIcon from "../../assets/icons/user-group.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchNotifications, setMultiCallNot } from "@/redux/notificationSlice";
-import { Bell, EllipsisVertical } from "lucide-react";
+import { Bell, EllipsisVertical, MessageSquareMore } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
 
@@ -20,6 +20,11 @@ const getIconByType = (type) => {
       return {
         icon: <img src={PayoutIcon} alt="payout" className="w-4 h-4" />,
         bg: "#0A55D0",
+      };
+    case "COMMENT":
+      return {
+        icon: <MessageSquareMore className="w-4 h-4" />,
+        bg: "#10B981",
       };
     case "USER_SIGNUP":
       return {

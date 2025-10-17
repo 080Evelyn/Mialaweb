@@ -148,169 +148,177 @@ const PayoutSummaryTable = () => {
         //   <p className="text-sm text-center">{error}</p>
         // )
         <>
-          <div className="max-h-[600px] overflow-y-auto border rounded-md">
-            <Table className="md:w-[1100px] table-fixed">
-              <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
-                <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
-                  <TableHead>Agent</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Account Number</TableHead>
-                  <TableHead>Transaction Reference</TableHead>
-                  <TableHead>Delivery Code</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>State</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Action</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="text-sm font-[Raleway] ">
-                {filtered?.length === 0 ? (
-                  <p className="text-center">No transactions at the moment.</p>
-                ) : (
-                  sortedTransactions?.map((data, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{data?.riderFullName}</TableCell>
-                      <TableCell>₦{data?.amount?.toLocaleString()}</TableCell>
-                      <TableCell>{data?.accountNumber}</TableCell>
-                      <TableCell>{data?.transactionReference}</TableCell>
-                      <TableCell>
-                        {/* {data?.deliveryCode} */}
-                        <div className="flex items-center gap-2">
-                          <span>{data.deliveryCode}</span>
-                          <Copy
-                            size={16}
-                            className="cursor-pointer"
-                            onClick={() => {
-                              navigator.clipboard.writeText(data.deliveryCode);
-                              setCopiedCode(data.deliveryCode);
-                              setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
-                            }}
-                          />
-                          {data.deliveryCode &&
-                            copiedCode === data.deliveryCode && (
-                              <span className="text-green-600 text-xs">
-                                Copied!
-                              </span>
-                            )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {data?.transactionDate.split("T")[0]}
-                      </TableCell>
-                      <TableCell>{data?.riderState}</TableCell>
-                      <TableCell
-                        className={` text-right text-[10px] font-[Raleway] ${
-                          data.transactionStatus === "Pending"
-                            ? "text-[#FBBC02]"
-                            : "text-[#0FA301]"
-                        }`}>
-                        {data?.transactionStatus}
-                      </TableCell>
-                      <TableCell>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <button
+          <div className="max-h-[600px] overflow-y-auto ">
+            <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
+              <Table className="md:w-[1100px] lg:w-full table-fixed">
+                <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+                  <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
+                    <TableHead>Agent</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Account Number</TableHead>
+                    <TableHead>Transaction Reference</TableHead>
+                    <TableHead>Delivery Code</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>State</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>
+                      <span className="sr-only">Action</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="text-sm font-[Raleway] ">
+                  {filtered?.length === 0 ? (
+                    <p className="text-center">
+                      No transactions at the moment.
+                    </p>
+                  ) : (
+                    sortedTransactions?.map((data, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{data?.riderFullName}</TableCell>
+                        <TableCell>₦{data?.amount?.toLocaleString()}</TableCell>
+                        <TableCell>{data?.accountNumber}</TableCell>
+                        <TableCell>{data?.transactionReference}</TableCell>
+                        <TableCell>
+                          {/* {data?.deliveryCode} */}
+                          <div className="flex items-center gap-2">
+                            <span>{data.deliveryCode}</span>
+                            <Copy
+                              size={16}
+                              className="cursor-pointer"
                               onClick={() => {
-                                console.log(data.bankName);
+                                navigator.clipboard.writeText(
+                                  data.deliveryCode
+                                );
+                                setCopiedCode(data.deliveryCode);
+                                setTimeout(() => setCopiedCode(null), 2000); // hide after 2s
                               }}
-                              className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
-                              <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
-                            </button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[362px] ">
-                            <DialogHeader>
-                              <DialogTitle className="text-[#B10303] text-left">
-                                Details
-                              </DialogTitle>
-                            </DialogHeader>
-                            <div className="flex flex-col gap-3 py-0.5">
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">Agent Name</Label>
-                                <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.riderFullName}
+                            />
+                            {data.deliveryCode &&
+                              copiedCode === data.deliveryCode && (
+                                <span className="text-green-600 text-xs">
+                                  Copied!
                                 </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">Account Name</Label>
-                                <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.accountName}
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">
-                                  Account Number
-                                </Label>
-                                <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.accountNumber}
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">Bank</Label>
-                                <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.bankName}
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">Reference</Label>
-                                <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.transactionReference}
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">Status</Label>
-                                <span
-                                  className={` text-right text-[10px] font-[Raleway] ${
-                                    data.transactionStatus === "Pending"
-                                      ? "text-[#FBBC02]"
-                                      : "text-[#0FA301]"
-                                  }`}>
-                                  {data.transactionStatus}
-                                </span>
+                              )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {data?.transactionDate.split("T")[0]}
+                        </TableCell>
+                        <TableCell>{data?.riderState}</TableCell>
+                        <TableCell
+                          className={` text-right text-[10px] font-[Raleway] ${
+                            data.transactionStatus === "Pending"
+                              ? "text-[#FBBC02]"
+                              : "text-[#0FA301]"
+                          }`}>
+                          {data?.transactionStatus}
+                        </TableCell>
+                        <TableCell>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <button
+                                onClick={() => {
+                                  console.log(data.bankName);
+                                }}
+                                className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
+                                <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                              </button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[362px] ">
+                              <DialogHeader>
+                                <DialogTitle className="text-[#B10303] text-left">
+                                  Details
+                                </DialogTitle>
+                              </DialogHeader>
+                              <div className="flex flex-col gap-3 py-0.5">
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">Agent Name</Label>
+                                  <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    {data.riderFullName}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">
+                                    Account Name
+                                  </Label>
+                                  <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    {data.accountName}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">
+                                    Account Number
+                                  </Label>
+                                  <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    {data.accountNumber}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">Bank</Label>
+                                  <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    {data.bankName}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">Reference</Label>
+                                  <span className=" text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    {data.transactionReference}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">Status</Label>
+                                  <span
+                                    className={` text-right text-[10px] font-[Raleway] ${
+                                      data.transactionStatus === "Pending"
+                                        ? "text-[#FBBC02]"
+                                        : "text-[#0FA301]"
+                                    }`}>
+                                    {data.transactionStatus}
+                                  </span>
+                                </div>
+
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">Date </Label>
+                                  <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    {data.transactionDate.split("T")[0]}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">
+                                    Delivery Code{" "}
+                                  </Label>
+                                  <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    {data.deliveryCode}
+                                  </span>
+                                </div>
+
+                                <div className="flex justify-between items-center">
+                                  <Label className="text-xs">Amount </Label>
+                                  <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
+                                    ₦{Number(data.amount).toLocaleString()}
+                                  </span>
+                                </div>
                               </div>
 
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">Date </Label>
-                                <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.transactionDate.split("T")[0]}
-                                </span>
+                              <div className="flex justify-end gap-2 ">
+                                <DialogClose className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                                  Cancel
+                                </DialogClose>
+                                <DialogClose
+                                  type="submit"
+                                  className="bg-[#044616] hover:bg-[#044616]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
+                                  Done
+                                </DialogClose>
                               </div>
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">
-                                  Delivery Code{" "}
-                                </Label>
-                                <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  {data.deliveryCode}
-                                </span>
-                              </div>
-
-                              <div className="flex justify-between items-center">
-                                <Label className="text-xs">Amount </Label>
-                                <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                  ₦{Number(data.amount).toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex justify-end gap-2 ">
-                              <DialogClose className="bg-white border border-[#8C8C8C] cursor-pointer hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                                Cancel
-                              </DialogClose>
-                              <DialogClose
-                                type="submit"
-                                className="bg-[#044616] hover:bg-[#044616]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
-                                Done
-                              </DialogClose>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                            </DialogContent>
+                          </Dialog>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </>
       )}

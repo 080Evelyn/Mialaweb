@@ -29,10 +29,10 @@ const AdminOverview = () => {
   const p = products?.filter((product) => product.deleted === false);
 
   return (
-    <div className="md:left-[240px]  top-[77px] flex flex-row md:flex-col gap-[8px] mb-3">
+    <div className="md:left-[240px] top-[77px] flex flex-row md:flex-col gap-[8px] mb-3">
       <h2 className="text-sm font-medium mt-[-15px]">Overview</h2>
 
-      <div className="grid grid-cols-1 w-[70%] ml-[-7%] md:ml-0 gap-4 sm:grid sm:grid-cols-2 lg:flex lg:gap-4 overflow-x-auto py-1">
+      <div className="grid grid-cols-1 w-[400px]  ml-[-4%] md:w-full md:ml-0 gap-4 sm:grid sm:grid-cols-2 lg:flex lg:gap-4 overflow-x-auto py-1">
         <div className="flex flex-col w-[80%] md:w-full lg:max-w-[238px] lg:min-w-[170px] justify-center h-[98px] p-[24px] gap-2 rounded-[16px] shadow-sm bg-[#EDEEFC]">
           <p className="text-sm font-medium text-slate-500">Total Products</p>
           <p className="text-xl font-bold text-slate-900">

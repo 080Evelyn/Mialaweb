@@ -57,8 +57,8 @@ const AdminList = () => {
     "APPROVALS",
     "ORDERS_MANAGEMENT",
     "TAGS",
-    "DELETE_RIDER",
-    "DELETE_ADMIN",
+    // "DELETE_RIDER",
+    // "DELETE_ADMIN",
     "TRANSACTIONS",
     "DELIVERY_FEE",
     "PRODUCT_MANAGEMENT",
@@ -73,8 +73,8 @@ const AdminList = () => {
     APPROVALS: "Approve or reject rider sign up.",
     ORDERS_MANAGEMENT: "Edit, view, assign and re-assign deliveries to riders.",
     TAGS: "Pin and Unpin riders.",
-    DELETE_RIDER: "Delete riders accounts",
-    DELETE_ADMIN: "Delete staff accounts",
+    // DELETE_RIDER: "Delete riders accounts",
+    // DELETE_ADMIN: "Delete staff accounts",
     TRANSACTIONS: "view and manage financial transactions.",
     DELIVERY_FEE: "Approve and reject proposed delivery fee from riders.",
     PRODUCT_MANAGEMENT: "Add or remove products.",
@@ -300,6 +300,11 @@ const AdminList = () => {
         dispatch(fetchSubadmin({ token, userRole }));
         setSuccessMessage(response.data.data);
         setSuccessModalOpen(true);
+        setTimeout(() => {
+          setSuccessMessage("");
+          setSuccessModalOpen(false);
+          setDialogOpen(false);
+        }, 5000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -571,133 +576,135 @@ const AdminList = () => {
         </Table>
       ) : (
         <>
-          <div className="max-h-[600px] overflow-y-auto border rounded-md">
-            <Table className={"overflow-x-scroll w-full"}>
-              <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
-                <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
-                  <TableHead className="rounded-l-sm">Name</TableHead>
-                  <TableHead className="rounded-l-sm">Role</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone Number </TableHead>
-                  <TableHead>Status </TableHead>
-                  <TableHead>
-                    <span className="sr-only">Action</span>
-                  </TableHead>
-                  <TableHead>
-                    <span className="sr-only">Action</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="text-[12px] font-[Raleway] ">
-                {subAdmins?.map((data, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={Avatar}
-                          alt="avatar"
-                          className="h-6 w-6 rounded-full"
-                        />
-                        <span>{`${data?.first_name} ${
-                          data.last_mame ? data.last_mame : ""
-                        }`}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{data.userRole}</TableCell>
-                    <TableCell>{data.email}</TableCell>
-                    <TableCell>{data.phone}</TableCell>
-                    <TableCell
-                      className={`${
-                        data.approvalStatus === "APPROVED" ||
-                        data.approvalStatus === "ACTIVATE"
-                          ? "text-green-400"
-                          : "text-red-500"
-                      } `}>
-                      {data.approvalStatus === "ACTIVATE"
-                        ? "APPROVED"
-                        : data.approvalStatus}
-                    </TableCell>
-                    <TableCell>
-                      {/* Delete Dialog */}
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <button
-                            className={` ${
-                              data.approvalStatus === "DEACTIVATE"
-                                ? "bg-green-500 hover:bg-green-400"
-                                : ""
-                            } bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1`}>
-                            {(data.approvalStatus === "APPROVED" ||
-                              data.approvalStatus === "ACTIVATE") && (
-                              <img
-                                onClick={() => {
-                                  setErrorMessage("");
-                                  setSuccessMessage("");
-                                  setActivate(false);
-                                }}
-                                src={Delete}
-                                className="h-6 w-6 text-white"
-                              />
-                            )}
-                            {data.approvalStatus === "DEACTIVATE" && (
-                              <Power
-                                onClick={() => {
-                                  setErrorMessage("");
-                                  setSuccessMessage("");
-                                  setActivate(true);
-                                }}
-                              />
-                            )}
-                          </button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
-                              {activate ? (
-                                <>
-                                  <CheckCircle className="w-20 h-20 mx-auto text-green-400" />
-                                  <span className="text-green-500">
-                                    Activate
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <img
-                                    src={AlertCircle}
-                                    alt="Alert Icon"
-                                    className="w-20 h-20 mx-auto"
-                                  />
-                                  <span>Deactivate</span>
-                                </>
+          <div className="max-h-[600px] overflow-y-auto ">
+            <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
+              <Table className={"overflow-x-scroll w-full"}>
+                <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+                  <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
+                    <TableHead className="rounded-l-sm">Name</TableHead>
+                    <TableHead className="rounded-l-sm">Role</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone Number </TableHead>
+                    <TableHead>Status </TableHead>
+                    <TableHead>
+                      <span className="sr-only">Action</span>
+                    </TableHead>
+                    <TableHead>
+                      <span className="sr-only">Action</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="text-[12px] font-[Raleway] ">
+                  {subAdmins?.map((data, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={Avatar}
+                            alt="avatar"
+                            className="h-6 w-6 rounded-full"
+                          />
+                          <span>{`${data?.first_name} ${
+                            data.last_mame ? data.last_mame : ""
+                          }`}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{data.userRole}</TableCell>
+                      <TableCell>{data.email}</TableCell>
+                      <TableCell>{data.phone}</TableCell>
+                      <TableCell
+                        className={`${
+                          data.approvalStatus === "APPROVED" ||
+                          data.approvalStatus === "ACTIVATE"
+                            ? "text-green-400"
+                            : "text-red-500"
+                        } `}>
+                        {data.approvalStatus === "ACTIVATE"
+                          ? "APPROVED"
+                          : data.approvalStatus}
+                      </TableCell>
+                      <TableCell>
+                        {/* Delete Dialog */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              className={` ${
+                                data.approvalStatus === "DEACTIVATE"
+                                  ? "bg-green-500 hover:bg-green-400"
+                                  : ""
+                              } bg-[#B10303] h-6 w-6 p-1 rounded-sm cursor-pointer flex items-center justify-center hover:bg-[#B10303]/75 transition-colors mr-1`}>
+                              {(data.approvalStatus === "APPROVED" ||
+                                data.approvalStatus === "ACTIVATE") && (
+                                <img
+                                  onClick={() => {
+                                    setErrorMessage("");
+                                    setSuccessMessage("");
+                                    setActivate(false);
+                                  }}
+                                  src={Delete}
+                                  className="h-6 w-6 text-white"
+                                />
                               )}
-                            </DialogTitle>
-                            <DialogDescription className="text-center text-foreground font-semibold text-xs">
-                              {userRole === "Admin" && !activate
-                                ? "Deleting this user will permanently remove all their records from the database. This action is irreversible and the data cannot be recovered. If you only want to restrict the user’s access without losing their records, please consider deactivating the user instead.  "
-                                : `Are you sure you want to ${
-                                    activate ? "activate" : "deactivate"
-                                  }  this Staff?`}
-                            </DialogDescription>
-                          </DialogHeader>
-                          {successMessage && (
-                            <p className="text-green-500 text-sm text-center">
-                              {successMessage}
-                            </p>
-                          )}
-                          {errorMessage && (
-                            <p className="text-red-500 text-sm text-center">
-                              {errorMessage}
-                            </p>
-                          )}
-                          <div className="flex justify-center gap-2">
-                            <DialogClose
-                              onClick={() => {
-                                setErrorMessage(""), setSuccessMessage("");
-                              }}
-                              className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] px-3 text-sm rounded-[3px] h-9">
-                              Cancel
-                            </DialogClose>
-                            {/* {userRole === "Admin" && !activate && (
+                              {data.approvalStatus === "DEACTIVATE" && (
+                                <Power
+                                  onClick={() => {
+                                    setErrorMessage("");
+                                    setSuccessMessage("");
+                                    setActivate(true);
+                                  }}
+                                />
+                              )}
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
+                                {activate ? (
+                                  <>
+                                    <CheckCircle className="w-20 h-20 mx-auto text-green-400" />
+                                    <span className="text-green-500">
+                                      Activate
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <img
+                                      src={AlertCircle}
+                                      alt="Alert Icon"
+                                      className="w-20 h-20 mx-auto"
+                                    />
+                                    <span>Deactivate</span>
+                                  </>
+                                )}
+                              </DialogTitle>
+                              <DialogDescription className="text-center text-foreground font-semibold text-xs">
+                                {userRole === "Admin" && !activate
+                                  ? ""
+                                  : // "Deleting this user will permanently remove all their records from the database. This action is irreversible and the data cannot be recovered. If you only want to restrict the user’s access without losing their records, please consider deactivating the user instead.  "
+                                    `Are you sure you want to ${
+                                      activate ? "activate" : "deactivate"
+                                    }  this Staff?`}
+                              </DialogDescription>
+                            </DialogHeader>
+                            {successMessage && (
+                              <p className="text-green-500 text-sm text-center">
+                                {successMessage}
+                              </p>
+                            )}
+                            {errorMessage && (
+                              <p className="text-red-500 text-sm text-center">
+                                {errorMessage}
+                              </p>
+                            )}
+                            <div className="flex justify-center gap-2">
+                              <DialogClose
+                                onClick={() => {
+                                  setErrorMessage(""), setSuccessMessage("");
+                                }}
+                                className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] px-3 text-sm rounded-[3px] h-9">
+                                Cancel
+                              </DialogClose>
+                              {/* {userRole === "Admin" && !activate && (
                               <Button
                                 onClick={() => {
                                   setSelectedId(data.id);
@@ -708,66 +715,67 @@ const AdminList = () => {
                                 disabled={dloading || isLoading}
                                 className="bg-[#B10303] hover:bg-[#B10303]/80 text-white px-3 text-sm rounded-[3px] h-9">
                                 {dloading ? "Deleting..." : "Delete"}
-                              </Button>
+                                </Button>
                             )} */}
-                            <Button
+                              <Button
+                                onClick={() => {
+                                  if (activate) {
+                                    handleActivate(data.id);
+                                  } else {
+                                    handleDeactivate(data.id);
+                                  }
+                                }}
+                                type="submit"
+                                disabled={isLoading || dloading}
+                                className={`${
+                                  activate
+                                    ? "bg-green-500 hover:bg-green-400"
+                                    : "bg-[#B10303] hover:bg-[#B10303]/80"
+                                }  text-white  text-sm rounded-[3px] h-9`}>
+                                {isLoading
+                                  ? "processing.."
+                                  : `${activate ? "Activate" : "Deactivate"} `}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </TableCell>
+                      <TableCell>
+                        {/* Details Dialog */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
                               onClick={() => {
-                                if (activate) {
-                                  handleActivate(data.id);
-                                } else {
-                                  handleDeactivate(data.id);
-                                }
-                              }}
-                              type="submit"
-                              disabled={isLoading || dloading}
-                              className={`${
-                                activate
-                                  ? "bg-green-500 hover:bg-green-400"
-                                  : "bg-[#B10303] hover:bg-[#B10303]/80"
-                              }  text-white  text-sm rounded-[3px] h-9`}>
-                              {isLoading
-                                ? "processing.."
-                                : `${activate ? "Activate" : "Deactivate"} `}
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                    <TableCell>
-                      {/* Details Dialog */}
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <button
-                            onClick={() => {
-                              setErrorMessage("");
-                              setSuccessMessage("");
-                            }}>
-                            <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
-                          </button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
-                              <span>Profile</span>
-                            </DialogTitle>
-                          </DialogHeader>
-                          <UserProfile
-                            data={data}
-                            formData={formData}
-                            setFormData={setFormData}
-                            id={data.id}
-                            successModalOpen={successModalOpen}
-                            setSuccessModalOpen={setSuccessModalOpen}
-                            successMessage={successMessage}
-                            setSuccessMessage={setSuccessMessage}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                                setErrorMessage("");
+                                setSuccessMessage("");
+                              }}>
+                              <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle className="text-[#B10303] text-center gap-2 flex flex-col">
+                                <span>Profile</span>
+                              </DialogTitle>
+                            </DialogHeader>
+                            <UserProfile
+                              data={data}
+                              formData={formData}
+                              setFormData={setFormData}
+                              id={data.id}
+                              successModalOpen={successModalOpen}
+                              setSuccessModalOpen={setSuccessModalOpen}
+                              successMessage={successMessage}
+                              setSuccessMessage={setSuccessMessage}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </>
       )}

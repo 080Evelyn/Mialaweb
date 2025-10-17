@@ -94,6 +94,12 @@ const FeesSidebar = () => {
 
   // Fetch details when dialog opens
   const handleOpen = async (index, agentId) => {
+    if (permissions.includes("ORDERS_MANAGEMENT") || userRole === "Admin") {
+      dispatch(setRestricted(false));
+    } else {
+      dispatch(setRestricted(true));
+      return;
+    }
     setOpenDialog(index);
     setLoadingDetails(true);
     try {
@@ -118,10 +124,6 @@ const FeesSidebar = () => {
       setLoadingDetails(false);
     }
   };
-
-  if (!permissions.includes("TAGS")) {
-    return null;
-  }
 
   if (loading) {
     return (

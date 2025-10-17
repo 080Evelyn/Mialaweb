@@ -77,6 +77,11 @@ const AdminAgentSidebar = () => {
       dispatch(fetchPendingRiders({ token, userRole }));
       setSuccessModalOpen(true);
       setSuccessMessage("Agent Approved!");
+      setTimeout(() => {
+        setSuccessMessage("");
+        setSuccessModalOpen(false);
+        setDialogOpen(false);
+      }, 5000);
     } catch (error) {
       setErrorMessage("An error occurred.");
       console.log(error);
@@ -116,6 +121,11 @@ const AdminAgentSidebar = () => {
       dispatch(fetchPendingRiders({ token, userRole }));
       setSuccessModalOpen(true);
       setSuccessMessage("Agent Declined!");
+      setTimeout(() => {
+        setSuccessMessage("");
+        setSuccessModalOpen(false);
+        setDialogOpen(false);
+      }, 5000);
     } catch (error) {
       setErrorMessage("An error occurred.");
       console.log(error);
@@ -142,6 +152,7 @@ const AdminAgentSidebar = () => {
       </h2>
     );
   }
+  console.log(pendingRiders);
   return (
     <div className="flex flex-col gap-4 mt-2">
       <div className="text-sm font-medium text-gray-700">New Agent</div>

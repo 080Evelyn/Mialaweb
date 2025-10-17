@@ -127,183 +127,193 @@ const SummaryOrder = () => {
           <p className="text-sm text-center font-semibold pb-3">
             Double click each row to view product summary.
           </p>
-          <div className="overflow-y-auto max-h-[600px] border rounded-md">
-            <Table className={" md:w-[1100px]"}>
-              <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
-                <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
-                  <TableHead>Product Name </TableHead>
-                  <TableHead>Unit Price </TableHead>
-                  <TableHead>Total Sold</TableHead>
-                  <TableHead>Total Revenue</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="text-[12px] font-[Raleway] font-[500] ">
-                {filtered.length === 0 ? (
-                  <p className="!text-center py-4">No orders at the momemnt.</p>
-                ) : (
-                  filtered?.map((data, index) => (
-                    <>
-                      <TableRow
-                        key={index}
-                        onDoubleClick={() => handleOpen(index, data.productId)}>
-                        <TableCell>{data?.productName}</TableCell>
-                        <TableCell>
-                          ₦{Number(data.unitPrice).toLocaleString()}
-                        </TableCell>
-                        <TableCell>{data.totalSoldCount}</TableCell>
-                        <TableCell>
-                          ₦{Number(data.totalRevenue).toLocaleString()}
-                        </TableCell>
+          <div className="overflow-y-auto max-h-[600px]  rounded-md">
+            <div className="!max-w-[400px]  overflow-x-scroll border md:min-w-full">
+              <Table className={" md:w-[1100px]"}>
+                <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+                  <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
+                    <TableHead>Product Name </TableHead>
+                    <TableHead>Unit Price </TableHead>
+                    <TableHead>Total Sold</TableHead>
+                    <TableHead>Total Revenue</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="text-[12px] font-[Raleway] font-[500] ">
+                  {filtered.length === 0 ? (
+                    <p className="!text-center py-4">
+                      No orders at the momemnt.
+                    </p>
+                  ) : (
+                    filtered?.map((data, index) => (
+                      <>
+                        <TableRow
+                          key={index}
+                          onDoubleClick={() =>
+                            handleOpen(index, data.productId)
+                          }>
+                          <TableCell>{data?.productName}</TableCell>
+                          <TableCell>
+                            ₦{Number(data.unitPrice).toLocaleString()}
+                          </TableCell>
+                          <TableCell>{data.totalSoldCount}</TableCell>
+                          <TableCell>
+                            ₦{Number(data.totalRevenue).toLocaleString()}
+                          </TableCell>
 
-                        {/* <TableCell> */}
-                        {/* <div className="flex gap-3 items-center">
+                          {/* <TableCell> */}
+                          {/* <div className="flex gap-3 items-center">
     {data.riderPaymentStatus}
     <button onClick={() => handleOpenEdit(data)}>
-      <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+    <PenBox className="h-5.5 w-5.5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
     </button>
   </div> */}
-                        {/* </TableCell> */}
-                      </TableRow>
-                      <Dialog
-                        open={openDialog === index}
-                        onOpenChange={(isOpen) =>
-                          !isOpen && setOpenDialog(null)
-                        }>
-                        <DialogContent className="sm:max-w-[500px]">
-                          <DialogHeader>
-                            <DialogTitle className="text-[#B10303] text-left">
-                              Product Details
-                            </DialogTitle>
-                          </DialogHeader>
+                          {/* </TableCell> */}
+                        </TableRow>
+                        <Dialog
+                          open={openDialog === index}
+                          onOpenChange={(isOpen) =>
+                            !isOpen && setOpenDialog(null)
+                          }>
+                          <DialogContent className="sm:max-w-[500px]">
+                            <DialogHeader>
+                              <DialogTitle className="text-[#B10303] text-left">
+                                Product Details
+                              </DialogTitle>
+                            </DialogHeader>
 
-                          {loadingDetails ? (
-                            <div className="py-4 text-center text-sm">
-                              Loading...
-                            </div>
-                          ) : !loadingDetails && detailsErr ? (
-                            <p>{detailsErr}</p>
-                          ) : (
-                            <div className="flex flex-col !h-[400px] overflow-y-scrol gap-3">
-                              <div className="flex items-center gap-3">
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-semibold">
-                                    {data.first_name} {data.last_name}
-                                  </span>
-                                </div>
+                            {loadingDetails ? (
+                              <div className="py-4 text-center text-sm">
+                                Loading...
                               </div>
-
-                              {/* Render delivery data in a table */}
-
-                              {loadingDetails ? (
-                                <div className="py-4 text-center text-sm">
-                                  Loading...
+                            ) : !loadingDetails && detailsErr ? (
+                              <p>{detailsErr}</p>
+                            ) : (
+                              <div className="flex flex-col !h-[400px] overflow-y-scrol gap-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-semibold">
+                                      {data.first_name} {data.last_name}
+                                    </span>
+                                  </div>
                                 </div>
-                              ) : (
-                                <div className="flex flex-col !h-[400px] overflow-y-scroll gap-3">
-                                  {details && (
-                                    <>
-                                      {/* Product Summary */}
-                                      <div className="text-sm space-y-1 border p-3 rounded-md bg-gray-50">
-                                        <p>
-                                          <strong>Product:</strong>{" "}
-                                          {details.productName}
-                                        </p>
-                                        <p>
-                                          <strong>Unit Price:</strong> ₦
-                                          {Number(
-                                            details.unitPrice
-                                          ).toLocaleString()}
-                                        </p>
-                                        <p>
-                                          <strong>Total Revenue:</strong> ₦
-                                          {Number(
-                                            details.totalRevenue
-                                          ).toLocaleString()}
-                                        </p>
-                                        <p>
-                                          <strong>Total Count Assigned:</strong>
-                                          {details.totalAmountOfTimesAssigned}
-                                        </p>
-                                        <p>
-                                          <strong>Total Sold:</strong>
-                                          {totalSold}
-                                        </p>
-                                      </div>
 
-                                      {/* Delivery Table */}
-                                      {details.deliveries?.length > 0 ? (
-                                        <table className="w-full text-xs border mt-4">
-                                          <thead>
-                                            <tr className="bg-gray-100 text-left">
-                                              <th className="p-1 border">
-                                                Delivery Status
-                                              </th>
+                                {/* Render delivery data in a table */}
 
-                                              <th className="p-1 border">
-                                                Delivery Code
-                                              </th>
-                                              <th className="p-1 border">
-                                                Total After Discount (₦)
-                                              </th>
-                                              <th className="p-1 border">
-                                                Receiver Name
-                                              </th>
-                                              <th className="p-1 border">
-                                                Quantity
-                                              </th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {details.deliveries.map(
-                                              (item, i) => (
-                                                <tr key={i}>
-                                                  <td className="p-1 border">
-                                                    {item?.deliveryStatus}
-                                                  </td>
-                                                  <td className="p-1 border">
-                                                    {item.deliveryCode}
-                                                  </td>
-                                                  <td className="p-1 border">
-                                                    {Number(
-                                                      item.totalAfterDiscount
-                                                    ).toLocaleString()}
-                                                  </td>
+                                {loadingDetails ? (
+                                  <div className="py-4 text-center text-sm">
+                                    Loading...
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-col !h-[400px]  md:w-full l gap-3">
+                                    {details && (
+                                      <>
+                                        {/* Product Summary */}
+                                        <div className="text-sm space-y-1 border p-3 max-w-[400px] md:w-full rounded-md bg-gray-50">
+                                          <p>
+                                            <strong>Product:</strong>{" "}
+                                            {details.productName}
+                                          </p>
+                                          <p>
+                                            <strong>Unit Price:</strong> ₦
+                                            {Number(
+                                              details.unitPrice
+                                            ).toLocaleString()}
+                                          </p>
+                                          <p>
+                                            <strong>Total Revenue:</strong> ₦
+                                            {Number(
+                                              details.totalRevenue
+                                            ).toLocaleString()}
+                                          </p>
+                                          <p>
+                                            <strong>
+                                              Total Count Assigned:
+                                            </strong>
+                                            {details.totalAmountOfTimesAssigned}
+                                          </p>
+                                          <p>
+                                            <strong>Total Sold:</strong>
+                                            {totalSold}
+                                          </p>
+                                        </div>
 
-                                                  <td className="p-1 border">
-                                                    {item?.receiverName}
-                                                  </td>
-                                                  <td className="p-1 border">
-                                                    {item?.quantity}
-                                                  </td>
+                                        {/* Delivery Table */}
+                                        {details.deliveries?.length > 0 ? (
+                                          <div className="!max-w-[400px]  overflow-x-scroll md:overflow-auto border md:min-w-full">
+                                            <table className="w-full text-xs border mt-4">
+                                              <thead>
+                                                <tr className="bg-gray-100 text-left">
+                                                  <th className="p-1 border">
+                                                    Delivery Status
+                                                  </th>
+
+                                                  <th className="p-1 border">
+                                                    Delivery Code
+                                                  </th>
+                                                  <th className="p-1 border">
+                                                    Total After Discount (₦)
+                                                  </th>
+                                                  <th className="p-1 border">
+                                                    Receiver Name
+                                                  </th>
+                                                  <th className="p-1 border">
+                                                    Quantity
+                                                  </th>
                                                 </tr>
-                                              )
-                                            )}
-                                          </tbody>
-                                        </table>
-                                      ) : (
-                                        <p className="text-sm text-gray-500">
-                                          No delivery data available.
-                                        </p>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          )}
+                                              </thead>
+                                              <tbody>
+                                                {details.deliveries.map(
+                                                  (item, i) => (
+                                                    <tr key={i}>
+                                                      <td className="p-1 border">
+                                                        {item?.deliveryStatus}
+                                                      </td>
+                                                      <td className="p-1 border">
+                                                        {item.deliveryCode}
+                                                      </td>
+                                                      <td className="p-1 border">
+                                                        {Number(
+                                                          item.totalAfterDiscount
+                                                        ).toLocaleString()}
+                                                      </td>
 
-                          <div className="flex justify-end gap-2 mt-4">
-                            <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
-                              Close
-                            </DialogClose>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                                                      <td className="p-1 border">
+                                                        {item?.receiverName}
+                                                      </td>
+                                                      <td className="p-1 border">
+                                                        {item?.quantity}
+                                                      </td>
+                                                    </tr>
+                                                  )
+                                                )}
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        ) : (
+                                          <p className="text-sm text-gray-500">
+                                            No delivery data available.
+                                          </p>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex justify-end gap-2 mt-4">
+                              <DialogClose className="bg-white border border-[#8C8C8C] hover:bg-gray-100 text-[#8C8C8C] w-1/2 text-sm rounded-[3px] h-9">
+                                Close
+                              </DialogClose>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </>
       )}
