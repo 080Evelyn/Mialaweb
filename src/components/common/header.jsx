@@ -40,7 +40,6 @@ function AdminHeader({ setOpen, rightSidebar }) {
   const path = location.pathname;
   const showFilter =
     path === "/delivery" ||
-    path === "/proposedFee" ||
     path === "/products" ||
     path === "/Fees" ||
     path === "/performance" ||
@@ -137,11 +136,11 @@ function AdminHeader({ setOpen, rightSidebar }) {
             />
             <Input
               type="search"
-              placeholder="Search"
+              placeholder="Search..."
               value={search}
               onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-              className={`pl-9 pr-9 w-full border-0 bg-black/4 transition-all duration-300 ${
-                rightSidebar ? "lg:w-[280px]" : "lg:w-[407px]"
+              className={`pl-9 pr-9 w-[80%] md:w-full border-0 bg-black/4 transition-all duration-300 ${
+                rightSidebar ? "lg:w-[280px]" : "lg:w-[350px]"
               }`}
             />
           </div>

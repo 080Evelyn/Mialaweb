@@ -36,8 +36,8 @@ const UserProfile = ({
     APPROVALS: "Approve or reject rider sign up.",
     ORDERS_MANAGEMENT: "Edit, view, assign and re-assign deliveries to riders.",
     TAGS: "Pin and Unpin riders.",
-    DELETE_RIDER: "Delete riders accounts",
-    DELETE_ADMIN: "Delete staff accounts",
+    // DELETE_RIDER: "Delete riders accounts",
+    // DELETE_ADMIN: "Delete staff accounts",
     TRANSACTIONS: "view and manage financial transactions.",
     DELIVERY_FEE: "Approve and reject proposed delivery fee from riders.",
     PRODUCT_MANAGEMENT: "Add or remove products.",
@@ -51,8 +51,8 @@ const UserProfile = ({
     "APPROVALS",
     "ORDERS_MANAGEMENT",
     "TAGS",
-    "DELETE_RIDER",
-    "DELETE_ADMIN",
+    // "DELETE_RIDER",
+    // "DELETE_ADMIN",
     "TRANSACTIONS",
     "DELIVERY_FEE",
     "PRODUCT_MANAGEMENT",
@@ -119,6 +119,10 @@ const UserProfile = ({
         setSuccessModalOpen(response.data.responseMsg === "Success");
         dispatch(fetchSubadmin({ token, userRole }));
         setSuccessMessage(response.data.responseMsg);
+        setTimeout(() => {
+          setSuccessMessage("");
+          setSuccessModalOpen(false);
+        }, 5000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
