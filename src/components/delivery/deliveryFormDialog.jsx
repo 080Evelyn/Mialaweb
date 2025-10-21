@@ -330,7 +330,7 @@ const DeliveryFormDialog = ({
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 5000);
+        }, 2000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -416,9 +416,9 @@ const DeliveryFormDialog = ({
         };
       }),
     };
-    if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
-      delete payload.paymentType;
-    }
+    // if (payload.customerPaymentStatus === "CUSTOMER_NOT_PAID") {
+    //   delete payload.paymentType;
+    // }
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
@@ -452,7 +452,7 @@ const DeliveryFormDialog = ({
           setSuccessMessage("");
           setSuccessModalOpen(false);
           setDialogOpen(false);
-        }, 5000);
+        }, 2000);
       }
     } catch (error) {
       setErrorMessage(`An error occured while editing delivery.`);
@@ -844,7 +844,7 @@ const DeliveryFormDialog = ({
                       <>
                         <option value="PENDING">PENDING</option>
                         <option value="DELIVERED">DELIVERED</option>
-                        {/* <option value="CANCELLED">CANCELLED</option> */}
+                        <option value="FAILED_DELIVERY">FAILED_DELIVERY</option>
                         <option value="NOT_REACHABLE">NOT_REACHABLE</option>
                         <option value="NOT_PICKING">NOT_PICKING</option>
                       </>

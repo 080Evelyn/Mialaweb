@@ -85,7 +85,7 @@ const Request = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 5000);
+        }, 2000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
