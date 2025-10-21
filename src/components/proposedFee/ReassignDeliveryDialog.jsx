@@ -108,7 +108,8 @@ const ReassignDeliveryDialog = ({ id, openDialog, setOpenDialog, index }) => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 5000);
+          setOpenDialog(null);
+        }, 2000);
       }
     } catch (error) {
       console.log(error);
@@ -196,6 +197,7 @@ const ReassignDeliveryDialog = ({ id, openDialog, setOpenDialog, index }) => {
             <Button
               onClick={handleReassign}
               type="submit"
+              disabled={isLoading}
               className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
               {isLoading ? "Processing..." : "Reassign"}
             </Button>

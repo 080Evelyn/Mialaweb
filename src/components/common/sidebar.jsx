@@ -36,7 +36,7 @@ function MenuItems({ setOpen }) {
       path: "/overview",
       icon: <img src={OverviewIcon} alt="overview logo" className="w-5 h-5" />,
     },
-    {
+    (permissions.includes("PRODUCT_MANAGEMENT") || userRole === "Admin") && {
       id: "productsMgt",
       label: "Product Management",
       path: "/products",
@@ -55,20 +55,20 @@ function MenuItems({ setOpen }) {
     //   path: "/productStat",
     //   icon: <TrendingUp className="w-5 h-5" />,
     // },
-    {
+    (permissions.includes("ORDERS_MANAGEMENT") || userRole === "Admin") && {
       id: "delivery",
       label: "Orders",
       path: "/delivery",
       icon: <img src={DeliveryBox} alt="delivery box" className="w-5 h-5" />,
     },
-    {
+    (permissions.includes("ORDERS_MANAGEMENT") || userRole === "Admin") && {
       id: "order-summary",
       label: "Delivery Summary",
       path: "/orderSummary",
       icon: <FileText className="w-5 h-5" />,
     },
 
-    {
+    (permissions.includes("DELIVERY_FEE") || userRole === "Admin") && {
       id: "proposedFee",
       label: "Delivery Fees",
       path: "/proposedFee",
@@ -106,7 +106,7 @@ function MenuItems({ setOpen }) {
       path: "/request",
       icon: <Power src={Agents} alt="Agent" className="w-5 h-5" />,
     },
-    {
+    (permissions.includes("ADMIN") || userRole === "Admin") && {
       id: "admin",
       label: "Admin",
       path: "/admin/sub-admins",

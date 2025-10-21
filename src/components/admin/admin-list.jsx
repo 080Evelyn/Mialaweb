@@ -100,6 +100,7 @@ const AdminList = () => {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const restricted = useSelector((state) => state.restriction.restricted);
   const permission = useSelector((state) => state.auth.permissions);
+  const query = useSelector((state) => state.search.query);
 
   const dispatch = useDispatch();
 
@@ -110,6 +111,11 @@ const AdminList = () => {
     dispatch(fetchSubadmin({ token, userRole }));
   }, []);
 
+  const filtered = subAdmins?.filter(
+    (admin) =>
+      admin?.first_name.toLowerCase().includes(query.toLowerCase()) ||
+      String(admin?.last_name).toLowerCase().includes(query.toLowerCase())
+  );
   const handleAddSubadmin = async (e) => {
     if (permission.includes("ADMIN") || userRole === "Admin") {
       dispatch(setRestricted(false));
@@ -162,7 +168,7 @@ const AdminList = () => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
           setDialogOpen(false);
-        }, 5000);
+        }, 2000);
       }
     } catch (error) {
       setErrorMessage(
@@ -209,7 +215,7 @@ const AdminList = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 5000);
+        }, 2000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -255,7 +261,7 @@ const AdminList = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
-        }, 5000);
+        }, 2000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -304,7 +310,7 @@ const AdminList = () => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
           setDialogOpen(false);
-        }, 5000);
+        }, 2000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -578,7 +584,7 @@ const AdminList = () => {
         <>
           <div className="max-h-[600px] overflow-y-auto ">
             <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
-              <Table className={"overflow-x-scroll w-full"}>
+              <Table className={"w-full"}>
                 <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
                   <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
                     <TableHead className="rounded-l-sm">Name</TableHead>
@@ -595,7 +601,7 @@ const AdminList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-[12px] font-[Raleway] ">
-                  {subAdmins?.map((data, index) => (
+                  {filtered?.reverse()?.map((data, index) => (
                     <TableRow key={index}>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -604,9 +610,7 @@ const AdminList = () => {
                             alt="avatar"
                             className="h-6 w-6 rounded-full"
                           />
-                          <span>{`${data?.first_name} ${
-                            data.last_mame ? data.last_mame : ""
-                          }`}</span>
+                          <span>{`${data?.first_name} ${data.last_name}`}</span>
                         </div>
                       </TableCell>
                       <TableCell>{data.userRole}</TableCell>

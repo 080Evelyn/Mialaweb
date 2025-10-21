@@ -81,7 +81,7 @@ const AdminAgentSidebar = () => {
         setSuccessMessage("");
         setSuccessModalOpen(false);
         setDialogOpen(false);
-      }, 5000);
+      }, 2000);
     } catch (error) {
       setErrorMessage("An error occurred.");
       console.log(error);
@@ -125,7 +125,7 @@ const AdminAgentSidebar = () => {
         setSuccessMessage("");
         setSuccessModalOpen(false);
         setDialogOpen(false);
-      }, 5000);
+      }, 2000);
     } catch (error) {
       setErrorMessage("An error occurred.");
       console.log(error);
