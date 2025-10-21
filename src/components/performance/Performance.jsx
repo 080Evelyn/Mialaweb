@@ -121,7 +121,7 @@ const Performance = () => {
   return (
     <div className="max-h-[600px] overflow-y-auto border rounded-md">
       <Table className="md:w-[1100px] table-fixed">
-        <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+        <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
           <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
             <TableHead className="rounded-l-sm">Agent</TableHead>
             <TableHead>Delivery Assigned</TableHead>

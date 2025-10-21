@@ -45,7 +45,7 @@ const InstallPWA = () => {
   return (
     <>
       {showPopup && (
-        <div className="fixed inset-0  flex items-center justify-center z-[1000px] bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0  flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-lg w-[90%] max-w-sm p-6 text-center space-y-4">
             <div className="text-3xl">📲</div>
             <h2 className="text-xl font-semibold text-gray-800">

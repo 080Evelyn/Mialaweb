@@ -151,7 +151,7 @@ const PayoutSummaryTable = () => {
           <div className="max-h-[600px] overflow-y-auto ">
             <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
               <Table className="md:w-[1100px] lg:w-full table-fixed">
-                <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+                <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
                   <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
                     <TableHead>Agent</TableHead>
                     <TableHead>Amount</TableHead>

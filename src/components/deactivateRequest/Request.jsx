@@ -152,7 +152,7 @@ const Request = () => {
       {/* ✅ Scroll container */}
       <div className="overflow-y-auto max-h-[600px] border rounded-md">
         <Table className="md:w-[1100px] border-collapse table-fixed">
-          <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+          <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
             <TableRow className="text-sm">
               <TableHead>Agent</TableHead>
               <TableHead>Email</TableHead>
