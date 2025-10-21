@@ -12,6 +12,7 @@ import {
   ArrowRightCircle,
   Copy,
   ArrowLeftRight,
+  MessageSquare,
 } from "lucide-react";
 import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
@@ -30,6 +31,8 @@ import { setRestricted } from "@/redux/restrictionSlice";
 import { clearFilters } from "@/redux/searchSlice";
 import ReassignDeliveryDialog from "../proposedFee/ReassignDeliveryDialog";
 import CommentsDialog from "./CommentsDialog";
+import axios from "axios";
+import { BASE_URL } from "@/lib/Api";
 
 const initialFormState = {
   products: [
@@ -82,12 +85,71 @@ const DeliveryList = () => {
   const { totalPages, currentPage, loading, error } = useSelector(
     (state) => state.delivery
   );
+
   const restricted = useSelector((state) => state.restriction.restricted);
   const userRole = useSelector((state) => state.auth.user.userRole);
+  const userId = useSelector((state) => state.auth.user.userId);
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.search.filters);
   const query = useSelector((state) => state.search.query);
   const [copiedCode, setCopiedCode] = useState(null);
+  const [commentStatuses, setCommentStatuses] = useState([]);
+
+  // 🟩 Fetch comment status periodically
+  const fetchCommentStatus = async () => {
+    try {
+      const res = await axios.get(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/comment-status/${userId}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/comment-status/${userId}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/comment-status/${userId}`
+          : `${BASE_URL}api/v1/accountant/comment-status/${userId}`,
+
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setCommentStatuses(res.data?.data || []);
+    } catch (err) {
+      console.error("❌ Failed to fetch comment statuses:", err);
+    }
+  };
+  // ⏱ Poll every 30 seconds
+  useEffect(() => {
+    fetchCommentStatus();
+    const interval = setInterval(fetchCommentStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const markAsRead = async (id) => {
+    try {
+      const res = await axios.post(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/mark-as-read/${id}?userId=${userId}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/mark-as-read/${id}?userId=${userId}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/mark-as-read/${id}?userId=${userId}`
+          : `${BASE_URL}api/v1/accountant/mark-as-read/${id}?userId=${userId}`,
+
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchCommentStatus();
+    } catch (err) {
+      console.error("❌ Failed to fetch comment statuses:", err);
+    }
+  };
+  // 🔍 Helper: get unread count for a delivery
+  const getUnreadCount = (deliveryId) => {
+    const item = commentStatuses.find((c) => c.deliveryId === deliveryId);
+    return item?.newComments || 0;
+  };
+
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
     return new Date(timestamp).toISOString().split("T")[0];
@@ -352,17 +414,17 @@ const DeliveryList = () => {
       <div className="overflow-y-auto max-h-[600px]  ">
         <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
           <Table className="md:w-[1100px]  border-collapse table-fixed">
-            <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+            <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
               <TableRow className="text-sm">
                 <TableHead>Agent</TableHead>
                 <TableHead>Delivery Code</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Comments</TableHead>
                 <TableHead>Delivery Fee(₦)</TableHead>
                 <TableHead>Total(₦)</TableHead>
                 <TableHead>Customer Name</TableHead>
                 <TableHead>Payment Type</TableHead>
                 <TableHead>Delivery Status</TableHead>
-                <TableHead>Comments</TableHead>
                 <TableHead>Payment Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -375,108 +437,118 @@ const DeliveryList = () => {
                   </td>
                 </tr>
               ) : (
-                filtered.map((data, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <div className="flex items-center gap-2 mr-4">
-                        <img
-                          src={Avatar}
-                          alt="avatar"
-                          className="h-6 w-6 rounded-full"
-                        />
-                        <div className="flex gap-1">
-                          <span>{data.riderFirstName}</span>
-                          <span>{data.riderLastName}</span>
+                filtered.map((data, index) => {
+                  const unreadCount = getUnreadCount(data.deliveryId);
+
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="flex items-center gap-2 mr-4">
+                          <img
+                            src={Avatar}
+                            alt="avatar"
+                            className="h-6 w-6 rounded-full"
+                          />
+                          <div className="flex gap-1">
+                            <span>{data.riderFirstName}</span>
+                            <span>{data.riderLastName}</span>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span>{data.deliveryCode}</span>
-                        <Copy
-                          size={16}
-                          className="cursor-pointer"
-                          onClick={() => {
-                            navigator.clipboard.writeText(data.deliveryCode);
-                            setCopiedCode(data.deliveryCode);
-                            setTimeout(() => setCopiedCode(null), 2000);
-                          }}
-                        />
-                        {copiedCode === data.deliveryCode && (
-                          <span className="text-green-600 text-xs">
-                            Copied!
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span>{data.deliveryCode}</span>
+                          <Copy
+                            size={16}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              navigator.clipboard.writeText(data.deliveryCode);
+                              setCopiedCode(data.deliveryCode);
+                              setTimeout(() => setCopiedCode(null), 2000);
+                            }}
+                          />
+                          {copiedCode === data.deliveryCode && (
+                            <span className="text-green-600 text-xs">
+                              Copied!
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
 
-                    <TableCell>{formatDate(data.creationDate)}</TableCell>
-                    <TableCell>
-                      {Number(data.deliveryFee).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      {Number(data.finalTotal).toLocaleString()}
-                    </TableCell>
-                    <TableCell>{data.receiverName}</TableCell>
+                      <TableCell>{formatDate(data.creationDate)}</TableCell>
 
-                    <TableCell>{data.paymentType}</TableCell>
-                    <TableCell
-                      className={
-                        data.deliveryStatus === "FAILED_DELIVERY"
-                          ? "text-red-500"
-                          : data.deliveryStatus === "PENDING"
-                          ? "text-yellow-500"
-                          : data.deliveryStatus === "DELIVERED"
-                          ? "text-green-500"
-                          : ""
-                      }>
-                      {data.deliveryStatus}
-                    </TableCell>
-
-                    <TableCell>
-                      <button
-                        onClick={() =>
-                          handleViewComments(data.deliveryId, data.riderId)
-                        }
-                        className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md transition">
-                        View Comments
-                      </button>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-3 items-center">
-                        {data.customerPaymentStatus}
-                        {data.deliveryStatus !== "DELIVERED" && (
-                          <button onClick={() => handleOpenEdit(data)}>
-                            <PenBox className="h-5 w-5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
-                          </button>
-                        )}
-
+                      <TableCell>
                         <button
-                          onClick={() => {
-                            setSelectedId(data.deliveryId);
-                            setDetailsOpen(true);
-                          }}>
-                          <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
+                          onClick={() =>
+                            handleViewComments(data.deliveryId, data.riderId)
+                          }
+                          className="relative bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md transition flex items-center gap-1">
+                          <MessageSquare size={14} />
+                          View
+                          {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full px-1.5">
+                              {unreadCount}
+                            </span>
+                          )}
                         </button>
-                        {data.deliveryStatus === "FAILED_DELIVERY" && (
+                      </TableCell>
+
+                      <TableCell>
+                        {Number(data.deliveryFee).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        {Number(data.finalTotal).toLocaleString()}
+                      </TableCell>
+                      <TableCell>{data.receiverName}</TableCell>
+                      <TableCell>{data.paymentType}</TableCell>
+                      <TableCell
+                        className={
+                          data.deliveryStatus === "FAILED_DELIVERY"
+                            ? "text-red-500"
+                            : data.deliveryStatus === "PENDING"
+                            ? "text-yellow-500"
+                            : data.deliveryStatus === "DELIVERED"
+                            ? "text-green-500"
+                            : ""
+                        }>
+                        {data.deliveryStatus}
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="flex gap-3 items-center">
+                          {data.customerPaymentStatus}
+                          {data.deliveryStatus !== "DELIVERED" && (
+                            <button onClick={() => handleOpenEdit(data)}>
+                              <PenBox className="h-5 w-5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />
+                            </button>
+                          )}
                           <button
                             onClick={() => {
-                              handleAction(data.deliveryId, index);
+                              setSelectedId(data.deliveryId);
+                              setDetailsOpen(true);
                             }}>
-                            <ArrowLeftRight className="w-4 h-4 mr-2  hover:text-gray-500 cursor-pointer" />
+                            <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500" />
                           </button>
-                        )}
-                      </div>
-                      <ReassignDeliveryDialog
-                        openDialog={openDialog}
-                        setOpenDialog={setOpenDialog}
-                        index={index}
-                        id={selectedId}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
+                          {data.deliveryStatus === "FAILED_DELIVERY" && (
+                            <button
+                              onClick={() => {
+                                handleAction(data.deliveryId, index);
+                              }}>
+                              <ArrowLeftRight className="w-4 h-4 mr-2 hover:text-gray-500 cursor-pointer" />
+                            </button>
+                          )}
+                        </div>
+                        <ReassignDeliveryDialog
+                          openDialog={openDialog}
+                          setOpenDialog={setOpenDialog}
+                          index={index}
+                          id={selectedId}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
@@ -499,7 +571,9 @@ const DeliveryList = () => {
       />
       <CommentsDialog
         open={openCommentsDialog}
-        onClose={() => setOpenCommentsDialog(false)}
+        onClose={() => {
+          setOpenCommentsDialog(false), markAsRead(selectedDeliveryId);
+        }}
         deliveryId={selectedDeliveryId}
         token={token}
         receiverId={selectedReciever}

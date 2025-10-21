@@ -18,7 +18,6 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
-
   // 🟦 Fetch comments
   const fetchComments = async () => {
     if (!deliveryId) return;
@@ -49,8 +48,6 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
   useEffect(() => {
     if (open && deliveryId) fetchComments();
   }, [open, deliveryId]);
-
-  // 🟩 Handle sending message
   const handleSend = async () => {
     if (!message.trim()) return;
     setSending(true);
@@ -61,7 +58,7 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
         message,
       };
 
-      await axios.post(
+      const res = await axios.post(
         userRole === "Admin"
           ? `${BASE_URL}api/v1/admin/addComment-to-delivery`
           : userRole === "CustomerCare"
@@ -75,12 +72,44 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
         }
       );
 
+      // 💡 Optimistically add the new message to the list
+      const newComment = {
+        senderName: "You",
+        userRole,
+        message,
+        createdAt: new Date().toISOString(),
+      };
+      setComments((prev) => [...prev, newComment]);
+
       setMessage("");
-      await fetchComments(); // Refresh messages after sending
+
+      // 🟢 Optionally: background refresh without loader
+      fetchCommentsSilently();
     } catch (error) {
       console.error("Failed to send message:", error);
     } finally {
       setSending(false);
+    }
+  };
+
+  // 🟢 Silent fetch (no loading state)
+  const fetchCommentsSilently = async () => {
+    try {
+      const res = await axios.get(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/get-comments/${deliveryId}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/get-comments/${deliveryId}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/get-comments/${deliveryId}`
+          : `${BASE_URL}api/v1/accountant/get-comments/${deliveryId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setComments(res.data?.data || []);
+    } catch (error) {
+      console.error("Failed to refresh comments silently", error);
     }
   };
 

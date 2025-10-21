@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Copy, EllipsisVertical } from "lucide-react";
+import { Copy, EllipsisVertical, MessageSquare } from "lucide-react";
 // import Avatar from "../../assets/icons/avatar.svg";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,16 +24,22 @@ import {
 } from "@/redux/approveRejectProposalFeeSlice";
 import { clearFilters } from "@/redux/searchSlice";
 import SuccessModal from "../common/SuccessModal";
+import CommentsDialog from "../delivery/CommentsDialog";
+
+import { BASE_URL } from "@/lib/Api";
+import axios from "axios";
 
 const ProposedFee = () => {
   // Track open modal state
-  const [dialogOpen, setDialogOpen] = useState("");
-  const [openDialog, setOpenDialog] = useState("");
+  const userId = useSelector((state) => state.auth.user.userId);
   const [action, setAction] = useState(false);
   const [copiedCode, setCopiedCode] = useState(null);
   const [selectedFee, setSelectedFee] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [selectedReciever, setSelectedReciever] = useState(null);
+  const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const adminId = useSelector((state) => state.auth.user.userId);
   const permissions = useSelector((state) => state.auth.permissions);
@@ -57,6 +63,70 @@ const ProposedFee = () => {
   const dispatch = useDispatch();
   const query = useSelector((state) => state.search.query);
   const filters = useSelector((state) => state.search.filters);
+
+  const [commentStatuses, setCommentStatuses] = useState([]);
+
+  // 🟩 Fetch comment status periodically
+  const fetchCommentStatus = async () => {
+    try {
+      const res = await axios.get(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/comment-status/${userId}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/comment-status/${userId}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/comment-status/${userId}`
+          : `${BASE_URL}api/v1/accountant/comment-status/${userId}`,
+
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setCommentStatuses(res.data?.data || []);
+    } catch (err) {
+      console.error("❌ Failed to fetch comment statuses:", err);
+    }
+  };
+  // ⏱ Poll every 30 seconds
+  useEffect(() => {
+    fetchCommentStatus();
+    const interval = setInterval(fetchCommentStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const markAsRead = async (id) => {
+    try {
+      const res = await axios.post(
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/mark-as-read/${id}?userId=${userId}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/mark-as-read/${id}?userId=${userId}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/mark-as-read/${id}?userId=${userId}`
+          : `${BASE_URL}api/v1/accountant/mark-as-read/${id}?userId=${userId}`,
+
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchCommentStatus();
+    } catch (err) {
+      console.error("❌ Failed to fetch comment statuses:", err);
+    }
+  };
+  // 🔍 Helper: get unread count for a delivery
+  const getUnreadCount = (deliveryId) => {
+    const item = commentStatuses.find((c) => c.deliveryId === deliveryId);
+    return item?.newComments || 0;
+  };
+
+  // Function to open the dialog
+  const handleViewComments = (id, riderId) => {
+    setOpenCommentsDialog(true);
+    setSelectedReciever(riderId);
+    setSelectedDeliveryId(id);
+  };
 
   const handleAction = (id) => {
     setAction(!action);
@@ -129,7 +199,7 @@ const ProposedFee = () => {
   useEffect(() => {
     setTimeout(() => {
       dispatch(resetApproveRejectState());
-    }, 5000);
+    }, 2000);
     if (rejectSuccess) {
       setSuccessModalOpen(true);
       setSuccessMessage("Fee Rejected Successfully.");
@@ -218,12 +288,13 @@ const ProposedFee = () => {
       <div className="overflow-y-auto max-h-[600px] md:w-full">
         <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
           <Table className="">
-            <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+            <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
               <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
                 <TableHead className="rounded-l-sm">Agent</TableHead>
                 <TableHead>Product</TableHead>
                 <TableHead>Quantity</TableHead>
                 <TableHead>Delivery Code</TableHead>
+                <TableHead>Comments</TableHead>
                 <TableHead> Address</TableHead>
                 <TableHead> Status</TableHead>
                 <TableHead> Delivery Fee(₦)</TableHead>
@@ -239,114 +310,146 @@ const ProposedFee = () => {
                   </td>
                 </tr>
               ) : (
-                filtered.map((data, index) => (
-                  <TableRow key={index} className="align-top">
-                    {/* Rider Info */}
-                    <TableCell className="pr-6">
-                      <div className="flex items-center gap-2">
-                        <span>{`${data.riderFirstName} ${data.riderLastName}`}</span>
-                      </div>
-                    </TableCell>
+                filtered.map((data, index) => {
+                  const unreadCount = getUnreadCount(data.deliveryId);
+                  return (
+                    <TableRow key={index} className="align-top">
+                      {/* Rider Info */}
+                      <TableCell className="pr-6">
+                        <div className="flex items-center gap-2">
+                          <span>{`${data.riderFirstName} `}</span>
+                        </div>
+                      </TableCell>
 
-                    {/* Products */}
-                    <TableCell colSpan={2}>
-                      <div className="border border-gray-200 rounded-md bg-gray-50">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="bg-gray-100">
-                              <th className="p-1 text-left font-medium text-gray-600">
-                                Product
-                              </th>
-                              <th className="p-1 text-left font-medium text-gray-600">
-                                Qty
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {data?.products?.map((product, i) => (
-                              <tr key={i} className="border-t border-gray-200">
-                                <td className="p-1">{product.productName}</td>
-                                <td className="p-1">{product.qty}</td>
+                      {/* Products */}
+                      <TableCell colSpan={2}>
+                        <div className="border border-gray-200 rounded-md bg-gray-50">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="bg-gray-100">
+                                <th className="p-1 text-left font-medium text-gray-600">
+                                  Product
+                                </th>
+                                <th className="p-1 text-left font-medium text-gray-600">
+                                  Qty
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </TableCell>
+                            </thead>
+                            <tbody>
+                              {data?.products?.map((product, i) => (
+                                <tr
+                                  key={i}
+                                  className="border-t border-gray-200">
+                                  <td className="p-1">{product.productName}</td>
+                                  <td className="p-1">{product.qty}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </TableCell>
 
-                    {/* Delivery Code */}
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span>{data.deliveryCode}</span>
-                        <Copy
-                          size={16}
-                          className="cursor-pointer"
-                          onClick={() => {
-                            navigator.clipboard.writeText(data.deliveryCode);
-                            setCopiedCode(data.deliveryCode);
-                            setTimeout(() => setCopiedCode(null), 2000);
-                          }}
-                        />
-                        {copiedCode === data.deliveryCode && (
-                          <span className="text-green-600 text-xs">
-                            Copied!
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
+                      {/* Delivery Code */}
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span>{data.deliveryCode}</span>
+                          <Copy
+                            size={16}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              navigator.clipboard.writeText(data.deliveryCode);
+                              setCopiedCode(data.deliveryCode);
+                              setTimeout(() => setCopiedCode(null), 2000);
+                            }}
+                          />
+                          {copiedCode === data.deliveryCode && (
+                            <span className="text-green-600 text-xs">
+                              Copied!
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
 
-                    <TableCell>{data.receiverAddress}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-[11px] ${
-                          data.negotiationStatus === "APPROVED"
-                            ? "bg-green-100 text-green-600"
-                            : data.negotiationStatus === "REJECTED"
-                            ? "bg-red-100 text-red-600"
-                            : "bg-yellow-100 text-yellow-600"
-                        }`}>
-                        {data.negotiationStatus}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      ₦{Number(data.proposedFee).toLocaleString()}
-                    </TableCell>
-                    <TableCell>{data.uploadDate}</TableCell>
+                      <TableCell>
+                        <button
+                          onClick={() =>
+                            handleViewComments(data.id, data.riderId)
+                          }
+                          className="relative bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md transition flex items-center gap-1">
+                          <MessageSquare size={14} />
+                          View
+                          {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full px-1.5">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </button>
+                      </TableCell>
 
-                    {/* Actions */}
-                    <TableCell>
-                      <div className="relative flex justify-end">
-                        <EllipsisVertical
-                          onClick={() => handleAction(data.id)}
-                          className="cursor-pointer text-[#8C8C8C]"
-                        />
-                        {action && selectedFee === data.id && (
-                          <div className="absolute right-0 top-6 w-[130px] bg-white border shadow-lg rounded-md overflow-hidden">
-                            <button
-                              disabled={approvalLoading}
-                              onClick={() => handleApprove(selectedFee)}
-                              className="block w-full text-left text-xs px-3 py-2 hover:bg-green-100">
-                              {approvalLoading
-                                ? "Processing..."
-                                : "Approve fee"}
-                            </button>
-                            <button
-                              disabled={rejectLoading}
-                              onClick={() => handleReject(selectedFee)}
-                              className="block w-full text-left text-xs px-3 py-2 hover:bg-red-100">
-                              {rejectLoading ? "Processing..." : "Reject fee"}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      <TableCell>{data.receiverAddress}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-[11px] ${
+                            data.negotiationStatus === "FEE_APPROVED_BY_ADMIN"
+                              ? "bg-green-100 text-green-600"
+                              : data.negotiationStatus ===
+                                "FEE_REJECTED_BY_ADMIN"
+                              ? "bg-red-100 text-red-600"
+                              : "bg-yellow-100 text-yellow-600"
+                          }`}>
+                          {data.negotiationStatus}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        ₦{Number(data.proposedFee).toLocaleString()}
+                      </TableCell>
+                      <TableCell>{data.uploadDate}</TableCell>
+
+                      {/* Actions */}
+                      <TableCell>
+                        <div className="relative flex justify-end">
+                          <EllipsisVertical
+                            onClick={() => handleAction(data.id)}
+                            className="cursor-pointer text-[#8C8C8C]"
+                          />
+                          {action && selectedFee === data.id && (
+                            <div className="absolute right-0 top-6 w-[130px] bg-white border shadow-lg rounded-md overflow-hidden">
+                              <button
+                                disabled={approvalLoading}
+                                onClick={() => handleApprove(selectedFee)}
+                                className="block w-full text-left text-xs px-3 py-2 hover:bg-green-100">
+                                {approvalLoading
+                                  ? "Processing..."
+                                  : "Approve fee"}
+                              </button>
+                              <button
+                                disabled={rejectLoading}
+                                onClick={() => handleReject(selectedFee)}
+                                className="block w-full text-left text-xs px-3 py-2 hover:bg-red-100">
+                                {rejectLoading ? "Processing..." : "Reject fee"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
         </div>
       </div>
+      <CommentsDialog
+        open={openCommentsDialog}
+        onClose={() => {
+          setOpenCommentsDialog(false), markAsRead(selectedDeliveryId);
+        }}
+        deliveryId={selectedDeliveryId}
+        token={token}
+        receiverId={selectedReciever}
+      />
+
       <SuccessModal
         open={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}

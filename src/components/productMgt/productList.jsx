@@ -109,7 +109,7 @@ const ProductList = () => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
           setDialogOpen(false);
-        }, 5000);
+        }, 2000);
       }
       // else if (response.data.responseCode === "55") {
       //   setErrorMessage(response.data.responseDesc);
@@ -155,7 +155,7 @@ const ProductList = () => {
           setSuccessMessage("");
           setSuccessModalOpen(false);
           setDialogOpen(false);
-        }, 5000);
+        }, 2000);
       } else if (response.data.responseCode === "55") {
         setErrorMessage(response.data.responseDesc);
       }
@@ -365,7 +365,7 @@ const ProductList = () => {
       <div className="overflow-y-auto max-h-[600px] ">
         <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
           <Table>
-            <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+            <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
               <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-sm">
                 <TableHead className="rounded-l-sm">Product ID</TableHead>
                 <TableHead>Product Name</TableHead>
