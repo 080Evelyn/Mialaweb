@@ -23,6 +23,7 @@ import PerformanceMenu from "./pages/PerformanceMenu";
 import ProductStats from "./pages/ProductStats";
 import ForgotPassword from "./pages/ForgotPassword";
 import DeactivateRequest from "./pages/super-admin/DeactivateRequest";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -31,7 +32,9 @@ function App() {
       <InstallPWA />
 
       <Routes>
-        <Route path="/" element={<Login />} />
+        {/* public route  */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
 
         {/* Protected routes wrapper */}
