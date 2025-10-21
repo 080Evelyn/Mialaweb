@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, User2 } from "lucide-react";
 import { Link } from "react-router";
 
 const Navbar = () => {
@@ -62,6 +62,10 @@ const Navbar = () => {
                 0
               </span>
             </button>
+            {/* login button  */}
+            <Link to="/login">
+              <User2 className="size-6.5" />
+            </Link>
 
             {/* menu button */}
             <button
