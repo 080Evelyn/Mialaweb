@@ -585,7 +585,7 @@ const AdminList = () => {
           <div className="max-h-[600px] overflow-y-auto ">
             <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
               <Table className={"w-full"}>
-                <TableHeader className="sticky top-0 z-50 bg-[#D9D9D9]">
+                <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
                   <TableRow className="bg-[#D9D9D9] hover:bg-[#D6D6D6] text-xs">
                     <TableHead className="rounded-l-sm">Name</TableHead>
                     <TableHead className="rounded-l-sm">Role</TableHead>
