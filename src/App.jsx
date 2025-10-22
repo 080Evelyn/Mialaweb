@@ -24,6 +24,7 @@ import ProductStats from "./pages/ProductStats";
 import ForgotPassword from "./pages/ForgotPassword";
 import DeactivateRequest from "./pages/super-admin/DeactivateRequest";
 import Home from "./pages/Home";
+import PrivacyAndPolicy from "./pages/PrivacyAndPolicy";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
       <Routes>
         {/* public route  */}
         <Route path="/" element={<Home />} />
+        <Route path="/privacy-policy" element={<PrivacyAndPolicy />} />
         <Route path="/login" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
 
