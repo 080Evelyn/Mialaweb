@@ -51,7 +51,7 @@ const ProductList = () => {
                 <Button
                   onClick={() =>
                     window.open(
-                      `https://wa.me/234XXXXXXXXXX?text=Hi Miala! I’d like to order the ${product.name}.`,
+                      `https://wa.me/2349161302009?text=Hi 👋, I’d like to order the ${product.name}.`,
                       "_blank"
                     )
                   }

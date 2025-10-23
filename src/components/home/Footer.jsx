@@ -66,8 +66,12 @@ const Footer = () => {
                   icon: <MapPin />,
                   content: "123 Main Street, Lagos",
                 },
-                { name: "Phone", icon: <Phone />, content: "+234 8045678900" },
-                { name: "Email", icon: <Mail />, content: "support@miala.com" },
+                {
+                  name: "Phone",
+                  icon: <Phone />,
+                  content: "+234 916 130 2009",
+                },
+                { name: "Email", icon: <Mail />, content: "miala@gmail.com" },
               ].map((contact) => (
                 <div key={contact.name}>
                   <div className="flex items-center space-x-2">
