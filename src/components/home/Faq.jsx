@@ -11,7 +11,7 @@ const Faq = () => {
     {
       question: "Where is Miala’s physical store located?",
       answer:
-        "You can visit our store at 'Aiye Bus stop, 58 Osolo Wy, Oshodi, Isolo, Lagos'. We’re open Monday to Saturday.",
+        "You can visit our store at 'Aiye Bus stop, 58 Osolo Way, Oshodi, Isolo, Lagos'. We’re open Monday to Saturday.",
     },
     {
       question: "Do you offer home delivery?",
@@ -46,7 +46,7 @@ const Faq = () => {
   ];
 
   return (
-    <section className="max-w-2xl mx-auto px-4 py-16">
+    <section className="max-w-2xl mx-auto px-8 md:px-4 py-16">
       <div className="flex flex-col items-center justify-center mb-8">
         <div className="relative flex items-center justify-center mb-3">
           <div className="w-14 h-14 rounded-full border-2 border-pink-300 flex items-center justify-center bg-white shadow-sm">
