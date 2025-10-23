@@ -263,7 +263,6 @@ const ProposedFee = () => {
       </Table>
     );
   }
-
   if (!loadingOrders && errorOrders) {
     return (
       <div>
@@ -311,7 +310,7 @@ const ProposedFee = () => {
                 </tr>
               ) : (
                 filtered.map((data, index) => {
-                  const unreadCount = getUnreadCount(data.deliveryId);
+                  const unreadCount = getUnreadCount(data.id);
                   return (
                     <TableRow key={index} className="align-top">
                       {/* Rider Info */}
