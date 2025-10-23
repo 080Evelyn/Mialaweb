@@ -501,18 +501,20 @@ const DeliveryList = () => {
                         {Number(data.finalTotal).toLocaleString()}
                       </TableCell>
                       <TableCell>{data.receiverName}</TableCell>
-                      <TableCell>{data.paymentType}</TableCell>
+                      <TableCell>
+                        {data.paymentType.replace(/_/g, " ")}
+                      </TableCell>
                       <TableCell
                         className={
                           data.deliveryStatus === "FAILED_DELIVERY"
-                            ? "text-red-500"
+                            ? "text-red-500 capitalize"
                             : data.deliveryStatus === "PENDING"
                             ? "text-yellow-500"
                             : data.deliveryStatus === "DELIVERED"
                             ? "text-green-500"
                             : ""
                         }>
-                        {data.deliveryStatus}
+                        {data.deliveryStatus.replace(/_/g, " ")}
                       </TableCell>
 
                       <TableCell>
