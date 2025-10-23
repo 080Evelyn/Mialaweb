@@ -64,7 +64,7 @@ const Footer = () => {
                 {
                   name: "Address",
                   icon: <MapPin />,
-                  content: "Aiye Bus stop, 58 Osolo Wy, Oshodi, Isolo, Lagos",
+                  content: "Aiye Bus stop, 58 Osolo Way, Oshodi, Isolo, Lagos",
                 },
                 {
                   name: "Phone",

@@ -11,7 +11,7 @@ const Faq = () => {
     {
       question: "Where is Miala’s physical store located?",
       answer:
-        "You can visit our store at 'Aiye Bus stop, 58 Osolo Wy, Oshodi, Isolo, Lagos'. We’re open Monday to Saturday.",
+        "You can visit our store at 'Aiye Bus stop, 58 Osolo Way, Oshodi, Isolo, Lagos'. We’re open Monday to Saturday.",
     },
     {
       question: "Do you offer home delivery?",
