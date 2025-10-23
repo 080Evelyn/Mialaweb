@@ -4,7 +4,7 @@ export default function Hero() {
       id="home"
       className="relative bg-cover bg-center min-h-[85vh] md:min-h-[90vh] rounded-b-[50px] flex items-center justify-center px-6 md:px-16"
       style={{
-        backgroundImage: `url('https://st4.depositphotos.com/1558912/27173/i/450/depositphotos_271733254-stock-photo-skin-care-product-natural-cosmetic.jpg')`,
+        backgroundImage: "url('/images/hero-bg1.jpg')",
       }}
     >
       {/* Overlay, md screen up */}

@@ -3,8 +3,8 @@ import { Sparkles } from "lucide-react";
 const OurMission = () => {
   return (
     <section
-      id="mission"
-      className="pt-20 pb-35  bg-gradient-to-t from-pink-50 via-white to-transparent"
+      id="about"
+      className="pt-25 pb-40  bg-gradient-to-t from-pink-50 via-white to-transparent"
     >
       <div className="max-w-5xl mx-auto px-4 text-center">
         <div className="flex flex-col items-center justify-center mb-8">
