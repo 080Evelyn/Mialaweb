@@ -147,13 +147,13 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                         ? "text-red-600"
                         : "text-[#0FA301]"
                     }  font-[Raleway]`}>
-                    {data?.custPaymentStatus}
+                    {data?.custPaymentStatus.replace(/_/g, " ")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <Label className="text-xs">Payment type</Label>
                   <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {data?.paymentType}
+                    {data?.paymentType.replace(/_/g, " ")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -224,9 +224,13 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                     className={`text-right w-[45%] text-[10px] ${
                       data?.deliveryStatus === "PENDING"
                         ? "text-yellow-400"
-                        : "text-[#0FA301]"
+                        : data?.deliveryStatus === ""
+                        ? "text-red-500"
+                        : data?.deliveryStatus === "DELIVERED"
+                        ? "text-[#0FA301]"
+                        : ""
                     } font-[Raleway]`}>
-                    {data?.deliveryStatus}
+                    {data?.deliveryStatus.replace(/_/g, " ")}
                   </span>
                 </div>
 
@@ -238,14 +242,14 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                         ? "text-red-600"
                         : "text-[#0FA301]"
                     }  font-[Raleway]`}>
-                    {data?.riderPaymentStatus}
+                    {data?.riderPaymentStatus.replace(/_/g, " ")}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <Label className="text-xs">Negotiation status</Label>
                   <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {data?.negotiationStatus}
+                    {data?.negotiationStatus.replace(/_/g, " ")}
                   </span>
                 </div>
               </div>

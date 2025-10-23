@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "@/lib/Api";
+import { RotateCcw } from "lucide-react";
 
 const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
   const userRole = useSelector((state) => state.auth.user.userRole);
@@ -176,7 +177,7 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
           </Button>
         </div>
 
-        <div className="flex justify-end mt-3">
+        <div className="flex justify-between mt-3">
           <DialogClose asChild>
             <Button
               variant="outline"
@@ -184,6 +185,12 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
               Close
             </Button>
           </DialogClose>
+          <Button
+            onClick={() => {
+              fetchComments();
+            }}>
+            <RotateCcw />
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
