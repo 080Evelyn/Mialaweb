@@ -141,7 +141,7 @@ const SummaryOrder = () => {
                 <TableBody className="text-[12px] font-[Raleway] font-[500] ">
                   {filtered.length === 0 ? (
                     <p className="!text-center py-4">
-                      No orders at the momemnt.
+                      No delivered orders at the momemnt.
                     </p>
                   ) : (
                     filtered?.map((data, index) => (

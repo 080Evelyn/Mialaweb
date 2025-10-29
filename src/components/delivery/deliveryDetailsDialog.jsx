@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDeliveryById } from "@/redux/deliverySlice";
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
 
 const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
   const dispatch = useDispatch();
@@ -147,13 +146,13 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                         ? "text-red-600"
                         : "text-[#0FA301]"
                     }  font-[Raleway]`}>
-                    {data?.custPaymentStatus.replace(/_/g, " ")}
+                    {data?.custPaymentStatus?.replace(/_/g, " ")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <Label className="text-xs">Payment type</Label>
                   <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {data?.paymentType.replace(/_/g, " ")}
+                    {data?.paymentType?.replace(/_/g, " ")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -230,7 +229,7 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                         ? "text-[#0FA301]"
                         : ""
                     } font-[Raleway]`}>
-                    {data?.deliveryStatus.replace(/_/g, " ")}
+                    {data?.deliveryStatus?.replace(/_/g, " ")}
                   </span>
                 </div>
 
@@ -242,14 +241,14 @@ const DeliveryDetailsDialog = ({ id, open, onOpenChange }) => {
                         ? "text-red-600"
                         : "text-[#0FA301]"
                     }  font-[Raleway]`}>
-                    {data?.riderPaymentStatus.replace(/_/g, " ")}
+                    {data?.riderPaymentStatus?.replace(/_/g, " ")}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <Label className="text-xs">Negotiation status</Label>
                   <span className=" text-right w-[45%] text-[10px] text-[#8C8C8C] font-[Raleway]">
-                    {data?.negotiationStatus.replace(/_/g, " ")}
+                    {data?.negotiationStatus?.replace(/_/g, " ")}
                   </span>
                 </div>
               </div>
