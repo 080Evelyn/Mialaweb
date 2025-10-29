@@ -38,7 +38,7 @@ const initialFormState = {
   products: [
     {
       productName: "",
-      quantity: "1",
+      quantity: 1,
       productPrice: "",
       totalAfterDiscount: "",
       productId: "",
@@ -411,10 +411,10 @@ const DeliveryList = () => {
         />
       </div>
       {/* ✅ Scroll container */}
-      <div className="overflow-y-auto max-h-[600px]  ">
+      <div className="overflow-y-auto max-h-[600px]">
         <div className="!max-w-[400px]  overflow-x-scroll border rounded-md md:min-w-full">
           <Table className="md:w-[1100px]  border-collapse table-fixed">
-            <TableHeader className="sticky top-0 z-40 bg-[#D9D9D9]">
+            <TableHeader className="sticky top-0 z-40  bg-[#D9D9D9]">
               <TableRow className="text-sm">
                 <TableHead>Agent</TableHead>
                 <TableHead>Delivery Code</TableHead>
@@ -519,7 +519,7 @@ const DeliveryList = () => {
 
                       <TableCell>
                         <div className="flex gap-3 items-center">
-                          {data.customerPaymentStatus}
+                          {data.customerPaymentStatus.replace(/_/g, " ")}
                           {data.deliveryStatus !== "DELIVERED" && (
                             <button onClick={() => handleOpenEdit(data)}>
                               <PenBox className="h-5 w-5 text-[#D9D9D9] hover:text-gray-500 cursor-pointer" />

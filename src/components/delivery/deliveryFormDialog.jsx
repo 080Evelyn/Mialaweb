@@ -169,7 +169,7 @@ const DeliveryFormDialog = ({
         ...prev.products,
         {
           productName: "",
-          quantity: "",
+          quantity: 1,
           productPrice: "",
           discountPercent: "",
           productId: "",
@@ -223,6 +223,17 @@ const DeliveryFormDialog = ({
       setTotalFinalPrice(0);
     }
   }, [formData.products]);
+
+  useEffect(() => {
+    if (formData.paymentType === "PART_PAYMENT") {
+      const balance = totalFinalPrice - Number(formData.amountPaid || 0);
+
+      setFormData((prev) => ({
+        ...prev,
+        balance: balance < 0 ? 0 : balance,
+      }));
+    }
+  }, [totalFinalPrice, formData.amountPaid, formData.paymentType]);
 
   useEffect(() => {
     setReceiverId(formData.riderId);
@@ -911,73 +922,6 @@ const DeliveryFormDialog = ({
                 )}
 
                 {formData.customerPaymentStatus === "CUSTOMER_PAID" && (
-                  // <>
-                  //   <div className="flex flex-col gap-1">
-                  //     <Label className="text-xs">Payment Type</Label>
-                  //     <select
-                  //       className="w-full rounded-xs bg-[#8C8C8C33] p-2"
-                  //       value={formData.paymentType}
-                  //       onChange={(e) =>
-                  //         setFormData({
-                  //           ...formData,
-                  //           paymentType: e.target.value,
-                  //         })
-                  //       }>
-                  //       <option value="">Select Status</option>
-                  //       <option value="FULL_PAYMENT">Full Payment</option>
-                  //       <option value="PART_PAYMENT">Part Payment</option>
-                  //       <option value="PAYMENT_ON_DELIVERY">
-                  //         Payment on delivery
-                  //       </option>
-                  //     </select>
-                  //   </div>
-
-                  //   {formData.paymentType !== "PAYMENT_ON_DELIVERY" && (
-                  //     <div className="flex flex-col gap-1">
-                  //       <Label className="text-xs" htmlFor="amountPaid">
-                  //         Amount Payed
-                  //       </Label>
-                  //       <Input
-                  //         className="rounded-xs bg-[#8C8C8C33]"
-                  //         id="amountPaid"
-                  //         value={formatToNaira(formData?.amountPaid)}
-                  //         // onChange={(e) =>
-                  //         //   handleCurrencyChange(e, "amountPaid")
-                  //         // }
-                  //         onChange={(e) => {
-                  //           handleCurrencyChange(e, "amountPaid");
-
-                  //           // auto-calculate balance if it's part payment
-                  //           if (formData.paymentType === "PART_PAYMENT") {
-                  //             const amountPaid =
-                  //               parseFloat(e.target.value.replace(/,/g, "")) ||
-                  //               0;
-                  //             const balance = totalFinalPrice - amountPaid;
-                  //             setFormData((prev) => ({
-                  //               ...prev,
-                  //               amountPaid,
-                  //               balance: balance < 0 ? 0 : balance,
-                  //             }));
-                  //           }
-                  //         }}
-                  //       />
-                  //     </div>
-                  //   )}
-                  //   {formData.paymentType === "PART_PAYMENT" && (
-                  //     <div className="flex flex-col gap-1">
-                  //       <Label className="text-xs" htmlFor="balance">
-                  //         Balance
-                  //       </Label>
-                  //       <Input
-                  //         className="rounded-xs bg-[#8C8C8C33]"
-                  //         id="balance"
-                  //         value={formatToNaira(formData.balance)}
-                  //         onChange={(e) => handleCurrencyChange(e, "balance")}
-                  //       />
-                  //     </div>
-                  //   )}
-                  // </>
-
                   <>
                     <div className="flex flex-col gap-1">
                       <Label className="text-xs">Payment Type</Label>
