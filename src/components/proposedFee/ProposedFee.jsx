@@ -158,11 +158,11 @@ const ProposedFee = () => {
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
 
     const searchMatch =
-      item.riderFirstName.toLowerCase().includes(query.toLowerCase()) ||
-      item.deliveryCode.toLowerCase().includes(query.toLowerCase());
+      item?.riderFullName.toLowerCase().includes(query.toLowerCase()) ||
+      item?.deliveryCode.toLowerCase().includes(query.toLowerCase());
 
     const agentMatch = filters.agent
-      ? `${item.riderFirstName} ${item.riderLastName}`
+      ? `${item?.riderFullName} ${item?.riderLastName}`
           .toLowerCase()
           .includes(filters.agent.toLowerCase())
       : true;
@@ -322,7 +322,7 @@ const ProposedFee = () => {
                       {/* Rider Info */}
                       <TableCell className="pr-6">
                         <div className="flex items-center gap-2">
-                          <span>{`${data.riderFirstName} `}</span>
+                          <span>{`${data?.riderFullName} `}</span>
                         </div>
                       </TableCell>
 
