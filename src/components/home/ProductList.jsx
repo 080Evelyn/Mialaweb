@@ -1,4 +1,4 @@
-import { ArrowUpRight, BaggageClaimIcon, MessageCircle } from "lucide-react";
+import { ArrowUpRight, BaggageClaimIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
 import { products } from "@/config";
@@ -37,14 +37,14 @@ const ProductList = () => {
                 <h3 className="text-lg font-medium text-gray-900">
                   {product.name}
                 </h3>
-                <div className="flex gap-4 flex-wrap justify-between items-center">
+                {/* <div className="flex gap-4 flex-wrap justify-between items-center">
                   {product.oldPrice && (
                     <p className="line-through text-red-400 font-semibold">
                       {product.oldPrice}
                     </p>
                   )}
                   <p className="font-bold mt-1 text-">{product.price}</p>
-                </div>
+                </div> */}
               </div>
 
               <div className="px-4 pb-4">
