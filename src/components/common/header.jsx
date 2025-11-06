@@ -1,6 +1,7 @@
 import {
   AlignJustify,
   ArrowLeft,
+  Bell,
   CircleArrowLeft,
   CircleUser,
   Search,
@@ -27,7 +28,7 @@ import Admin from "../../assets/icons/admin.png";
 import { setEndDate, setStartDate } from "@/redux/performanceSlice";
 import { setDefaultHandler } from "workbox-routing";
 
-function AdminHeader({ setOpen, rightSidebar }) {
+function AdminHeader({ setOpen, rightSidebar, toggleRightSidebar }) {
   const dispatch = useDispatch();
   const search = useSelector((state) => state.search.query);
   const filters = useSelector((state) => state.search.filters);
@@ -42,6 +43,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
     path === "/delivery" ||
     path === "/products" ||
     path === "/Fees" ||
+    path === "/proposedFee" ||
     path === "/performance" ||
     path === "/payout-summary";
 
@@ -86,6 +88,16 @@ function AdminHeader({ setOpen, rightSidebar }) {
   }, []);
   return (
     <header className="sticky top-0 z-40 bg-background border-b px-5 py-3">
+      {/* Right section */}
+      <div className="flex items-center gap-4">
+        {toggleRightSidebar && (
+          <button
+            onClick={toggleRightSidebar}
+            className="p-2 rounded-full hover:bg-gray-100">
+            <Bell size={20} />
+          </button>
+        )}
+      </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex cursor-pointer items-center gap-1.5 text-sm rounded-[16px] py-3 px-1.5 hover:bg-[#FFBFBF]">
           <img src={Admin} alt="Admin-logo" className="w-5 h-5" />
@@ -167,7 +179,7 @@ function AdminHeader({ setOpen, rightSidebar }) {
                         </option>
                       ))}
                     </select>
-                  ) : (
+                  ) : path === "/proposedFee" ? null : (
                     <>
                       <select
                         value={filters.status || ""}

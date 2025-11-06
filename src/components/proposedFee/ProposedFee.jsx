@@ -158,11 +158,11 @@ const ProposedFee = () => {
       item.products?.map((p) => p.productName?.toLowerCase()).join(" ") ?? "";
 
     const searchMatch =
-      productNames.includes(query.toLowerCase()) ||
-      item.deliveryCode.toLowerCase().includes(query.toLowerCase());
+      item?.riderFullName.toLowerCase().includes(query.toLowerCase()) ||
+      item?.deliveryCode.toLowerCase().includes(query.toLowerCase());
 
     const agentMatch = filters.agent
-      ? `${item.riderFirstName} ${item.riderLastName}`
+      ? `${item?.riderFullName} ${item?.riderLastName}`
           .toLowerCase()
           .includes(filters.agent.toLowerCase())
       : true;
@@ -177,7 +177,7 @@ const ProposedFee = () => {
 
       if (!startDate || !endDate) return true; // No filtering if not both provided
 
-      const uploadDate = new Date(item.uploadDate);
+      const uploadDate = new Date(item.creationDate);
       const start = new Date(startDate);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999); // Include the whole end day
@@ -212,6 +212,12 @@ const ProposedFee = () => {
       dispatch(fetchProposedOrders({ token, userRole }));
     }
   }, [rejectSuccess, success, approvalError]);
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "";
+    return new Date(timestamp).toISOString().split("T")[0];
+  };
+
   if (loadingOrders && !multiCall) {
     return (
       <Table className={" md:w-[1100px]"}>
@@ -273,7 +279,7 @@ const ProposedFee = () => {
     );
   }
   return (
-    <div className="sm:me-5 sm:ms-2.5 w-[800px]">
+    <div className="sm:me-5 sm:ms-2.5 w-full">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm font-semibold">Delivery Fees</h2>
         {/* For adding and editting */}
@@ -316,7 +322,7 @@ const ProposedFee = () => {
                       {/* Rider Info */}
                       <TableCell className="pr-6">
                         <div className="flex items-center gap-2">
-                          <span>{`${data.riderFirstName} `}</span>
+                          <span>{`${data?.riderFullName} `}</span>
                         </div>
                       </TableCell>
 
@@ -396,13 +402,13 @@ const ProposedFee = () => {
                               ? "bg-red-100 text-red-600"
                               : "bg-yellow-100 text-yellow-600"
                           }`}>
-                          {data.negotiationStatus}
+                          {data.negotiationStatus.replace(/_/g, " ")}
                         </span>
                       </TableCell>
                       <TableCell>
                         ₦{Number(data.proposedFee).toLocaleString()}
                       </TableCell>
-                      <TableCell>{data.uploadDate}</TableCell>
+                      <TableCell>{formatDate(data.creationDate)}</TableCell>
 
                       {/* Actions */}
                       <TableCell>
