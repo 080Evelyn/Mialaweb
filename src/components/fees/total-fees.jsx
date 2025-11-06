@@ -231,7 +231,9 @@ const TotalFeesTable = () => {
                 </TableHeader>
                 <TableBody className="text-[14px] font-medium font-[Raleway]">
                   {filtered.length === 0 ? (
-                    <p>No data </p>
+                    <p className="text-center">
+                      No transanction at the moment{" "}
+                    </p>
                   ) : (
                     sortedTransactions?.map((data, index) => (
                       <TableRow key={index}>

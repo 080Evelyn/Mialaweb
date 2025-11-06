@@ -55,6 +55,7 @@ const ProposedFee = () => {
     (state) => state.approveReject.rejectSuccess
   );
   const approvalError = useSelector((state) => state.approveReject.error);
+  // console.log(approvalError);
   const [page, setPage] = useState(0);
   const { proposedOrders, errorOrders, loadingOrders, multiCall } = useSelector(
     (state) => state.proposedFee
@@ -412,30 +413,40 @@ const ProposedFee = () => {
 
                       {/* Actions */}
                       <TableCell>
-                        <div className="relative flex justify-end">
-                          <EllipsisVertical
-                            onClick={() => handleAction(data.id)}
-                            className="cursor-pointer text-[#8C8C8C]"
-                          />
-                          {action && selectedFee === data.id && (
-                            <div className="absolute right-0 top-6 w-[130px] bg-white border shadow-lg rounded-md overflow-hidden">
-                              <button
-                                disabled={approvalLoading}
-                                onClick={() => handleApprove(selectedFee)}
-                                className="block w-full text-left text-xs px-3 py-2 hover:bg-green-100">
-                                {approvalLoading
-                                  ? "Processing..."
-                                  : "Approve fee"}
-                              </button>
-                              <button
-                                disabled={rejectLoading}
-                                onClick={() => handleReject(selectedFee)}
-                                className="block w-full text-left text-xs px-3 py-2 hover:bg-red-100">
-                                {rejectLoading ? "Processing..." : "Reject fee"}
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        {data.negotiationStatus !== "FEE_APPROVED_BY_ADMIN" && (
+                          <div className="relative flex justify-end">
+                            <EllipsisVertical
+                              onClick={() => handleAction(data.id)}
+                              className="cursor-pointer text-[#8C8C8C]"
+                            />
+                            {action && selectedFee === data.id && (
+                              <div className="absolute right-0 top-6 w-[130px] bg-white border shadow-lg rounded-md overflow-hidden">
+                                <button
+                                  disabled={approvalLoading}
+                                  onClick={() => handleApprove(selectedFee)}
+                                  className="block w-full text-left text-xs px-3 py-2 hover:bg-green-100">
+                                  {approvalLoading
+                                    ? "Processing..."
+                                    : "Approve fee"}
+                                </button>
+                                <button
+                                  disabled={rejectLoading}
+                                  onClick={() => handleReject(selectedFee)}
+                                  className="block w-full text-left text-xs px-3 py-2 hover:bg-red-100">
+                                  {rejectLoading
+                                    ? "Processing..."
+                                    : "Reject fee"}
+                                </button>
+
+                                {approvalError && (
+                                  <p className="text-red-500 text-xs text-center">
+                                    Error occured
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
