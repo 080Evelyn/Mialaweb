@@ -31,7 +31,6 @@ export const approveProposalFee = createAsyncThunk(
           },
         }
       );
-
       const data = await response.json();
       // console.log(data);
 
@@ -71,7 +70,6 @@ export const rejectProposalFee = createAsyncThunk(
           },
         }
       );
-
       const data = await response.json();
       // console.log(data);
       if (!response.ok) {

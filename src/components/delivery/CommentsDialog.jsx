@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { BASE_URL } from "@/lib/Api";
 import { RotateCcw } from "lucide-react";
 
 const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
+  const chatRef = useRef(null);
   const userRole = useSelector((state) => state.auth.user.userRole);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -113,6 +114,14 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
       console.error("Failed to refresh comments silently", error);
     }
   };
+  const scrollToBottom = () => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [comments]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -124,7 +133,9 @@ const CommentsDialog = ({ open, onClose, deliveryId, token, receiverId }) => {
         </DialogHeader>
 
         {/* Chat area */}
-        <div className="flex-1 overflow-y-auto border rounded-md p-3 bg-gray-50 space-y-3">
+        <div
+          ref={chatRef}
+          className="flex-1 overflow-y-auto border rounded-md p-3 bg-gray-50 space-y-3">
           {loading ? (
             <p className="text-center text-sm text-gray-500">Loading...</p>
           ) : comments.length === 0 ? (
