@@ -1,4 +1,4 @@
-import { ArrowUpRight, BaggageClaimIcon, MessageCircle } from "lucide-react";
+import { ArrowUpRight, BaggageClaimIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
 import { products } from "@/config";
