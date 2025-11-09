@@ -332,7 +332,12 @@ const FeesSidebar = () => {
                                     item.deliveryStatus === "DELIVERED"
                                       ? "text-green-500"
                                       : item.deliveryStatus === "CANCELLED" ||
-                                        item.deliveryStatus === "NOT_REACHABLE"
+                                        item.deliveryStatus ===
+                                          "NOT_REACHABLE" ||
+                                        item.deliveryStatus ===
+                                          "FEE_REJECTED" ||
+                                        item.deliveryStatus ===
+                                          "FAILED_DELIVERY"
                                       ? "text-red-500"
                                       : "text-yellow-400"
                                   }`}>

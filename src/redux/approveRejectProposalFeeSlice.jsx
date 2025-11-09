@@ -7,21 +7,20 @@ export const approveProposalFee = createAsyncThunk(
   async ({ token, userRole, id, adminId }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/approve-fee/${adminId}/${id}?approved=true`
-          : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/approve-fee/${adminId}/${id}?approved=true`
-          : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/approve-fee/${adminId}/${id}?approved=true`
-          : `${BASE_URL}api/v1/accountant/approve-fee/${adminId}/${id}?approved=true`,
-
         // userRole === "Admin"
-        // ? `${BASE_URL}api/v1/admin/delivery-view-summaries?${params}`
-        // : userRole === "CustomerCare"
-        // ? `${BASE_URL}api/v1/customercare/delivery-view-summaries?${params}`
-        // : userRole === "Manager"
-        // ? `${BASE_URL}api/v1/manager/delivery-view-summaries?${params}`
-        // : `${BASE_URL}api/v1/accountant/delivery-view-summaries?${params}`
+        //   ? `${BASE_URL}api/v1/admin/approve-fee/${adminId}/${id}?approved=true`
+        //   : userRole === "CustomerCare"
+        //   ? `${BASE_URL}api/v1/customercare/approve-fee/${adminId}/${id}?approved=true`
+        //   : userRole === "Manager"
+        //   ? `${BASE_URL}api/v1/manager/approve-fee/${adminId}/${id}?approved=true`
+        //   : `${BASE_URL}api/v1/accountant/approve-fee/${adminId}/${id}?approved=true`,
+        userRole === "Admin"
+          ? `${BASE_URL}api/v1/admin/approve-fee/${adminId}/${id}`
+          : userRole === "CustomerCare"
+          ? `${BASE_URL}api/v1/customercare/approve-fee/${adminId}/${id}`
+          : userRole === "Manager"
+          ? `${BASE_URL}api/v1/manager/approve-fee/${adminId}/${id}`
+          : `${BASE_URL}api/v1/accountant/approve-fee/${adminId}/${id}`,
         {
           method: "POST",
           headers: {
@@ -53,13 +52,21 @@ export const rejectProposalFee = createAsyncThunk(
   async ({ token, userRole, id, adminId }, { rejectWithValue }) => {
     try {
       const response = await fetch(
+        // userRole === "Admin"
+        //   ? `${BASE_URL}api/v1/admin/approve-fee/${adminId}/${id}?approved=false`
+        //   : userRole === "CustomerCare"
+        //   ? `${BASE_URL}api/v1/customercare/approve-fee/${adminId}/${id}?approved=false`
+        //   : userRole === "Manager"
+        //   ? `${BASE_URL}api/v1/manager/approve-fee/${adminId}/${id}?approved=false`
+        //   : `${BASE_URL}api/v1/accountant/approve-fee/${adminId}/${id}?approved=false`,
+
         userRole === "Admin"
-          ? `${BASE_URL}api/v1/admin/approve-fee/${adminId}/${id}?approved=false`
+          ? `${BASE_URL}api/v1/admin/reject-fee/${adminId}/${id}`
           : userRole === "CustomerCare"
-          ? `${BASE_URL}api/v1/customercare/approve-fee/${adminId}/${id}?approved=false`
+          ? `${BASE_URL}api/v1/customercare/reject-fee/${adminId}/${id}`
           : userRole === "Manager"
-          ? `${BASE_URL}api/v1/manager/approve-fee/${adminId}/${id}?approved=false`
-          : `${BASE_URL}api/v1/accountant/approve-fee/${adminId}/${id}?approved=false`,
+          ? `${BASE_URL}api/v1/manager/reject-fee/${adminId}/${id}`
+          : `${BASE_URL}api/v1/accountant/reject-fee/${adminId}/${id}`,
 
         {
           method: "POST",
