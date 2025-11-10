@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // Async thunks to fetch transactions
 export const fetchDeliveriesByState = createAsyncThunk(
   "deliveriesByState/fetchDeliveriesByState",
-  async ({ token, userRole }, { rejectWithValue }) => {
+  async ({ token, userRole, navigate }, { rejectWithValue }) => {
     try {
       const response = await fetch(
         userRole === "Admin"
@@ -24,7 +24,9 @@ export const fetchDeliveriesByState = createAsyncThunk(
           },
         }
       );
-
+      if (response.status === 401 && navigate) {
+        navigate("/login");
+      }
       if (!response.ok) throw new Error("Failed to fetch deliveries by state");
       const data = await response.json();
 

@@ -28,9 +28,11 @@ import CommentsDialog from "../delivery/CommentsDialog";
 
 import { BASE_URL } from "@/lib/Api";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 const ProposedFee = () => {
   // Track open modal state
+  const navigate = useNavigate();
   const userId = useSelector((state) => state.auth.user.userId);
   const [action, setAction] = useState(false);
   const [copiedCode, setCopiedCode] = useState(null);
@@ -192,7 +194,7 @@ const ProposedFee = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchAllRiders({ token, userRole }));
+    dispatch(fetchAllRiders({ token, userRole, navigate }));
 
     dispatch(fetchProposedOrders({ token, userRole }));
     dispatch(clearFilters());

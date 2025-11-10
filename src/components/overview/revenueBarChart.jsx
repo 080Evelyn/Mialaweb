@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useNavigate } from "react-router";
 
 const colors = [
   "#9F9FF8",
@@ -29,6 +30,7 @@ const colors = [
 ];
 
 const RevenueBarChart = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user.userRole);
@@ -37,7 +39,7 @@ const RevenueBarChart = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchDeliveriesByState({ token, userRole }));
+    dispatch(fetchDeliveriesByState({ token, userRole, navigate }));
   }, [dispatch, token, userRole]);
 
   //  Transform backend data to recharts format

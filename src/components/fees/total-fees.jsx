@@ -17,7 +17,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import Avatar from "../../assets/icons/avatar.svg";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchAllPayment } from "@/redux/allCustomerPaymentSlice";
@@ -29,6 +29,7 @@ import { BASE_URL } from "@/lib/Api";
 import SuccessModal from "../common/SuccessModal";
 
 const TotalFeesTable = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [copiedCode, setCopiedCode] = useState(null);
   const token = useSelector((state) => state.auth.token);
@@ -123,7 +124,7 @@ const TotalFeesTable = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchAllPayment({ token, userRole }));
+    dispatch(fetchAllPayment({ token, userRole, navigate }));
   }, [dispatch, token, userRole]);
 
   function formatDateArray(dateArray) {

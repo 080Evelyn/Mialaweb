@@ -23,8 +23,10 @@ import { fetchDelivery, setMultiCall } from "@/redux/deliverySlice";
 import SuccessModal from "../common/SuccessModal";
 import { setRestricted } from "@/redux/restrictionSlice";
 import RestrictionModal from "../common/RestrictionModal";
+import { useNavigate } from "react-router";
 
 const ReassignDeliveryDialog = ({ id, openDialog, setOpenDialog, index }) => {
+  const navigate = useNavigate();
   const adminId = useSelector((state) => state.auth.user.userId);
   const [isLoading, setIsLoading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
@@ -100,7 +102,7 @@ const ReassignDeliveryDialog = ({ id, openDialog, setOpenDialog, index }) => {
         }
       );
       if (response.status === 200) {
-        dispatch(fetchDelivery({ token, userRole }));
+        dispatch(fetchDelivery({ token, userRole, navigate }));
         dispatch(setMultiCall());
         setSuccessMessage("Delivery Reassigned Successfully!");
         setSuccessModalOpen(true);

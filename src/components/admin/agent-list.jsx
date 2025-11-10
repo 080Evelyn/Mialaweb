@@ -40,8 +40,10 @@ import { fetchBankList } from "@/redux/bankListSlice";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
 import WarningModal from "../common/WarningModal";
+import { useNavigate } from "react-router";
 
 const AdminAgentList = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [dloading, setDloading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
@@ -80,7 +82,7 @@ const AdminAgentList = () => {
   );
   // console.log(filteredBank);
   useEffect(() => {
-    dispatch(fetchAllRiders({ token, userRole }));
+    dispatch(fetchAllRiders({ token, userRole, navigate }));
     if (success) {
       return;
     } else {
@@ -116,7 +118,7 @@ const AdminAgentList = () => {
       );
 
       if (response.data.responseCode === "00") {
-        dispatch(fetchAllRiders({ token, userRole }));
+        dispatch(fetchAllRiders({ token, userRole, navigate }));
         setSuccessMessage(response.data.data);
         setSuccessModalOpen(true);
         setTimeout(() => {
@@ -165,7 +167,7 @@ const AdminAgentList = () => {
       );
 
       if (response.data.responseCode === "00") {
-        dispatch(fetchAllRiders({ token, userRole }));
+        dispatch(fetchAllRiders({ token, userRole,navigate }));
         setSuccessMessage(response.data.data);
         setSuccessModalOpen(true);
         setTimeout(() => {

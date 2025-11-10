@@ -19,8 +19,10 @@ import { BASE_URL } from "@/lib/Api";
 import { fetchAllRiders } from "@/redux/allRiderSlice";
 import RestrictionModal from "../common/RestrictionModal";
 import { setRestricted } from "@/redux/restrictionSlice";
+import { useNavigate } from "react-router";
 
 const AdminAgentSidebar = () => {
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -73,7 +75,7 @@ const AdminAgentSidebar = () => {
         }
       );
 
-      dispatch(fetchAllRiders({ token, userRole }));
+      dispatch(fetchAllRiders({ token, userRole, navigate }));
       dispatch(fetchPendingRiders({ token, userRole }));
       setSuccessModalOpen(true);
       setSuccessMessage("Agent Approved!");

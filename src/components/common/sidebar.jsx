@@ -19,6 +19,8 @@ import { resetPayment } from "@/redux/allCustomerPaymentSlice";
 import { BarChart3, FileText, LogOut, Power, TrendingUp } from "lucide-react";
 import { resetStats } from "@/redux/statSlice";
 import { resetSummary } from "@/redux/orderSummarySlice";
+import { resetRequest } from "@/redux/requestSlice";
+import { resetRevenue } from "@/redux/revenueSlice";
 
 function MenuItems({ setOpen }) {
   const navigate = useNavigate();
@@ -125,6 +127,8 @@ function MenuItems({ setOpen }) {
     dispatch(resetPayment());
     dispatch(resetStats());
     dispatch(resetSummary());
+    dispatch(resetRequest());
+    dispatch(resetRevenue());
     navigate("/");
   };
   return (
