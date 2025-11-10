@@ -33,6 +33,7 @@ import ReassignDeliveryDialog from "../proposedFee/ReassignDeliveryDialog";
 import CommentsDialog from "./CommentsDialog";
 import axios from "axios";
 import { BASE_URL } from "@/lib/Api";
+import { useNavigate } from "react-router";
 
 const initialFormState = {
   products: [
@@ -65,6 +66,7 @@ const initialFormState = {
 };
 
 const DeliveryList = () => {
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState("");
   const [selectedDeliveryId, setSelectedDeliveryId] = useState(null);
@@ -249,8 +251,8 @@ const DeliveryList = () => {
     return searchMatch && agentMatch && statusMatch && dateMatch;
   });
   useEffect(() => {
-    dispatch(fetchAllRiders({ token, userRole }));
-    dispatch(fetchDelivery({ token, userRole, page }));
+    dispatch(fetchAllRiders({ token, userRole, navigate }));
+    dispatch(fetchDelivery({ token, userRole, page,navigate }));
   }, [dispatch, token, userRole, page]);
   useEffect(() => {
     dispatch(clearFilters());

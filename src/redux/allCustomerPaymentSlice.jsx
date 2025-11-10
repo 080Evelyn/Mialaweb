@@ -5,7 +5,7 @@ import axios from "axios";
 // Async thunks to fetch transactions
 export const fetchAllPayment = createAsyncThunk(
   "payment/fetchAllPayment",
-  async ({ token, userRole }, { rejectWithValue }) => {
+  async ({ token, userRole, navigate }, { rejectWithValue }) => {
     try {
       const response = await axios.get(
         userRole === "Admin"
@@ -23,7 +23,9 @@ export const fetchAllPayment = createAsyncThunk(
           },
         }
       );
-
+      if (response.status === 401 && navigate) {
+        navigate("/login");
+      }
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data.responseDesc);

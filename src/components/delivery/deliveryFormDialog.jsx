@@ -19,6 +19,7 @@ import { NIGERIAN_STATES } from "@/config/stateData";
 import { fetchProducts } from "@/redux/productSlice";
 import { Loader2 } from "lucide-react";
 import { fetchStats } from "@/redux/statSlice";
+import { useNavigate } from "react-router";
 
 const DeliveryFormDialog = ({
   dialogOpen,
@@ -32,6 +33,7 @@ const DeliveryFormDialog = ({
   totalFinalPrice,
   setTotalFinalPrice,
 }) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
@@ -329,7 +331,7 @@ const DeliveryFormDialog = ({
       );
 
       if (response.data.responseCode === "00") {
-        dispatch(fetchDelivery({ token, userRole }));
+        dispatch(fetchDelivery({ token, userRole, navigate }));
         dispatch(fetchStats({ token, userRole }));
         setSuccessMessage("Delivery Assigned Successfully!");
         setSuccessModalOpen(true);
@@ -453,7 +455,7 @@ const DeliveryFormDialog = ({
         }
       );
       if (response.data.responseMsg === "Success") {
-        dispatch(fetchDelivery({ token, userRole }));
+        dispatch(fetchDelivery({ token, userRole,navigate }));
         dispatch(fetchStats({ token, userRole }));
         dispatch(setMultiCall());
         setSuccessMessage("Delivery Edited Successfully!");

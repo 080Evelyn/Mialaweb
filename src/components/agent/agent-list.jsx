@@ -31,8 +31,10 @@ import { fetchBankList } from "@/redux/bankListSlice";
 import { fetchRiders } from "@/redux/riderSlice";
 import { setRestricted } from "@/redux/restrictionSlice";
 import RestrictionModal from "../common/RestrictionModal";
+import { useNavigate } from "react-router";
 
 const AgentList = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [erorMessage, setErrorMessage] = useState("");
@@ -56,7 +58,7 @@ const AgentList = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchAllRiders({ token, userRole }));
+    dispatch(fetchAllRiders({ token, userRole, navigate }));
     if (success) {
       return;
     } else {

@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const fetchDelivery = createAsyncThunk(
   "delivery/fetchDelivery",
   async (
-    { token, userRole, page = 0, size = 50 },
+    { token, userRole, navigate, page = 0, size = 50 },
     { rejectWithValue, getState }
   ) => {
     try {
@@ -46,7 +46,9 @@ export const fetchDelivery = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-
+      if (response.status === 401 && navigate) {
+        navigate("/login");
+      }
       if (!response.ok) throw new Error("Failed to fetch deliveries");
 
       const data = await response.json();
