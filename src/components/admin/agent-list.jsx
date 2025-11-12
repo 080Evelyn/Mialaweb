@@ -167,7 +167,7 @@ const AdminAgentList = () => {
       );
 
       if (response.data.responseCode === "00") {
-        dispatch(fetchAllRiders({ token, userRole,navigate }));
+        dispatch(fetchAllRiders({ token, userRole, navigate }));
         setSuccessMessage(response.data.data);
         setSuccessModalOpen(true);
         setTimeout(() => {
@@ -369,7 +369,7 @@ const AdminAgentList = () => {
                         <TableCell className={""}>
                           <div className="flex items-center gap-2 mr-5">
                             <img
-                              src={Avatar}
+                              src={data.profileImageUrl || Avatar}
                               alt="avatar"
                               className="h-6 w-6 rounded-full"
                             />
@@ -397,85 +397,159 @@ const AdminAgentList = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-3 justify-center">
+                            {/* details dialog */}
                             <Dialog>
-                              <DialogTrigger
-                                onClick={() => {
-                                  handleBankSelection(data);
-                                }}
-                                asChild>
-                                <button className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center">
-                                  <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-500 transition-colors" />
+                              <DialogTrigger asChild>
+                                <button
+                                  onClick={() => handleBankSelection(data)}
+                                  className="h-6.5 w-6.5 p-0.5 rounded-sm cursor-pointer flex items-center justify-center hover:bg-gray-100 transition-all">
+                                  <ArrowRightCircle className="h-6 w-6 text-[#D9D9D9] hover:text-gray-600 transition-colors" />
                                 </button>
                               </DialogTrigger>
-                              <DialogContent className="sm:max-w-[362px]">
-                                <DialogHeader>
-                                  <DialogTitle className="text-[#B10303] text-left">
-                                    Details
-                                  </DialogTitle>
-                                </DialogHeader>
-                                <div className="flex flex-col gap-3 py-0.5">
-                                  <div className="flex justify-between items-center">
-                                    <Label className="text-xs">
-                                      Agent Name
-                                    </Label>
-                                    <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                      {`${data.first_name} ${data.last_name}`}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <Label className="text-xs">Email</Label>
-                                    <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                      {data.email}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <Label className="text-xs">Phone</Label>
-                                    <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                      {data.phone}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <Label className="text-xs">State</Label>
-                                    <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                      {data.state}
-                                    </span>
-                                  </div>
 
-                                  <div className="flex justify-between items-center">
-                                    <Label className="text-xs">
-                                      Total Assigned Deliveries
-                                    </Label>
-                                    <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                      {data.totalDeliveries}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex justify-between items-center">
-                                    <Label className="text-xs">
-                                      Account Number
-                                    </Label>
-                                    <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                      {data.accountNumber}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <Label className="text-xs">Bank</Label>
-                                    <span className="text-sm text-right text-[10px] text-[#8C8C8C] font-[Raleway]">
-                                      {filteredBank}
-                                    </span>
+                              <DialogContent className="sm:max-w-[400px] bg-white rounded-xl p-0 overflow-hidden h-[600px] overflow-y-scroll">
+                                {/* Header */}
+                                <div className="bg-[#B10303] text-white px-6 py-4 flex items-center gap-4">
+                                  <img
+                                    src={data.profileImageUrl || Avatar}
+                                    alt="Rider Avatar"
+                                    className="w-14 h-14 rounded-full border-2 border-white object-cover"
+                                  />
+                                  <div>
+                                    <h2 className="font-semibold text-lg">
+                                      {data.first_name} {data.last_name}
+                                    </h2>
+                                    <p className="text-sm opacity-80">
+                                      {data.userRole}
+                                    </p>
                                   </div>
                                 </div>
 
-                                <div className="flex justify-center gap-2 ">
-                                  <DialogClose
-                                    type="submit"
-                                    className="bg-[#B10303] hover:bg-[#B10303]/80 curosor-pointer text-white w-1/2 text-sm rounded-[3px] h-9">
+                                {/* Body */}
+                                <div className="p-5 space-y-5 font-[Raleway]">
+                                  {/* Contact Info */}
+                                  <section className="space-y-3">
+                                    <h3 className="text-sm font-semibold text-gray-800 uppercase">
+                                      Contact Information
+                                    </h3>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">Email</Label>
+                                      <span className="text-[11px] text-right">
+                                        {data.email}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">Phone</Label>
+                                      <span className="text-[11px] text-right">
+                                        {data.phone}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">State</Label>
+                                      <span className="text-[11px] text-right">
+                                        {data.state}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">Country</Label>
+                                      <span className="text-[11px] text-right">
+                                        {data.country}
+                                      </span>
+                                    </div>
+                                  </section>
+
+                                  {/* Bank Details */}
+                                  <section className="space-y-3">
+                                    <h3 className="text-sm font-semibold text-gray-800 uppercase">
+                                      Bank Details
+                                    </h3>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">
+                                        Account Name
+                                      </Label>
+                                      <span className="text-[11px] text-right truncate max-w-[150px]">
+                                        {data.accountName}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">
+                                        Account Number
+                                      </Label>
+                                      <span className="text-[11px] text-right">
+                                        {data.accountNumber}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">
+                                        Bank Name
+                                      </Label>
+                                      <span className="text-[11px] text-right truncate max-w-[150px]">
+                                        {data.bankName}
+                                      </span>
+                                    </div>
+                                  </section>
+
+                                  {/* Performance */}
+                                  <section className="space-y-3">
+                                    <h3 className="text-sm font-semibold text-gray-800 uppercase">
+                                      Performance
+                                    </h3>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">
+                                        Total Deliveries
+                                      </Label>
+                                      <span className="text-[11px] text-right">
+                                        {data.totalDeliveries}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">
+                                        Delivered
+                                      </Label>
+                                      <span className="text-[11px] text-green-600 font-medium">
+                                        {data.deliveredCount}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">Pending</Label>
+                                      <span className="text-[11px] text-yellow-600 font-medium">
+                                        {data.pendingCount}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                      <Label className="text-xs">Status</Label>
+                                      <span
+                                        className={`text-[11px] font-medium ${
+                                          data.approvalStatus === "ACTIVATE" ||
+                                          data.approvalStatus === "APPROVED"
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                        }`}>
+                                        {data.approvalStatus}
+                                      </span>
+                                    </div>
+                                  </section>
+                                </div>
+
+                                {/* Footer */}
+                                <div className="bg-gray-50 px-6 py-4 flex justify-center">
+                                  <DialogClose className="bg-[#B10303] hover:bg-[#B10303]/90 text-white w-full text-sm rounded-md h-9 transition-colors">
                                     Done
                                   </DialogClose>
                                 </div>
                               </DialogContent>
                             </Dialog>
-
                             {/* Delete Dialog */}
                             <Dialog>
                               <DialogTrigger asChild>
