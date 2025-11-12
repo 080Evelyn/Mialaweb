@@ -413,7 +413,7 @@ const AdminAgentList = () => {
                                   <img
                                     src={data.profileImageUrl || Avatar}
                                     alt="Rider Avatar"
-                                    className="w-14 h-14 rounded-full border-2 border-white object-cover"
+                                    className="w-25 h-25 rounded-full border-2 border-white object-cover"
                                   />
                                   <div>
                                     <h2 className="font-semibold text-lg">
